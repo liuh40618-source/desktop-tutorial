@@ -1,0 +1,287 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "note": "岗位库。core 中 w 为权重：3=硬门槛（缺了基本过不了初筛）、2=重要、1=加分。薪资区间来自公开招聘平台常见报价，非精确统计，仅作量级参考，实际以具体 JD 为准。",
+    "salaryNote": "数据来源：公开招聘平台（BOSS 直聘 / 拉勾 / 实习僧）2025 年常见报价，城市量级参考新一线。不同城市、公司、学历差异很大，请以目标岗位实际 JD 为准。"
+  },
+  "tracks": [
+    { "id": "ai", "name": "AI 应用" },
+    { "id": "data", "name": "数据" },
+    { "id": "algorithm", "name": "算法" },
+    { "id": "frontend", "name": "前端" },
+    { "id": "backend", "name": "后端" },
+    { "id": "qa", "name": "测试" },
+    { "id": "product", "name": "产品" },
+    { "id": "operation", "name": "运营" }
+  ],
+  "jobs": [
+    {
+      "id": "ai-pm", "title": "AI 产品经理（应用方向）", "track": "ai",
+      "summary": "把大模型能力落到具体业务里：定义场景、设计交互、评估效果、推动上线。",
+      "core": [
+        { "s": "llm-theory", "w": 3 }, { "s": "prompt-eng", "w": 3 }, { "s": "prd", "w": 3 },
+        { "s": "user-research", "w": 2 }, { "s": "data-driven", "w": 2 }, { "s": "llm-api", "w": 2 }
+      ],
+      "plus": ["agent-dev", "rag", "sql", "project-mgmt", "business-sense"],
+      "threshold": "校招普遍要求有 AI 相关落地项目或实习；只有想法没有跑通过的产品很难过初筛。",
+      "salary": { "intern": "150–250 元/天", "junior": "10–18K/月" },
+      "certs": ["无硬性证书要求，作品与项目经历更重要"],
+      "growth": "AI 应用 PM → 资深 AI PM → AI 业务负责人"
+    },
+    {
+      "id": "ai-app-dev", "title": "AI 应用开发工程师", "track": "ai",
+      "summary": "用大模型 API / Agent 框架把业务需求做成能跑的服务，不是训练模型。",
+      "core": [
+        { "s": "python", "w": 3 }, { "s": "llm-api", "w": 3 }, { "s": "prompt-eng", "w": 3 },
+        { "s": "agent-dev", "w": 3 }, { "s": "rag", "w": 2 }, { "s": "git", "w": 2 }, { "s": "api-design", "w": 2 }
+      ],
+      "plus": ["sql", "docker", "fe-build", "llm-theory"],
+      "threshold": "要求能独立完成一个可演示的 Agent / RAG 应用，能说清为什么这么设计。",
+      "salary": { "intern": "180–300 元/天", "junior": "12–20K/月" },
+      "certs": ["阿里云/腾讯云 AI 相关认证（加分非必需）"],
+      "growth": "AI 应用开发 → AI 架构 / AI 平台工程"
+    },
+    {
+      "id": "ai-content-ops", "title": "AIGC 内容运营", "track": "ai",
+      "summary": "用 AI 工具批量生产内容，同时把住质量关，跑通选题—生成—分发—复盘的闭环。",
+      "core": [
+        { "s": "content-plan", "w": 3 }, { "s": "prompt-eng", "w": 3 }, { "s": "data-driven", "w": 2 },
+        { "s": "short-video", "w": 2 }, { "s": "llm-theory", "w": 2 }
+      ],
+      "plus": ["growth", "community", "prototype", "doc-writing"],
+      "threshold": "要能拿出账号数据或作品集，仅会用工具不够，需要证明内容确实跑出过结果。",
+      "salary": { "intern": "100–180 元/天", "junior": "6–12K/月" },
+      "certs": ["无硬性要求"],
+      "growth": "AIGC 运营 → 内容负责人 → 品牌/增长负责人"
+    },
+
+    {
+      "id": "data-analyst", "title": "数据分析师（业务方向）", "track": "data",
+      "summary": "从数据里回答业务问题：为什么跌了、哪个渠道好、下一步该做什么。",
+      "core": [
+        { "s": "sql", "w": 3 }, { "s": "excel", "w": 3 }, { "s": "data-viz", "w": 3 },
+        { "s": "stats", "w": 2 }, { "s": "metric-system", "w": 2 }, { "s": "data-clean", "w": 2 },
+        { "s": "structured-expression", "w": 2 }
+      ],
+      "plus": ["python", "pandas", "ab-test", "business-sense", "bi-tools"],
+      "threshold": "SQL 熟练是硬门槛；面试常现场出题，需要能独立写多表关联与窗口函数。",
+      "salary": { "intern": "120–200 元/天", "junior": "8–15K/月" },
+      "certs": ["CDA 数据分析师（加分）", "计算机二级"],
+      "growth": "数据分析师 → 高级分析师 → 数据负责人 / 转业务负责人"
+    },
+    {
+      "id": "bi-engineer", "title": "BI 工程师", "track": "data",
+      "summary": "搭指标体系、做报表看板，让业务方随时能看到可信的数字。",
+      "core": [
+        { "s": "sql", "w": 3 }, { "s": "bi-tools", "w": 3 }, { "s": "warehouse", "w": 2 },
+        { "s": "data-viz", "w": 2 }, { "s": "etl", "w": 2 }, { "s": "metric-system", "w": 2 }
+      ],
+      "plus": ["python", "pandas", "db-design", "business-sense"],
+      "threshold": "要能独立交付一套看板并说清口径；只会拖拽工具不够，需要懂底层数据。",
+      "salary": { "intern": "130–200 元/天", "junior": "9–16K/月" },
+      "certs": ["帆软/Tableau 官方认证（加分）"],
+      "growth": "BI 工程师 → 数据平台 / 数据产品经理"
+    },
+    {
+      "id": "data-engineer", "title": "数据开发工程师（离线）", "track": "data",
+      "summary": "建数仓、写 ETL、做调度，把原始数据加工成可信可用的表。",
+      "core": [
+        { "s": "sql", "w": 3 }, { "s": "python", "w": 3 }, { "s": "warehouse", "w": 3 },
+        { "s": "etl", "w": 3 }, { "s": "spark", "w": 2 }, { "s": "linux", "w": 2 }
+      ],
+      "plus": ["java", "flink", "db-design", "testing"],
+      "threshold": "工程属性强，需要懂 SQL 优化与任务调优，招聘看重的常是项目规模而非工具熟练度。",
+      "salary": { "intern": "150–250 元/天", "junior": "12–20K/月" },
+      "certs": ["软考软件设计师（加分）", "阿里云大数据认证（加分）"],
+      "growth": "数据开发 → 数据平台工程师 → 数据架构师"
+    },
+    {
+      "id": "realtime-engineer", "title": "实时数据开发工程师", "track": "data",
+      "summary": "做秒级/分钟级的数据链路，支撑实时看板、风控、推荐等场景。",
+      "core": [
+        { "s": "flink", "w": 3 }, { "s": "spark", "w": 3 }, { "s": "sql", "w": 3 },
+        { "s": "python", "w": 2 }, { "s": "linux", "w": 2 }, { "s": "warehouse", "w": 2 }
+      ],
+      "plus": ["mq", "docker", "etl"],
+      "threshold": "门槛在数据开发里偏高，通常要求先有离线数仓经验再转实时。",
+      "salary": { "intern": "180–280 元/天", "junior": "15–25K/月" },
+      "certs": ["阿里云/腾讯云大数据认证（加分）"],
+      "growth": "实时开发 → 数据平台负责人"
+    },
+
+    {
+      "id": "algo-ml", "title": "机器学习工程师（应用算法）", "track": "algorithm",
+      "summary": "用成熟模型解决业务问题：推荐、风控、预测，重点是特征与效果。",
+      "core": [
+        { "s": "python", "w": 3 }, { "s": "ml-basics", "w": 3 }, { "s": "feature-eng", "w": 3 },
+        { "s": "stats", "w": 3 }, { "s": "model-eval", "w": 2 }, { "s": "sql", "w": 2 }
+      ],
+      "plus": ["spark", "algo-basic", "dl-framework", "business-sense"],
+      "threshold": "学历与竞赛权重高，双非需要靠真实项目或 Kaggle 名次补位。",
+      "salary": { "intern": "200–350 元/天", "junior": "15–28K/月" },
+      "certs": ["无硬性要求，竞赛/论文/项目是关键"],
+      "growth": "应用算法 → 资深算法 → 算法负责人"
+    },
+    {
+      "id": "algo-dl", "title": "大模型 / 深度学习算法工程师", "track": "algorithm",
+      "summary": "做预训练、微调、对齐与推理优化，是算法方向里门槛最高的一类。",
+      "core": [
+        { "s": "python", "w": 3 }, { "s": "dl-framework", "w": 3 }, { "s": "llm-theory", "w": 3 },
+        { "s": "ml-basics", "w": 3 }, { "s": "algo-basic", "w": 3 }, { "s": "linux", "w": 2 }
+      ],
+      "plus": ["rag", "tech-english", "model-eval"],
+      "threshold": "绝大多数岗位要求硕士及以上，本科需顶级竞赛或论文才有面试机会。",
+      "salary": { "intern": "300–500 元/天", "junior": "20–40K/月" },
+      "certs": ["无硬性要求"],
+      "growth": "算法工程师 → 研究员 / 技术专家"
+    },
+
+    {
+      "id": "fe-web", "title": "前端开发工程师（Web）", "track": "frontend",
+      "summary": "把设计稿变成可用的界面，并保证性能、兼容与可维护。",
+      "core": [
+        { "s": "html-css", "w": 3 }, { "s": "js", "w": 3 }, { "s": "spa-framework", "w": 3 },
+        { "s": "ts", "w": 2 }, { "s": "fe-build", "w": 2 }, { "s": "git", "w": 2 }
+      ],
+      "plus": ["node", "data-viz", "prototype"],
+      "threshold": "作品集权重高，一个能打开、能讲清实现细节的项目胜过一堆课程证书。",
+      "salary": { "intern": "120–200 元/天", "junior": "8–16K/月" },
+      "certs": ["无硬性要求，作品说话"],
+      "growth": "前端 → 全栈 / 前端架构 / 转产品"
+    },
+    {
+      "id": "fe-fullstack", "title": "全栈开发工程师", "track": "frontend",
+      "summary": "前后端都能写，独立交付一个完整产品，小团队与创业公司需求大。",
+      "core": [
+        { "s": "html-css", "w": 3 }, { "s": "js", "w": 3 }, { "s": "spa-framework", "w": 3 },
+        { "s": "node", "w": 3 }, { "s": "db-design", "w": 2 }, { "s": "api-design", "w": 2 }, { "s": "git", "w": 2 }
+      ],
+      "plus": ["docker", "ts", "python"],
+      "threshold": "要求能独立上线完整应用（含部署），面试常追问线上问题排查。",
+      "salary": { "intern": "150–250 元/天", "junior": "10–18K/月" },
+      "certs": ["无硬性要求"],
+      "growth": "全栈 → 技术负责人 / 独立开发"
+    },
+
+    {
+      "id": "be-java", "title": "Java 后端开发工程师", "track": "backend",
+      "summary": "写服务端业务逻辑与接口，是国内后端岗位数量最多的一条路。",
+      "core": [
+        { "s": "java", "w": 3 }, { "s": "spring", "w": 3 }, { "s": "db-design", "w": 3 },
+        { "s": "api-design", "w": 2 }, { "s": "redis", "w": 2 }, { "s": "git", "w": 2 }, { "s": "linux", "w": 2 }
+      ],
+      "plus": ["mq", "microservices", "docker", "testing"],
+      "threshold": "八股与项目并重，需要能讲清 JVM、并发、事务与至少一个完整项目。",
+      "salary": { "intern": "150–250 元/天", "junior": "10–18K/月" },
+      "certs": ["软考软件设计师（加分）", "Oracle Java 认证（加分）"],
+      "growth": "后端 → 架构师 / 技术专家"
+    },
+    {
+      "id": "be-go", "title": "Go 后端开发工程师", "track": "backend",
+      "summary": "用 Go 写高并发服务与中间件，云原生与基础设施方向偏好。",
+      "core": [
+        { "s": "golang", "w": 3 }, { "s": "db-design", "w": 3 }, { "s": "api-design", "w": 2 },
+        { "s": "linux", "w": 2 }, { "s": "redis", "w": 2 }, { "s": "git", "w": 2 }, { "s": "microservices", "w": 2 }
+      ],
+      "plus": ["docker", "mq", "testing"],
+      "threshold": "岗位数少于 Java 但竞争者更少，通常要求先有一门服务端语言的底子。",
+      "salary": { "intern": "160–260 元/天", "junior": "12–20K/月" },
+      "certs": ["云原生相关认证（加分）"],
+      "growth": "Go 后端 → 基础架构 / 云原生工程师"
+    },
+    {
+      "id": "be-python", "title": "Python 后端开发工程师", "track": "backend",
+      "summary": "用 Python 写业务服务与数据处理链路，AI 公司里需求增长明显。",
+      "core": [
+        { "s": "python", "w": 3 }, { "s": "api-design", "w": 3 }, { "s": "db-design", "w": 2 },
+        { "s": "linux", "w": 2 }, { "s": "git", "w": 2 }, { "s": "docker", "w": 2 }, { "s": "testing", "w": 2 }
+      ],
+      "plus": ["redis", "mq", "sql", "llm-api"],
+      "threshold": "框架熟练之外，常考数据处理与并发模型，AI 公司会额外看大模型集成经验。",
+      "salary": { "intern": "150–250 元/天", "junior": "10–18K/月" },
+      "certs": ["无硬性要求"],
+      "growth": "Python 后端 → 服务端架构 / AI 平台工程"
+    },
+
+    {
+      "id": "qa-auto", "title": "测试开发工程师", "track": "qa",
+      "summary": "写自动化用例与测试平台，把质量保障做成工程能力。",
+      "core": [
+        { "s": "python", "w": 3 }, { "s": "testing", "w": 3 }, { "s": "sql", "w": 2 },
+        { "s": "linux", "w": 2 }, { "s": "api-design", "w": 2 }, { "s": "git", "w": 2 }
+      ],
+      "plus": ["docker", "java", "doc-writing"],
+      "threshold": "编码要求低于开发岗，但必须能独立搭一套自动化框架，是转开发的常见跳板。",
+      "salary": { "intern": "120–180 元/天", "junior": "8–14K/月" },
+      "certs": ["ISTQB（加分）", "软考软件评测师（加分）"],
+      "growth": "测试开发 → 质量架构 / 转后端开发"
+    },
+
+    {
+      "id": "pm-b", "title": "产品经理（B 端 / SaaS）", "track": "product",
+      "summary": "梳理业务流程、定义系统功能，把行业 know-how 变成可用的产品。",
+      "core": [
+        { "s": "prd", "w": 3 }, { "s": "user-research", "w": 3 }, { "s": "project-mgmt", "w": 3 },
+        { "s": "prototype", "w": 2 }, { "s": "data-driven", "w": 2 }, { "s": "business-sense", "w": 2 }
+      ],
+      "plus": ["sql", "structured-expression", "api-design"],
+      "threshold": "校招竞争极大，需要实习经历或完整的产品分析作品来证明判断力。",
+      "salary": { "intern": "120–200 元/天", "junior": "8–15K/月" },
+      "certs": ["NPDP / PMP（工作后更常见，校招加分有限）"],
+      "growth": "B 端产品 → 产品负责人 / 行业解决方案"
+    },
+    {
+      "id": "pm-c", "title": "产品经理（C 端 / 增长）", "track": "product",
+      "summary": "围绕增长指标做功能迭代，靠数据与实验驱动决策。",
+      "core": [
+        { "s": "prd", "w": 3 }, { "s": "data-driven", "w": 3 }, { "s": "user-research", "w": 2 },
+        { "s": "ab-test", "w": 2 }, { "s": "prototype", "w": 2 }, { "s": "growth", "w": 2 }
+      ],
+      "plus": ["sql", "structured-expression", "content-plan"],
+      "threshold": "看数据与实验思维，面试常问「你怎么判断这个功能该不该做」。",
+      "salary": { "intern": "120–200 元/天", "junior": "9–16K/月" },
+      "certs": ["无硬性要求"],
+      "growth": "C 端产品 → 增长负责人 / 独立业务负责人"
+    },
+
+    {
+      "id": "ops-content", "title": "内容运营", "track": "operation",
+      "summary": "选题、生产、分发、复盘，用内容把用户拉进来并留下来。",
+      "core": [
+        { "s": "content-plan", "w": 3 }, { "s": "doc-writing", "w": 2 }, { "s": "data-driven", "w": 2 },
+        { "s": "short-video", "w": 2 }, { "s": "community", "w": 1 }
+      ],
+      "plus": ["growth", "prototype", "business-sense"],
+      "threshold": "作品与数据说话：一个你自己做起来的账号，比任何证书都有说服力。",
+      "salary": { "intern": "100–160 元/天", "junior": "6–11K/月" },
+      "certs": ["无硬性要求"],
+      "growth": "内容运营 → 内容负责人 → 品牌负责人"
+    },
+    {
+      "id": "ops-user", "title": "用户 / 社群运营", "track": "operation",
+      "summary": "维护用户关系与社群活跃，把用户反馈转成产品与内容输入。",
+      "core": [
+        { "s": "community", "w": 3 }, { "s": "content-plan", "w": 2 }, { "s": "data-driven", "w": 2 },
+        { "s": "structured-expression", "w": 2 }, { "s": "project-mgmt", "w": 1 }
+      ],
+      "plus": ["growth", "user-research"],
+      "threshold": "看重实际沟通与执行，实习转化率高，是进入互联网相对容易的入口。",
+      "salary": { "intern": "100–160 元/天", "junior": "6–11K/月" },
+      "certs": ["无硬性要求"],
+      "growth": "用户运营 → 运营负责人 / 转产品"
+    },
+    {
+      "id": "ops-growth", "title": "增长运营", "track": "operation",
+      "summary": "围绕获客与转化做实验和投放，用 ROI 说话。",
+      "core": [
+        { "s": "growth", "w": 3 }, { "s": "data-driven", "w": 3 }, { "s": "ab-test", "w": 2 },
+        { "s": "content-plan", "w": 2 }, { "s": "sql", "w": 2 }
+      ],
+      "plus": ["business-sense", "project-mgmt"],
+      "threshold": "数据能力是分水岭，会 SQL 和实验设计的运营明显更吃香。",
+      "salary": { "intern": "120–180 元/天", "junior": "8–14K/月" },
+      "certs": ["无硬性要求"],
+      "growth": "增长运营 → 增长负责人 / 转产品经理"
+    }
+  ]
+}

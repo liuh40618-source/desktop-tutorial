@@ -39,3 +39,24 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local sqlite database (seeded from data/*.json at first run)
+career.db
+career.db-wal
+career.db-shm
+install.log
+
+# run logs
+.run.log
+*.log
+
+# AI 生成的临时调试产物
+_*.json
+
+# python
+__pycache__/
+*.py[cod]
+
+# 本地 AI 工具的工作目录（非项目源码）
+.workbuddy/
+.workbuddy-ai/

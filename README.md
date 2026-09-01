@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 职途 · career-navigator
 
-## Getting Started
+把你的技能，和岗位要求对齐。
 
-First, run the development server:
+不是一个"问 AI 我适合干什么"的聊天框。它内置了 20 个互联网岗位（8 个方向）的必备技能与权重，
+用你的技能画像逐条比对，算出覆盖率、缺口、补齐周期和学习顺序。每个数字都能拆开看。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 核心思路
+
+LLM 擅长生成，但生成职业规划时会编造 JD、编造薪资、编造课程链接，而且过程是黑盒。
+这个项目反着来：**结构与数据由本地知识库保证，算法全部可解释，不依赖任何大模型**。
+
+当前 TypeScript 版本**全程零 LLM、零外部 API**——`lib/db.ts` 里没有一个网络请求，
+`app/` 与 `lib/` 下也不存在任何调模型的代码。所有数字都由可复核的公式算出。
+
+## 五步流程
+
+| 步骤 | 做什么 |
+| --- | --- |
+| 01 我的画像 | 填背景 + 勾选 55 项技能（可从文字自动预识别，但**只预勾选、不静默判定**，用户可逐条改）+ 选方向 + 设每周投入时长 |
+| 02 方向定位 | 按 8 个方向聚合平均覆盖率，看自己离哪个领域最近 |
+| 03 岗位匹配 | 20 个岗位按匹配分排序，附覆盖率、缺口时长、补齐周期、薪资参考，以及**逐条计算依据** |
+| 04 技能差距 | 目标岗位的必备技能清单 + 相近岗位横向对比矩阵 |
+| 05 学习路径 | 按「权重 ÷ 耗时」排序，配平台搜索链接，可打卡；打卡后缺口与覆盖率实时重算 |
+
+## 算法（公开，可复核）
+
+```
+覆盖率   = Σ(已掌握技能的权重) / Σ(岗位必备技能权重)
+匹配分   = 覆盖率 × 75% + 加分项覆盖率 × 15% + 方向契合 × 10%
+方向契合 = 未勾选方向 → 1.0；勾选且命中 → 1.0；勾选但不命中 → 0.5
+补齐周期 = Σ(缺失技能预估时长) / 每周投入时长（默认 10 小时/周）
+学习顺序 = 按 权重 ÷ 预估耗时 降序（先补性价比高的）
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+技能权重：3 = 硬门槛（缺了基本过不了初筛）、2 = 重要、1 = 加分。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+每个岗位的结果都带一组 `reasons` 字符串，直接说明这个分是怎么来的——
+覆盖了几项、命中哪些硬门槛、缺哪几个关键项、加分项有没有、是不是因为方向没勾选被打了折。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+预估时长为零基础到能独立完成基本工作的经验估算，**不是精确值**，仅用于排序与节奏参考。
 
-## Learn More
+## 数据来源与边界
 
-To learn more about Next.js, take a look at the following resources:
+- 岗位技能要求、门槛、薪资区间：整理自公开招聘平台的常见描述，城市量级参考新一线。
+  不同城市/公司/学历差异很大，**请以目标岗位的实际 JD 为准**。数据版本写在 `data/*.json` 的 `_meta.version`。
+- 学习资源：只写资源名与平台，链接由 `lib/links.ts` 按「平台 + 关键词」拼成平台搜索链接。
+  不写死具体 URL——课程会下架、文档会改版，写死的链接必然腐烂。
+- 用户数据写在服务端 SQLite（`career.db`），**浏览器 localStorage 只作为接口异常时的兜底**。
+  当前是单用户本地场景（`user_profile` 固定一行 `key='local'`），没有账号体系、没有多端同步。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 运行
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm install
+npm run dev          # http://localhost:4000
+```
 
-## Deploy on Vercel
+**环境要求**：Node 22.5 以上（项目用 Node 内置的 `node:sqlite`，启动脚本带 `--experimental-sqlite`）。
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+首次启动会读 `data/*.json` 种子化 `career.db`，之后所有读取走数据库。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+因为用了 `node:sqlite` 和服务端 API Route（`/api/knowledge`、`/api/plans`、`/api/profile`），
+**当前版本不能纯静态部署**，需要一个 Node 运行时。
+
+## 目录
+
+```
+data/
+  skills.json     55 项技能：分类、别名（用于文本识别）、预估时长、学习资源
+  jobs.json       20 个岗位 / 8 个方向：必备技能及权重、加分项、门槛、薪资区间、发展路径
+lib/
+  db.ts           SQLite 数据层：建表、种子化、知识库读取、用户画像与方案持久化
+  matcher.ts      匹配 / 差距 / 路径算法（纯函数，前端拿到知识库后本地计算）
+  links.ts        平台搜索链接拼接
+app/
+  page.tsx        五步主流程
+  api/knowledge/  返回整库知识库，纯数据、零外部调用
+  api/profile/    用户画像读写（SQLite，localStorage 兜底）
+  api/plans/      保存的方案列表增删改查
+python-version/
+  app.py          Flask 版（见下）
+```
+
+## Python 版
+
+`python-version/` 是同一套产品逻辑的 Flask 实现，两版共用 `data/*.json`，
+算法一一对应（`matcher.py` ↔ `lib/matcher.ts`）。区别是它在服务端计算，自带一个 `index.html` 前端。
+
+它里面有**两代接口并存**：
+
+| 接口 | 状态 | 是否依赖 LLM |
+| --- | --- | --- |
+| `/api/plan`（`knowledge` / `detect` / `analyze` / `gap` / `path`） | 当前主链路 | 否，纯本地算法 |
+| `/api/career` | 早期实现，保留供对照 | 是，需要 `LLM_API_KEY`；未配置时按 `CAREER_MODE=offline` 或自动降级到 `local_engine.py` 规则引擎 |
+
+```bash
+cd python-version
+pip install -r requirements.txt
+python app.py         # http://localhost:5000
+```
+
+只跑 `/api/plan` 的话不需要任何密钥。
+
+## 已知边界
+
+- 知识库是手工整理的 20 个岗位，覆盖面有限，且会随时间过时。
+- 覆盖率只看「你勾选的技能」与「岗位要求」的交集，不评估熟练程度，也不看项目经历。
+- 单用户本地场景，没有账号、权限与多端同步。
+- 匹配分里的「方向契合」是粗粒度打折（命中 1.0 / 不命中 0.5），不是精细建模。

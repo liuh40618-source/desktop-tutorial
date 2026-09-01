@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>职途 · 岗位知识库 × 技能差距计算</title>
+<style>
+  :root{
+    --background:#f5f6f8; --foreground:#1c1f24; --muted:#868d99; --border:#e6e8ee;
+    --card:#fff; --accent:#2f6bff; --accent-strong:#1f57e6; --accent-soft:#eaf1ff; --surface-2:#f0f2f6;
+    --ring:rgba(47,107,255,.32); --shadow-sm:0 1px 3px rgba(20,28,55,.06),0 1px 2px rgba(20,28,55,.04);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--background);color:var(--foreground);
+    font-family:ui-sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  .app-shell{max-width:46rem;margin:0 auto;padding:2rem 1rem;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:1.25rem;box-shadow:var(--shadow-sm);}
+  .input{width:100%;background:#fff;border:1px solid var(--border);border-radius:.9rem;
+    padding:.75rem .9rem;font-size:.925rem;line-height:1.55;color:var(--foreground);outline:none;
+    transition:border-color .18s,box-shadow .18s;font-family:inherit;}
+  .input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--ring);}
+  textarea.input{min-height:5rem;resize:vertical;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;border-radius:.9rem;
+    padding:.8rem 1.1rem;font-size:.9rem;font-weight:500;cursor:pointer;user-select:none;border:1px solid transparent;
+    transition:transform .12s,opacity .18s,background .18s,border-color .18s;font-family:inherit;}
+  .btn:active{transform:translateY(1px) scale(.99);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#5b8cff);color:#fff;box-shadow:0 8px 20px rgba(47,107,255,.26);}
+  .btn-primary:hover:not(:disabled){opacity:.94;}
+  .btn-ghost{background:#fff;border:1px solid var(--border);color:var(--foreground);}
+  .btn-ghost:hover:not(:disabled){background:var(--surface-2);}
+  .chip-btn{display:inline-flex;align-items:center;border:1px solid var(--border);background:#fff;
+    border-radius:999px;padding:.34rem .78rem;font-size:.78rem;color:var(--foreground);cursor:pointer;
+    transition:border-color .16s,background .16s,color .16s;font-family:inherit;}
+  .chip-btn:hover{border-color:#c8d4ea;}
+  .chip-btn.on{background:var(--accent-soft);border-color:rgba(47,107,255,.4);color:var(--accent-strong);font-weight:500;}
+  .chip-btn.off{opacity:.45;cursor:not-allowed;}
+  .track{height:5px;background:var(--border);border-radius:999px;overflow:hidden;}
+  .track>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#5b8cff);
+    border-radius:999px;transition:width .45s ease;}
+  .spinner{display:inline-block;width:1rem;height:1rem;border:2px solid rgba(47,107,255,.3);
+    border-top-color:#1f57e6;border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  /* 仅透明度淡入，不做位移：避免切换步骤时蓝色按钮在入场动画中下移导致“点两次才响应” */
+  @keyframes stepIn{from{opacity:0;}to{opacity:1;}}
+  .animate-step{animation:stepIn .22s ease both;}
+  .err{margin-top:1rem;border-radius:.75rem;border:1px solid rgba(47,107,255,.3);
+    background:var(--accent-soft);padding:.75rem 1rem;font-size:.875rem;color:#1f57e6;}
+  label.block{display:block;margin-bottom:1rem;}
+  .lbl{display:block;margin-bottom:.4rem;font-size:.875rem;font-weight:500;}
+  .hint{display:block;margin-top:.3rem;font-size:.72rem;color:var(--muted);}
+  .muted{color:var(--muted);}
+  .tag{display:inline-flex;align-items:center;border-radius:6px;padding:.1rem .38rem;font-size:.68rem;font-weight:500;white-space:nowrap;}
+  .w3{background:rgba(47,107,255,.12);color:var(--accent-strong);}
+  .w2{background:rgba(47,107,255,.07);color:#4a6fa5;}
+  .w1{background:var(--surface-2);color:var(--muted);}
+  .cell{border-radius:7px;padding:.3rem .4rem;font-size:.7rem;text-align:center;white-space:nowrap;}
+  .cell-yes{background:var(--accent-soft);color:var(--accent-strong);}
+  .cell-no{background:var(--surface-2);color:var(--muted);}
+  .cell-na{background:transparent;color:#cfd4de;}
+  table.matrix{width:100%;border-collapse:separate;border-spacing:3px;font-size:.75rem;}
+  table.matrix th{font-weight:500;color:var(--muted);text-align:center;}
+  .rowline{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.3rem 0;}
+</style>
+</head>
+<body>
+<div id="app" class="app-shell"></div>
+
+<script>
+/* ============ 状态 ============ */
+const STEPS = ["我的画像","方向定位","岗位匹配","技能差距","学习路径"];
+const STORAGE_KEY = "zhitu_state_v2";
+const PLANS_KEY = "zhitu_plans_v2";
+
+let state = {
+  step:0, started:false, view:"landing",
+  profile:{major:"",grade:"",works:"",certificates:"",selfDescription:"",interests:"",
+           knownSkillIds:[],targetTracks:[],hoursPerWeek:10,goal:""},
+  knowledge:{skills:[],tracks:[]},
+  matches:[], byTrack:[], selectedJobId:"",
+  match:null, gapMap:null, path:[],
+  doneSkills:[], plans:[], error:"", loading:false
+};
+
+/* ============ 工具 ============ */
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function fmtWeeks(w){
+  if(w <= 0) return "已达成";
+  if(w < 1) return "不到 1 周";
+  if(w < 8) return `约 ${Math.round(w)} 周`;
+  return `约 ${(w/4.3).toFixed(1)} 个月`;
+}
+function saveState(){
+  const {step,started,profile,selectedJobId,doneSkills} = state;
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify({step,started,profile,selectedJobId,doneSkills})); }catch{}
+}
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"); }catch{ return null; } }
+function loadPlans(){ try{ return JSON.parse(localStorage.getItem(PLANS_KEY)||"[]"); }catch{ return []; } }
+function addPlan(rec){
+  const list = loadPlans().filter(p=>p.id!==rec.id); list.unshift(rec);
+  try{ localStorage.setItem(PLANS_KEY, JSON.stringify(list.slice(0,50))); }catch{}
+}
+function effectiveProfile(){
+  return {...state.profile,
+    knownSkillIds: Array.from(new Set([...state.profile.knownSkillIds, ...state.doneSkills]))};
+}
+
+/* ============ 调后端 ============ */
+async function api(stage, extra){
+  state.loading = true; state.error = ""; render();
+  try{
+    const resp = await fetch("/api/plan", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(Object.assign({stage, profile: effectiveProfile()}, extra||{}))
+    });
+    const data = await resp.json();
+    if(!resp.ok) throw new Error(data?.message || data?.error || "请求失败");
+    return data;
+  }catch(e){ state.error = e.message || "网络错误"; return null; }
+  finally{ state.loading = false; render(); }
+}
+
+async function boot(){
+  const s = loadState();
+  if(s){ Object.assign(state, s); state.profile = Object.assign({
+    major:"",grade:"",works:"",certificates:"",selfDescription:"",interests:"",
+    knownSkillIds:[],targetTracks:[],hoursPerWeek:10,goal:""}, s.profile||{}); }
+  state.plans = loadPlans();
+  const k = await api("knowledge");
+  if(k){ state.knowledge = {skills:k.skills, tracks:k.tracks}; }
+  render();
+}
+
+/* ============ 步骤流转 ============ */
+async function goAnalyze(){
+  if(!state.profile.knownSkillIds.length){
+    state.error = "至少勾选 1 项你已掌握的技能，否则无法计算覆盖率"; render(); return;
+  }
+  const r = await api("analyze");
+  if(r){ state.matches = r.matches; state.byTrack = r.byTrack; state.step = 1; }
+}
+async function selectJob(id){
+  const r = await api("gap", {jobId:id, compare: state.matches.slice(0,5).map(m=>m.jobId)});
+  // 仅在服务端返回有效 match 时才落 selectedJobId，避免无效 id 留在状态里
+  if(r?.match){ state.selectedJobId = id; state.match = r.match; state.gapMap = r.gapMap; state.step = 3; }
+}
+async function goPath(){
+  const r = await api("path", {jobId: state.selectedJobId});
+  if(r){ state.match = r.match; state.path = r.path; state.step = 4; }
+}
+function toggleDone(id){
+  state.doneSkills = state.doneSkills.includes(id)
+    ? state.doneSkills.filter(x=>x!==id) : [...state.doneSkills, id];
+  // 打卡后重算：缺口随进度下降
+  api("path", {jobId: state.selectedJobId}).then(r=>{
+    if(r){ state.match = r.match; state.path = r.path; }
+  });
+  render();
+}
+function clearDoneSkills(){
+  state.doneSkills = [];
+  api("path", {jobId: state.selectedJobId}).then(r=>{
+    if(r){ state.match = r.match; state.path = r.path; }
+  });
+  render();
+}
+function savePlan(){
+  const m = state.match; if(!m) return;
+  const md = compilePlan(m);
+  addPlan({id:`${state.profile.major}|${m.jobId}|${Date.now()}`, createdAt:Date.now(),
+    major: state.profile.major, jobTitle:m.title,
+    summary:`覆盖率 ${m.coverage}% · 缺口 ${m.gapHours} 小时 · ${fmtWeeks(m.etaWeeks)}`, markdown: md});
+  state.plans = loadPlans(); render();
+}
+function compilePlan(m){
+  const p = effectiveProfile();
+  const L = [];
+  L.push(`# 职途规划 · ${m.title}`, "");
+  L.push(`生成时间：${new Date().toLocaleString("zh-CN")}`);
+  L.push(`背景：${p.major||"未填"} ${p.grade||""}`);
+  L.push(`每周可投入：${p.hoursPerWeek} 小时`, "");
+  L.push(`## 目标岗位`, "");
+  L.push(`- ${m.title}（${m.trackName}）`);
+  L.push(`- 必备技能覆盖率：${m.coverage}%　匹配分：${m.score}`);
+  L.push(`- 补齐缺口：${m.gapHours} 小时，按每周 ${p.hoursPerWeek} 小时计 ${fmtWeeks(m.etaWeeks)}`);
+  L.push(`- 薪资参考：实习 ${m.salary.intern}　应届 ${m.salary.junior}`);
+  L.push(`- 入门门槛：${m.threshold}`, "");
+  L.push(`## 已具备的必备技能`, "");
+  m.covered.forEach(s=>L.push(`- ${s.name}（权重 ${s.weight}）`));
+  if(!m.covered.length) L.push("- 暂无");
+  L.push("", `## 待补齐技能与学习路径`, "");
+  if(!state.path.length) L.push("- 必备技能已全部覆盖，建议用真实 JD 复核");
+  else state.path.forEach((it,i)=>{
+    L.push(`${i+1}. ${it.name}（权重 ${it.weight}，约 ${it.estHours} 小时，累计第 ${it.cumulativeWeeks} 周）`);
+    it.resources.forEach(r=>L.push(`   - ${r.title} · ${r.platform}`));
+  });
+  L.push("", "---", "说明：匹配分 = 覆盖率×75% + 加分项×15% + 方向契合×10%；时长为经验估算，非精确值。");
+  return L.join("\n");
+}
+
+/* ============ 渲染 ============ */
+function render(){
+  const app = document.getElementById("app");
+  app.innerHTML = (state.view === "records") ? recordsHtml()
+    : !state.started ? landingHtml() : flowHtml();
+}
+function header(){
+  return `<header style="margin-bottom:1.5rem;display:flex;align-items:flex-end;justify-content:space-between;">
+    <div>
+      <h1 onclick="goHome()" title="返回首页" style="margin:0;cursor:pointer;font-size:1.25rem;font-weight:600;">职途</h1>
+      <p class="muted" style="margin:.25rem 0 0;font-size:.72rem;">岗位知识库 × 技能覆盖率 · 算出你的差距和路径</p>
+    </div>
+    ${state.started ? `<div style="display:flex;gap:.5rem;">
+      <button class="btn btn-ghost" style="padding:.5rem .8rem;font-size:.72rem;" onclick="goHome()">返回首页</button>
+      ${state.step>0 ? `<button class="btn btn-ghost" style="padding:.5rem .8rem;font-size:.72rem;" onclick="resetAll()">重新开始</button>`:""}
+    </div>`:""}
+  </header>`;
+}
+function goHome(){ state.started=false; state.view="landing"; render(); }
+function resetAll(){
+  state.step=0; state.started=false; state.matches=[]; state.match=null; state.path=[];
+  state.selectedJobId=""; state.doneSkills=[]; state.error="";
+  state.profile={major:"",grade:"",works:"",certificates:"",selfDescription:"",interests:"",
+    knownSkillIds:[],targetTracks:[],hoursPerWeek:10,goal:""};
+  render();
+}
+function progress(){
+  const chips = STEPS.map((s,i)=>
+    `<button class="chip-btn ${i===state.step?"on":""} ${i>state.step?"off":""}"
+      ${i<=state.step?`onclick="setStep(${i})"`:"disabled"}>${i+1}. ${s}</button>`).join("");
+  const pct = state.step/(STEPS.length-1)*100;
+  return `<div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.5rem;">${chips}</div>
+          <div class="track"><i style="width:${pct}%"></i></div>
+          <p class="muted" style="margin:.5rem 0 0;font-size:.72rem;">进度已自动保存，刷新不丢失</p>`;
+}
+function setStep(i){ if(i>=0 && i<STEPS.length){ state.step=i; render(); } }
+
+function landingHtml(){
+  const mods = [
+    ["01","技能画像","55 项技能勾选，从文字自动预识别"],
+    ["02","岗位匹配","20 个岗位按必备技能覆盖率排序，附计算依据"],
+    ["03","差距地图","横向对比五个相近岗位，找出复用率最高的技能"],
+    ["04","学习路径","按性价比排序 + 打卡追踪，缺口随进度下降"]
+  ].map(m=>`<div class="card" style="padding:1.25rem;">
+      <span style="font-size:.72rem;font-weight:500;letter-spacing:.2em;color:var(--accent);">${m[0]}</span>
+      <h3 style="margin:.5rem 0 .25rem;font-size:1rem;font-weight:500;">${m[1]}</h3>
+      <p class="muted" style="margin:0;font-size:.75rem;line-height:1.6;">${m[2]}</p></div>`).join("");
+  return header() + `<section>
+    <h2 style="margin:0;font-size:1.5rem;font-weight:600;">把你的技能，和岗位要求对齐</h2>
+    <p class="muted" style="margin:.5rem 0 0;font-size:.875rem;line-height:1.7;">
+      内置 20 个互联网岗位的必备技能与权重。不靠猜，靠算——每个匹配度都能拆开看。
+      无需注册，数据只存在本地。</p>
+    <div style="margin-top:1.5rem;display:grid;grid-template-columns:1fr;gap:.75rem;">${mods}</div>
+    <div style="margin-top:1.25rem;display:flex;gap:.75rem;">
+      <button class="btn btn-primary" style="flex:1;" onclick="state.started=true;render();">开始规划</button>
+      <button class="btn btn-ghost" style="flex:1;" onclick="state.plans=loadPlans();state.view='records';render();">
+        我的记录${state.plans.length?` (${state.plans.length})`:""}</button>
+    </div></section>`;
+}
+
+function recordsHtml(){
+  if(state.selIndex != null) return planDetailHtml();
+  if(!state.plans.length) return header() + `<section>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <h2 style="margin:0;font-size:1.25rem;font-weight:600;">我的记录</h2>
+      <button class="btn btn-ghost" style="padding:.5rem .8rem;font-size:.72rem;" onclick="state.view='landing';render();">返回</button>
+    </div>
+    <div class="card" style="padding:2rem;text-align:center;font-size:.875rem;" class="muted">
+      还没有保存的规划。走到最后一步点「保存这份规划」即可。</div></section>`;
+  return header() + `<section>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <h2 style="margin:0;font-size:1.25rem;font-weight:600;">我的记录</h2>
+      <button class="btn btn-ghost" style="padding:.5rem .8rem;font-size:.72rem;" onclick="state.view='landing';render();">返回</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.75rem;">
+      ${state.plans.map((p,i)=>`<div class="card" style="padding:1rem;display:flex;justify-content:space-between;gap:.75rem;">
+        <div style="flex:1;min-width:0;cursor:pointer;" onclick="state.selIndex=${i};render();">
+          <div style="font-size:.875rem;font-weight:500;">${esc(p.major||"未填专业")} · ${esc(p.jobTitle)}</div>
+          <div class="muted" style="margin-top:.25rem;font-size:.72rem;">${esc(p.summary)}</div>
+          <div class="muted" style="margin-top:.25rem;font-size:.72rem;">${new Date(p.createdAt).toLocaleString("zh-CN")}</div>
+        </div>
+        <button class="btn btn-ghost" style="padding:.25rem .5rem;font-size:.72rem;height:fit-content;"
+          onclick="delPlanAt(${i})">删除</button></div>`).join("")}
+    </div></section>`;
+}
+function delPlanAt(i){
+  const list = loadPlans();
+  list.splice(i, 1);
+  try{ localStorage.setItem(PLANS_KEY, JSON.stringify(list)); }catch{}
+  state.plans = list;
+  // 选中索引需要同步调整，避免指向错位或越界
+  if(state.selIndex != null){
+    if(state.selIndex >= list.length) state.selIndex = null;
+    else if(state.selIndex > i) state.selIndex -= 1;
+  }
+  render();
+}
+function planDetailHtml(){
+  const p = state.plans[state.selIndex];
+  if(!p){ state.selIndex = null; return recordsHtml(); }
+  return header() + `<section>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <h2 style="margin:0;font-size:1.25rem;font-weight:600;">规划详情</h2>
+      <button class="btn btn-ghost" style="padding:.5rem .8rem;font-size:.72rem;" onclick="state.selIndex=null;render();">返回</button>
+    </div>
+    <div style="display:flex;gap:.5rem;margin-bottom:1rem;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="copyPlan()">复制</button>
+      <button class="btn btn-ghost" style="flex:1;" onclick="downloadPlan()">下载 .md</button>
+    </div>
+    <div class="card" style="padding:1.25rem;white-space:pre-wrap;font-size:.875rem;line-height:1.7;">${esc(p.markdown)}</div>
+  </section>`;
+}
+function copyPlan(){
+  const p = state.plans[state.selIndex]; if(!p) return;
+  navigator.clipboard?.writeText(p.markdown);
+}
+function downloadPlan(){
+  const p = state.plans[state.selIndex]; if(!p) return;
+  const blob = new Blob([p.markdown],{type:"text/markdown;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = `职途规划-${p.jobTitle}.md`; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function flowHtml(){
+  const body = [step0Html, step1Html, step2Html, step3Html, step4Html][state.step]();
+  const err = state.error ? `<div class="err">${esc(state.error)}</div>` : "";
+  const spin = state.loading ? `<div style="margin-top:1rem;text-align:center;"><span class="spinner"></span></div>` : "";
+  return header() + progress() + err + `<div class="animate-step" style="margin-top:1.5rem;">${body}</div>` + spin;
+}
+
+/* ---- Step 0 画像 ---- */
+function step0Html(){
+  const p = state.profile;
+  const groups = {};
+  state.knowledge.skills.forEach(s=>{ (groups[s.category] = groups[s.category]||[]).push(s); });
+  const groupHtml = Object.entries(groups).map(([cat,list])=>`
+    <div style="margin-bottom:1rem;">
+      <div class="muted" style="margin-bottom:.4rem;font-size:.72rem;font-weight:500;">${esc(cat)}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+        ${list.map(s=>`<button class="chip-btn ${p.knownSkillIds.includes(s.id)?"on":""}"
+          title="预估掌握需 ${s.estHours} 小时" onclick="toggleSkill('${s.id}')">${esc(s.name)}</button>`).join("")}
+      </div></div>`).join("");
+
+  return `<section>
+    <h2 style="margin:0;font-size:1.25rem;font-weight:600;">我的画像</h2>
+    <p class="muted" style="margin:.25rem 0 0;font-size:.875rem;">结构化填写，后面的每一个数字都由这里算出。</p>
+
+    <div class="card" style="margin-top:1.25rem;padding:1.25rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+        <label class="block" style="margin:0;"><span class="lbl">专业</span>
+          <input class="input" placeholder="数据科学与大数据技术" value="${esc(p.major)}"
+            oninput="setField('major',this.value)"/></label>
+        <label class="block" style="margin:0;"><span class="lbl">年级</span>
+          <input class="input" placeholder="大三" value="${esc(p.grade)}"
+            oninput="setField('grade',this.value)"/></label>
+      </div>
+      <label class="block" style="margin-top:.75rem;"><span class="lbl">作品 / 项目</span>
+        <textarea class="input" placeholder="做过什么、用了什么技术、结果如何"
+          oninput="setField('works',this.value)">${esc(p.works)}</textarea></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+        <label class="block" style="margin:0;"><span class="lbl">证书</span>
+          <input class="input" placeholder="计算机二级…" value="${esc(p.certificates)}"
+            oninput="setField('certificates',this.value)"/></label>
+        <label class="block" style="margin:0;"><span class="lbl">兴趣方向</span>
+          <input class="input" placeholder="AI 产品、数据分析…" value="${esc(p.interests)}"
+            oninput="setField('interests',this.value)"/></label>
+      </div>
+      <label class="block" style="margin:.75rem 0 0;"><span class="lbl">自我介绍</span>
+        <textarea class="input" placeholder="你怎么描述自己，会用于自动识别技能"
+          oninput="setField('selfDescription',this.value)">${esc(p.selfDescription)}</textarea></label>
+    </div>
+
+    <div class="card" style="margin-top:1rem;padding:1.25rem;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;">
+        <div>
+          <h3 style="margin:0;font-size:1rem;font-weight:500;">已掌握的技能
+            <span class="muted" style="margin-left:.5rem;font-size:.72rem;font-weight:400;">已选 ${p.knownSkillIds.length} 项</span></h3>
+          <p class="muted" style="margin:.25rem 0 0;font-size:.72rem;">只勾你真能干活的，虚报会让后面的差距全部失真</p>
+        </div>
+        <button class="btn btn-ghost" style="padding:.5rem .8rem;font-size:.72rem;flex-shrink:0;"
+          onclick="autoDetect()">从文字识别</button>
+      </div>
+      <div style="margin-top:1rem;">${groupHtml}</div>
+    </div>
+
+    <div class="card" style="margin-top:1rem;padding:1.25rem;">
+      <h3 style="margin:0;font-size:1rem;font-weight:500;">想去的领域</h3>
+      <p class="muted" style="margin:.25rem 0 0;font-size:.72rem;">可多选。不选则全部同等对待，选了会给对应方向加权</p>
+      <div style="margin-top:.75rem;display:flex;flex-wrap:wrap;gap:.4rem;">
+        ${state.knowledge.tracks.map(t=>`<button class="chip-btn ${p.targetTracks.includes(t.id)?"on":""}"
+          onclick="toggleTrack('${t.id}')">${esc(t.name)}</button>`).join("")}
+      </div>
+      <label class="block" style="margin:1.25rem 0 0;">
+        <span class="lbl">每周能投入的学习时间</span>
+        <div style="margin-top:.25rem;display:flex;align-items:center;gap:.5rem;">
+          <input list="hours-presets" type="number" min="1" max="80" value="${p.hoursPerWeek}"
+            class="input" style="flex:1;"
+            oninput="setField('hoursPerWeek', Math.max(1, Number(this.value) || 1))"/>
+          <span class="muted" style="font-size:.875rem;flex-shrink:0;">小时 / 周</span>
+        </div>
+        <datalist id="hours-presets">
+          <option value="4"></option><option value="6"></option><option value="8"></option>
+          <option value="10"></option><option value="12"></option><option value="15"></option>
+          <option value="20"></option><option value="30"></option>
+        </datalist>
+        <span class="hint">下拉选常见值或直接输入；用于估算补齐缺口需要多久</span>
+      </label>
+      <label class="block" style="margin:.75rem 0 0;"><span class="lbl">目标（选填）</span>
+        <input class="input" placeholder="例：三个月内拿到 AI 产品实习" value="${esc(p.goal)}"
+          oninput="setField('goal',this.value)"/></label>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top:1.25rem;width:100%;" onclick="goAnalyze()">生成方向定位</button>
+  </section>`;
+}
+function setField(k,v){ state.profile[k]=v; saveState(); }
+function toggleSkill(id){
+  const p = state.profile;
+  p.knownSkillIds = p.knownSkillIds.includes(id)
+    ? p.knownSkillIds.filter(x=>x!==id) : [...p.knownSkillIds, id];
+  saveState(); render();
+}
+function toggleTrack(id){
+  const p = state.profile;
+  p.targetTracks = p.targetTracks.includes(id)
+    ? p.targetTracks.filter(x=>x!==id) : [...p.targetTracks, id];
+  saveState(); render();
+}
+async function autoDetect(){
+  const r = await api("detect");
+  if(r?.skillIds?.length){
+    state.profile.knownSkillIds = Array.from(new Set([...state.profile.knownSkillIds, ...r.skillIds]));
+  } else if(r){ state.error = "没识别到技能，请手动勾选"; }
+  render();
+}
+
+/* ---- Step 1 方向定位 ---- */
+function step1Html(){
+  const best = state.byTrack[0];
+  const bars = state.byTrack.slice(0,6).map(t=>`
+    <div style="margin-bottom:.75rem;">
+      <div style="display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:.25rem;">
+        <span>${esc(t.name)}</span><span class="muted">${t.avg}%</span></div>
+      <div class="track"><i style="width:${t.avg}%"></i></div>
+    </div>`).join("");
+  return `<section>
+    <h2 style="margin:0;font-size:1.25rem;font-weight:600;">方向定位</h2>
+    <p class="muted" style="margin:.25rem 0 0;font-size:.875rem;">
+      按你勾选的 ${effectiveProfile().knownSkillIds.length} 项技能，与 20 个岗位的要求逐条对齐后的结果。</p>
+
+    <div class="card" style="margin-top:1.25rem;padding:1.25rem;">
+      <div class="muted" style="font-size:.72rem;">当前最接近的领域</div>
+      <div style="margin-top:.25rem;font-size:1.5rem;font-weight:600;">${esc(best?.name||"—")}</div>
+      <div class="muted" style="margin-top:.25rem;font-size:.875rem;">
+        平均技能覆盖率 ${best?.avg??0}%，最强匹配是「${esc(best?.best.title||"—")}」</div>
+      <div style="margin-top:1.25rem;">${bars}</div>
+    </div>
+
+    <div class="card" style="margin-top:1rem;padding:1.25rem;">
+      <h3 style="margin:0;font-size:1rem;font-weight:500;">接下来怎么走</h3>
+      <ul class="muted" style="margin:.5rem 0 0;padding-left:1rem;font-size:.875rem;line-height:1.8;">
+        <li>覆盖率不是能力评分，它只说明「岗位要求里你已经会了多少」。</li>
+        <li>优先补齐权重 3 的硬门槛技能，它们通常是初筛的过滤条件。</li>
+        <li>时长均为经验估算，用于排序与节奏参考，不是承诺。</li>
+      </ul>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top:1.25rem;width:100%;" onclick="setStep(2)">查看岗位匹配</button>
+  </section>`;
+}
+
+/* ---- Step 2 岗位匹配 ---- */
+function step2Html(){
+  const cards = state.matches.map(m=>{
+    const hard = m.missing.filter(s=>s.weight===3);
+    const open = state.openJob === m.jobId;
+    return `<div class="card" style="padding:1rem;margin-bottom:.75rem;">
+      <div style="display:flex;justify-content:space-between;gap:.75rem;">
+        <div style="min-width:0;">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;">
+            <span style="font-size:.875rem;font-weight:500;">${esc(m.title)}</span>
+            <span class="tag w1">${esc(m.trackName)}</span></div>
+          <p class="muted" style="margin:.25rem 0 0;font-size:.72rem;line-height:1.6;">${esc(m.summary)}</p>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:1.125rem;font-weight:600;color:var(--accent);">${m.coverage}%</div>
+          <div class="muted" style="font-size:.68rem;">覆盖率</div>
+          <div class="muted" style="margin-top:.15rem;font-size:.68rem;">匹配分 ${m.score}</div></div>
+      </div>
+      <div class="track" style="margin-top:.75rem;"><i style="width:${m.coverage}%"></i></div>
+      <div class="muted" style="margin-top:.5rem;font-size:.72rem;line-height:1.8;">
+        待补齐 <b style="color:var(--foreground);">${m.missing.length}</b> 项 ·
+        约 <b style="color:var(--foreground);">${m.gapHours}</b> 小时 ·
+        按你的节奏 <b style="color:var(--foreground);">${fmtWeeks(m.etaWeeks)}</b><br/>
+        实习 ${esc(m.salary.intern)} · 应届 ${esc(m.salary.junior)}
+      </div>
+      ${hard.length?`<div style="margin-top:.5rem;display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;">
+        <span class="muted" style="font-size:.72rem;">硬门槛缺失：</span>
+        ${hard.map(s=>`<span class="tag w3">${esc(s.name)}</span>`).join("")}</div>`:""}
+      <div style="margin-top:.75rem;display:flex;gap:.5rem;">
+        <button class="btn ${state.selectedJobId===m.jobId?"btn-primary":"btn-ghost"}" style="flex:1;padding:.5rem;font-size:.75rem;"
+          onclick="selectJob('${m.jobId}')">${state.selectedJobId===m.jobId?"已选中 · 分析差距":"选它 · 分析差距"}</button>
+        <button class="btn btn-ghost" style="padding:.5rem .75rem;font-size:.75rem;"
+          onclick="state.openJob = state.openJob==='${m.jobId}' ? null : '${m.jobId}'; render();">${open?"收起":"依据"}</button>
+      </div>
+      ${open?`<div style="margin-top:.75rem;border-radius:.75rem;background:var(--surface-2);padding:.75rem;font-size:.72rem;line-height:1.8;" class="muted">
+        ${m.reasons.map(r=>`· ${esc(r)}`).join("<br/>")}
+        <div style="margin-top:.5rem;border-top:1px solid var(--border);padding-top:.5rem;">
+          入门门槛：${esc(m.threshold)}<br/>发展路径：${esc(m.growth)}</div></div>`:""}
+    </div>`;
+  }).join("");
+  return `<section>
+    <h2 style="margin:0;font-size:1.25rem;font-weight:600;">岗位匹配</h2>
+    <p class="muted" style="margin:.25rem 0 0;font-size:.875rem;">按匹配分排序（覆盖率 75% + 加分项 15% + 方向契合 10%）。点「依据」看计算过程。</p>
+    <div style="margin-top:1.25rem;">${cards}</div>
+    <button class="btn btn-ghost" style="margin-top:.5rem;width:100%;" onclick="setStep(1)">返回上一步</button>
+  </section>`;
+}
+
+/* ---- Step 3 差距地图 ---- */
+function step3Html(){
+  const m = state.match; if(!m) return `<section><p>请先选择一个岗位</p></section>`;
+  const rows = [...m.covered, ...m.missing].sort((a,b)=>b.weight-a.weight).map(s=>{
+    const known = m.covered.some(c=>c.id===s.id);
+    return `<div class="rowline">
+      <div style="display:flex;align-items:center;gap:.5rem;min-width:0;">
+        <span style="font-size:.72rem;color:${known?"var(--accent)":"var(--muted)"};">${known?"已具备":"待补齐"}</span>
+        <span style="font-size:.875rem;">${esc(s.name)}</span>
+        <span class="tag w${s.weight}">${s.weight===3?"硬门槛":s.weight===2?"重要":"加分"}</span></div>
+      <span class="muted" style="font-size:.72rem;">${s.estHours}h</span></div>`;
+  }).join("");
+
+  const gm = state.gapMap;
+  const matrix = gm ? `<table class="matrix">
+    <thead><tr><th style="text-align:left;">技能</th>
+      ${gm.jobs.map(j=>`<th><div style="max-width:4.5rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+        title="${esc(j.title)}">${esc(j.title)}</div></th>`).join("")}</tr></thead>
+    <tbody>${gm.skills.map(s=>`<tr>
+      <td style="white-space:nowrap;color:${s.known?"var(--foreground)":"var(--muted)"};">${s.known?"✓ ":"· "}${esc(s.name)}</td>
+      ${gm.jobs.map(j=>`<td><div class="cell ${!s.requiredBy.includes(j.title)?"cell-na":s.known?"cell-yes":"cell-no"}">
+        ${!s.requiredBy.includes(j.title)?"—":s.known?"有":"缺"}</div></td>`).join("")}
+    </tr>`).join("")}</tbody></table>` : "";
+
+  return `<section>
+    <h2 style="margin:0;font-size:1.25rem;font-weight:600;">技能差距</h2>
+    <p class="muted" style="margin:.25rem 0 0;font-size:.875rem;">目标岗位：${esc(m.title)} · 必备技能覆盖 ${m.coverage}%</p>
+
+    <div class="card" style="margin-top:1.25rem;padding:1.25rem;">
+      <h3 style="margin:0;font-size:1rem;font-weight:500;">这个岗位要求什么</h3>
+      <div style="margin-top:.75rem;">${rows}</div>
+      ${m.plusCovered.length?`<div style="margin-top:1rem;border-top:1px solid var(--border);padding-top:.75rem;">
+        <div class="muted" style="font-size:.72rem;">你已具备的加分项</div>
+        <div style="margin-top:.4rem;display:flex;flex-wrap:wrap;gap:.3rem;">
+          ${m.plusCovered.map(n=>`<span class="tag w2">${esc(n)}</span>`).join("")}</div></div>`:""}
+    </div>
+
+    ${gm?`<div class="card" style="margin-top:1rem;padding:1.25rem;overflow-x:auto;">
+      <h3 style="margin:0;font-size:1rem;font-weight:500;">五个相近岗位横向对比</h3>
+      <p class="muted" style="margin:.25rem 0 0;font-size:.72rem;">同一批技能在哪些岗位被反复要求，优先补复用率高的</p>
+      <div style="margin-top:.75rem;">${matrix}</div></div>`:""}
+
+    <div style="margin-top:1.25rem;display:flex;gap:.75rem;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="setStep(2)">换一个岗位</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="goPath()">生成学习路径</button>
+    </div>
+  </section>`;
+}
+
+/* ---- Step 4 学习路径 ---- */
+function step4Html(){
+  const m = state.match; if(!m) return `<section><p>请先选择一个岗位</p></section>`;
+  const p = effectiveProfile();
+  const items = state.path.length ? state.path.map((it,i)=>{
+    const done = state.doneSkills.includes(it.skillId);
+    return `<div class="card" style="padding:1rem;margin-bottom:.75rem;">
+      <div style="display:flex;justify-content:space-between;gap:.75rem;">
+        <div style="display:flex;gap:.5rem;min-width:0;">
+          <span style="margin-top:.1rem;display:flex;align-items:center;justify-content:center;
+            width:1.25rem;height:1.25rem;flex-shrink:0;border-radius:999px;background:var(--accent-soft);
+            color:var(--accent-strong);font-size:.7rem;font-weight:500;">${i+1}</span>
+          <div style="min-width:0;">
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;">
+              <span style="font-size:.875rem;font-weight:500;">${esc(it.name)}</span>
+              <span class="tag w${it.weight}">${it.weight===3?"硬门槛":it.weight===2?"重要":"加分"}</span></div>
+            <div class="muted" style="margin-top:.25rem;font-size:.72rem;">
+              约 ${it.estHours} 小时 · 优先级 ${it.priority} · 累计第 ${it.cumulativeWeeks} 周</div></div>
+        </div>
+        <button class="btn ${done?"btn-primary":"btn-ghost"}" style="padding:.25rem .6rem;font-size:.7rem;flex-shrink:0;height:fit-content;"
+          onclick="toggleDone('${it.skillId}')">${done?"已掌握":"打卡"}</button>
+      </div>
+      <div style="margin-top:.5rem;display:flex;flex-direction:column;gap:.25rem;">
+        ${it.resources.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noreferrer"
+          style="display:flex;justify-content:space-between;gap:.5rem;border-radius:.5rem;background:var(--surface-2);
+          padding:.4rem .75rem;font-size:.72rem;color:var(--foreground);text-decoration:none;">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.title)}</span>
+          <span class="muted" style="flex-shrink:0;">${esc(r.platform)}</span></a>`).join("")}
+      </div></div>`;
+  }).join("") : `<div class="card" style="padding:2rem;text-align:center;font-size:.875rem;" class="muted">
+      必备技能已全部覆盖。建议拿真实 JD 逐条复核，再决定是否投递。</div>`;
+
+  return `<section>
+    <h2 style="margin:0;font-size:1.25rem;font-weight:600;">学习路径</h2>
+    <p class="muted" style="margin:.25rem 0 0;font-size:.875rem;">${esc(m.title)} · 按「权重 ÷ 耗时」排序，先补性价比高的</p>
+
+    <div class="card" style="margin-top:1.25rem;padding:1.25rem;">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;">
+        <div><div class="muted" style="font-size:.72rem;">当前覆盖率</div>
+          <div style="font-size:1.5rem;font-weight:600;color:var(--accent);">${m.coverage}%</div></div>
+        <div class="muted" style="text-align:right;font-size:.72rem;">
+          ${state.path.length?`待补 ${state.path.length} 项 · ${m.gapHours} 小时<br/>
+            按每周 ${p.hoursPerWeek} 小时，${fmtWeeks(m.etaWeeks)}可补齐`:"必备技能已全部覆盖"}</div>
+      </div>
+      <div class="track" style="margin-top:.75rem;"><i style="width:${m.coverage}%"></i></div>
+    </div>
+
+    <div style="margin-top:1rem;">${items}</div>
+
+    ${state.doneSkills.length?`<div class="card" style="margin-top:1rem;padding:1rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;">
+        <h3 style="margin:0;font-size:.9rem;font-weight:500;">已打卡 ${state.doneSkills.length} 项</h3>
+        <button class="btn btn-ghost" style="padding:.25rem .5rem;font-size:.7rem;"
+          onclick="clearDoneSkills()">全部撤销</button>
+      </div>
+      <p class="muted" style="margin:.25rem 0 0;font-size:.7rem;">打卡的技能已从待补清单移出，覆盖率按打卡结果实时重算。点任一项可撤销。</p>
+      <div style="margin-top:.5rem;display:flex;flex-wrap:wrap;gap:.4rem;">
+        ${state.doneSkills.map(id=>{
+          const name = state.knowledge.skills.find(s=>s.id===id)?.name || id;
+          return `<button class="chip-btn on" title="点击撤销" onclick="toggleDone('${id}')">${esc(name)} ×</button>`;
+        }).join("")}
+      </div></div>`:""}
+
+    <div style="margin-top:1.25rem;display:flex;gap:.75rem;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="setStep(3)">返回差距分析</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="savePlan()">保存这份规划</button>
+    </div>
+    <p class="muted" style="margin-top:.75rem;font-size:.68rem;line-height:1.8;">
+      说明：时长为经验估算，用于排序与节奏参考；资源链接指向各平台搜索结果，内容可能更新，以搜索到的最新版本为准。</p>
+  </section>`;
+}
+
+boot();
+</script>
+
+<footer style="margin:40px auto 0;max-width:760px;padding:16px 16px 8px;border-top:1px solid var(--border);font-size:11px;line-height:1.7;color:var(--muted);">
+  <div>职途 · 数据版本 v1.0 · 内置 20 个岗位 / 55 项技能（对照演示，数据与 Next 版共享）</div>
+  <div style="margin-top:4px;">数据来源：公开招聘平台（BOSS 直聘 / 拉勾 / 实习僧）2025 年常见报价，城市量级参考新一线。不同城市、公司、学历差异很大，请以目标岗位实际 JD 为准。</div>
+  <div style="margin-top:4px;">匹配公式：覆盖率 ×75% + 加分项 ×15% + 方向契合 ×10%；时长为经验估算，非精确值。</div>
+</footer>
+</body>
+</html>

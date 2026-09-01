@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "predev": "echo ════════════════════════════════════════ && echo   职途 · 岗位技能匹配 && echo   默认端口: 4000 && echo   数据源: SQLite (data/*.json) && echo ════════════════════════════════════════",
+    "dev": "node --experimental-sqlite ./node_modules/next/dist/bin/next dev -p 4000",
+    "build": "node --experimental-sqlite ./node_modules/next/dist/bin/next build",
+    "start": "node --experimental-sqlite ./node_modules/next/dist/bin/next start",
     "lint": "eslint"
   },
   "dependencies": {

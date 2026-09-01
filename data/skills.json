@@ -1,0 +1,236 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "note": "技能库。estHours = 零基础到能独立完成基本工作的经验估算（小时），非精确值，仅用于排序与周期预估。resources 的链接由代码按 platform + query 拼成平台搜索链接，不写死具体 URL，避免死链。",
+    "platforms": ["B站", "掘金", "慕课网", "Coursera", "freeCodeCamp", "YouTube", "官方文档", "GitHub", "知乎", "其他"]
+  },
+  "skills": [
+    { "id": "sql", "name": "SQL 查询与取数", "category": "基础", "aliases": ["sql", "mysql", "postgresql", "取数", "查询"], "estHours": 40, "resources": [
+      { "title": "SQL 必知必会（第 5 版）", "platform": "知乎" },
+      { "title": "SQL 从入门到实战", "platform": "B站" }
+    ]},
+    { "id": "python", "name": "Python 编程基础", "category": "基础", "aliases": ["python", "py", "爬虫"], "estHours": 60, "resources": [
+      { "title": "Python 官方教程（中文）", "platform": "官方文档" },
+      { "title": "Python 零基础入门", "platform": "B站" }
+    ]},
+    { "id": "stats", "name": "统计学基础", "category": "基础", "aliases": ["统计", "概率", "假设检验", "回归"], "estHours": 50, "resources": [
+      { "title": "可汗学院 统计学", "platform": "B站" },
+      { "title": "统计学入门", "platform": "Coursera" }
+    ]},
+    { "id": "excel", "name": "Excel 数据处理", "category": "基础", "aliases": ["excel", "表格", "透视表", "vlookup"], "estHours": 25, "resources": [
+      { "title": "Excel 函数与数据透视表", "platform": "B站" },
+      { "title": "Excel 数据分析实战", "platform": "慕课网" }
+    ]},
+    { "id": "git", "name": "Git 版本控制", "category": "基础", "aliases": ["git", "github", "版本控制"], "estHours": 15, "resources": [
+      { "title": "Git 官方文档（中文）", "platform": "官方文档" },
+      { "title": "Git 入门到协作", "platform": "B站" }
+    ]},
+    { "id": "linux", "name": "Linux 与命令行", "category": "基础", "aliases": ["linux", "shell", "命令行", "服务器"], "estHours": 20, "resources": [
+      { "title": "Linux 命令行基础", "platform": "B站" },
+      { "title": "鸟哥的 Linux 私房菜", "platform": "知乎" }
+    ]},
+    { "id": "algo-basic", "name": "数据结构与算法", "category": "基础", "aliases": ["算法", "数据结构", "leetcode", "刷题"], "estHours": 80, "resources": [
+      { "title": "LeetCode 官方题解与题单", "platform": "官方文档" },
+      { "title": "代码随想录", "platform": "GitHub" }
+    ]},
+    { "id": "tech-english", "name": "技术文档阅读（英语）", "category": "基础", "aliases": ["英语", "文档阅读", "四级", "六级"], "estHours": 30, "resources": [
+      { "title": "技术英语阅读实践", "platform": "掘金" },
+      { "title": "英文技术文档阅读方法", "platform": "知乎" }
+    ]},
+
+    { "id": "data-clean", "name": "数据清洗与预处理", "category": "数据", "aliases": ["清洗", "预处理", "缺失值", "异常值"], "estHours": 30, "resources": [
+      { "title": "数据清洗实战", "platform": "B站" },
+      { "title": "数据预处理方法综述", "platform": "掘金" }
+    ]},
+    { "id": "data-viz", "name": "数据可视化", "category": "数据", "aliases": ["可视化", "图表", "echarts", "matplotlib", "报表"], "estHours": 25, "resources": [
+      { "title": "ECharts 官方示例", "platform": "官方文档" },
+      { "title": "数据可视化实战", "platform": "B站" }
+    ]},
+    { "id": "bi-tools", "name": "BI 工具（Tableau / PowerBI / 帆软）", "category": "数据", "aliases": ["tableau", "powerbi", "power bi", "帆软", "bi"], "estHours": 35, "resources": [
+      { "title": "Tableau 官方入门指南", "platform": "官方文档" },
+      { "title": "Power BI 从入门到实战", "platform": "B站" }
+    ]},
+    { "id": "pandas", "name": "pandas / numpy", "category": "数据", "aliases": ["pandas", "numpy", "dataframe"], "estHours": 40, "resources": [
+      { "title": "pandas 官方用户指南", "platform": "官方文档" },
+      { "title": "pandas 数据分析实战", "platform": "B站" }
+    ]},
+    { "id": "etl", "name": "ETL 与任务调度", "category": "数据", "aliases": ["etl", "调度", "airflow", "dolphinscheduler"], "estHours": 50, "resources": [
+      { "title": "Airflow 官方文档", "platform": "官方文档" },
+      { "title": "ETL 调度实战", "platform": "掘金" }
+    ]},
+    { "id": "warehouse", "name": "数仓建模（维度建模）", "category": "数据", "aliases": ["数仓", "数据仓库", "维度建模", "分层"], "estHours": 60, "resources": [
+      { "title": "维度建模权威指南", "platform": "知乎" },
+      { "title": "数据仓库建模实战", "platform": "掘金" }
+    ]},
+    { "id": "spark", "name": "Spark / Hive 大数据处理", "category": "数据", "aliases": ["spark", "hive", "hadoop", "hdfs"], "estHours": 70, "resources": [
+      { "title": "Spark 官方编程指南", "platform": "官方文档" },
+      { "title": "Spark 实战", "platform": "B站" }
+    ]},
+    { "id": "flink", "name": "实时计算 Flink", "category": "数据", "aliases": ["flink", "实时", "流计算", "kafka"], "estHours": 80, "resources": [
+      { "title": "Flink 官方文档（中文）", "platform": "官方文档" },
+      { "title": "Flink 实时计算入门", "platform": "B站" }
+    ]},
+    { "id": "ab-test", "name": "A/B 实验设计", "category": "数据", "aliases": ["ab", "abtest", "实验", "假设检验"], "estHours": 30, "resources": [
+      { "title": "A/B 测试设计与分析", "platform": "知乎" },
+      { "title": "A/B 实验平台实践", "platform": "掘金" }
+    ]},
+    { "id": "metric-system", "name": "指标体系设计", "category": "数据", "aliases": ["指标", "指标体系", "北极星指标", "拆解"], "estHours": 35, "resources": [
+      { "title": "业务指标体系搭建", "platform": "掘金" },
+      { "title": "指标设计方法论", "platform": "知乎" }
+    ]},
+
+    { "id": "ml-basics", "name": "机器学习基础", "category": "AI", "aliases": ["机器学习", "sklearn", "scikit", "回归", "分类", "聚类"], "estHours": 80, "resources": [
+      { "title": "吴恩达机器学习", "platform": "B站" },
+      { "title": "scikit-learn 官方用户指南", "platform": "官方文档" }
+    ]},
+    { "id": "dl-framework", "name": "深度学习框架（PyTorch）", "category": "AI", "aliases": ["pytorch", "tensorflow", "深度学习", "神经网络", "cnn", "transformer"], "estHours": 90, "resources": [
+      { "title": "PyTorch 官方教程（中文）", "platform": "官方文档" },
+      { "title": "PyTorch 深度学习实战", "platform": "B站" }
+    ]},
+    { "id": "llm-theory", "name": "大模型原理与能力边界", "category": "AI", "aliases": ["大模型", "llm", "gpt", "transformer", "预训练", "微调"], "estHours": 30, "resources": [
+      { "title": "Transformer 论文精读", "platform": "B站" },
+      { "title": "大模型技术原理综述", "platform": "知乎" }
+    ]},
+    { "id": "prompt-eng", "name": "Prompt 工程", "category": "AI", "aliases": ["prompt", "提示词", "提示工程"], "estHours": 20, "resources": [
+      { "title": "OpenAI Prompt 工程指南", "platform": "官方文档" },
+      { "title": "Prompt 工程实践", "platform": "掘金" }
+    ]},
+    { "id": "rag", "name": "RAG 与向量检索", "category": "AI", "aliases": ["rag", "向量", "embedding", "知识库", "检索"], "estHours": 45, "resources": [
+      { "title": "RAG 从入门到实践", "platform": "掘金" },
+      { "title": "向量数据库实战", "platform": "B站" }
+    ]},
+    { "id": "agent-dev", "name": "Agent / Function Calling 开发", "category": "AI", "aliases": ["agent", "智能体", "function calling", "工具调用", "mcp"], "estHours": 50, "resources": [
+      { "title": "OpenAI Function Calling 文档", "platform": "官方文档" },
+      { "title": "Agent 开发实战", "platform": "GitHub" }
+    ]},
+    { "id": "llm-api", "name": "大模型 API 集成", "category": "AI", "aliases": ["api", "openai", "sdk", "接口调用", "通义", "deepseek"], "estHours": 20, "resources": [
+      { "title": "OpenAI API 官方文档", "platform": "官方文档" },
+      { "title": "大模型 API 接入实战", "platform": "掘金" }
+    ]},
+    { "id": "feature-eng", "name": "特征工程", "category": "AI", "aliases": ["特征", "特征工程", "特征选择"], "estHours": 40, "resources": [
+      { "title": "特征工程实战", "platform": "掘金" },
+      { "title": "特征工程方法综述", "platform": "知乎" }
+    ]},
+    { "id": "model-eval", "name": "模型评估与调优", "category": "AI", "aliases": ["评估", "调参", "auc", "过拟合"], "estHours": 40, "resources": [
+      { "title": "模型评估指标详解", "platform": "掘金" },
+      { "title": "超参调优实践", "platform": "B站" }
+    ]},
+
+    { "id": "html-css", "name": "HTML / CSS", "category": "前端", "aliases": ["html", "css", "网页", "样式", "布局"], "estHours": 40, "resources": [
+      { "title": "MDN Web 文档", "platform": "官方文档" },
+      { "title": "HTML/CSS 基础到实战", "platform": "B站" }
+    ]},
+    { "id": "js", "name": "JavaScript", "category": "前端", "aliases": ["javascript", "js", "es6", "dom"], "estHours": 60, "resources": [
+      { "title": "现代 JavaScript 教程", "platform": "官方文档" },
+      { "title": "JavaScript 高级程序设计", "platform": "知乎" }
+    ]},
+    { "id": "ts", "name": "TypeScript", "category": "前端", "aliases": ["typescript", "ts", "类型"], "estHours": 25, "resources": [
+      { "title": "TypeScript 官方手册（中文）", "platform": "官方文档" },
+      { "title": "TypeScript 入门", "platform": "B站" }
+    ]},
+    { "id": "spa-framework", "name": "React / Vue 框架", "category": "前端", "aliases": ["react", "vue", "next", "nuxt", "组件"], "estHours": 60, "resources": [
+      { "title": "React 官方中文文档", "platform": "官方文档" },
+      { "title": "Vue 官方教程", "platform": "官方文档" }
+    ]},
+    { "id": "fe-build", "name": "前端工程化（Vite / Webpack）", "category": "前端", "aliases": ["vite", "webpack", "构建", "工程化", "打包"], "estHours": 25, "resources": [
+      { "title": "Vite 官方指南", "platform": "官方文档" },
+      { "title": "前端工程化实践", "platform": "掘金" }
+    ]},
+    { "id": "node", "name": "Node.js 服务端基础", "category": "前端", "aliases": ["node", "express", "koa", "nest"], "estHours": 45, "resources": [
+      { "title": "Node.js 官方文档", "platform": "官方文档" },
+      { "title": "Node 服务端开发实战", "platform": "B站" }
+    ]},
+
+    { "id": "java", "name": "Java 编程", "category": "后端", "aliases": ["java", "jvm", "jdk"], "estHours": 90, "resources": [
+      { "title": "Java 核心技术", "platform": "知乎" },
+      { "title": "Java 基础到进阶", "platform": "B站" }
+    ]},
+    { "id": "golang", "name": "Go 编程", "category": "后端", "aliases": ["golang", "go语言", "go 开发"], "estHours": 70, "resources": [
+      { "title": "Go 官方教程 Tour", "platform": "官方文档" },
+      { "title": "Go 语言从入门到实战", "platform": "B站" }
+    ]},
+    { "id": "spring", "name": "Spring 生态", "category": "后端", "aliases": ["spring", "springboot", "mybatis", "jpa"], "estHours": 70, "resources": [
+      { "title": "Spring Boot 官方文档", "platform": "官方文档" },
+      { "title": "Spring Boot 实战", "platform": "B站" }
+    ]},
+    { "id": "api-design", "name": "接口设计与 RESTful", "category": "后端", "aliases": ["接口", "restful", "api", "swagger", "openapi"], "estHours": 30, "resources": [
+      { "title": "RESTful API 设计指南", "platform": "掘金" },
+      { "title": "OpenAPI 规范", "platform": "官方文档" }
+    ]},
+    { "id": "db-design", "name": "关系数据库设计", "category": "后端", "aliases": ["数据库", "建模", "索引", "范式", "事务"], "estHours": 35, "resources": [
+      { "title": "MySQL 官方文档", "platform": "官方文档" },
+      { "title": "数据库设计与索引优化", "platform": "掘金" }
+    ]},
+    { "id": "redis", "name": "缓存与 Redis", "category": "后端", "aliases": ["redis", "缓存", "cache"], "estHours": 25, "resources": [
+      { "title": "Redis 官方文档（中文）", "platform": "官方文档" },
+      { "title": "Redis 实战", "platform": "B站" }
+    ]},
+    { "id": "mq", "name": "消息队列", "category": "后端", "aliases": ["kafka", "rocketmq", "rabbitmq", "消息队列", "mq"], "estHours": 30, "resources": [
+      { "title": "Kafka 官方文档", "platform": "官方文档" },
+      { "title": "消息队列实战", "platform": "掘金" }
+    ]},
+    { "id": "docker", "name": "Docker 与容器", "category": "后端", "aliases": ["docker", "容器", "k8s", "kubernetes"], "estHours": 30, "resources": [
+      { "title": "Docker 官方入门", "platform": "官方文档" },
+      { "title": "Docker 从入门到实践", "platform": "GitHub" }
+    ]},
+    { "id": "microservices", "name": "微服务架构", "category": "后端", "aliases": ["微服务", "分布式", "服务治理", "注册中心"], "estHours": 60, "resources": [
+      { "title": "微服务架构设计模式", "platform": "知乎" },
+      { "title": "微服务实践", "platform": "掘金" }
+    ]},
+    { "id": "testing", "name": "自动化测试", "category": "后端", "aliases": ["测试", "单测", "pytest", "junit", "接口测试"], "estHours": 30, "resources": [
+      { "title": "pytest 官方文档", "platform": "官方文档" },
+      { "title": "自动化测试实战", "platform": "B站" }
+    ]},
+
+    { "id": "prd", "name": "PRD 撰写", "category": "产品", "aliases": ["prd", "需求文档", "文档"], "estHours": 25, "resources": [
+      { "title": "PRD 写作指南", "platform": "知乎" },
+      { "title": "需求文档模板与实例", "platform": "掘金" }
+    ]},
+    { "id": "user-research", "name": "用户调研与访谈", "category": "产品", "aliases": ["调研", "访谈", "用户研究", "问卷"], "estHours": 30, "resources": [
+      { "title": "用户访谈方法", "platform": "知乎" },
+      { "title": "用户调研实战", "platform": "B站" }
+    ]},
+    { "id": "prototype", "name": "原型设计（Figma）", "category": "产品", "aliases": ["figma", "原型", "axure", "墨刀", "设计"], "estHours": 25, "resources": [
+      { "title": "Figma 官方教程", "platform": "官方文档" },
+      { "title": "Figma 原型设计入门", "platform": "B站" }
+    ]},
+    { "id": "project-mgmt", "name": "项目推进与协作", "category": "产品", "aliases": ["项目管理", "协作", "推进", "沟通"], "estHours": 25, "resources": [
+      { "title": "项目管理实战", "platform": "慕课网" },
+      { "title": "跨部门协作方法", "platform": "知乎" }
+    ]},
+    { "id": "data-driven", "name": "数据驱动迭代", "category": "产品", "aliases": ["数据驱动", "数据分析", "转化", "留存", "漏斗"], "estHours": 30, "resources": [
+      { "title": "数据驱动产品迭代", "platform": "知乎" },
+      { "title": "增长分析方法", "platform": "掘金" }
+    ]},
+
+    { "id": "content-plan", "name": "内容策划与选题", "category": "运营", "aliases": ["内容", "策划", "选题", "文案", "小红书", "公众号"], "estHours": 25, "resources": [
+      { "title": "内容运营选题方法", "platform": "知乎" },
+      { "title": "文案写作实战", "platform": "B站" }
+    ]},
+    { "id": "short-video", "name": "短视频拍摄与剪辑", "category": "运营", "aliases": ["短视频", "剪映", "剪辑", "抖音", "拍摄"], "estHours": 30, "resources": [
+      { "title": "剪映官方教程", "platform": "官方文档" },
+      { "title": "短视频剪辑实战", "platform": "B站" }
+    ]},
+    { "id": "community", "name": "社群运营", "category": "运营", "aliases": ["社群", "私域", "用户运营", "群"], "estHours": 25, "resources": [
+      { "title": "社群运营实操", "platform": "知乎" },
+      { "title": "私域运营方法", "platform": "B站" }
+    ]},
+    { "id": "growth", "name": "增长与投放", "category": "运营", "aliases": ["增长", "投放", "seo", "sem", "裂变", "roi"], "estHours": 40, "resources": [
+      { "title": "增长黑客实战", "platform": "知乎" },
+      { "title": "投放与 ROI 优化", "platform": "慕课网" }
+    ]},
+
+    { "id": "structured-expression", "name": "结构化表达", "category": "软技能", "aliases": ["表达", "汇报", "演讲", "沟通"], "estHours": 20, "resources": [
+      { "title": "金字塔原理", "platform": "知乎" },
+      { "title": "结构化表达训练", "platform": "B站" }
+    ]},
+    { "id": "business-sense", "name": "业务理解", "category": "软技能", "aliases": ["业务", "行业", "商业", "商业模式"], "estHours": 40, "resources": [
+      { "title": "行业研究方法", "platform": "知乎" },
+      { "title": "业务分析方法论", "platform": "掘金" }
+    ]},
+    { "id": "doc-writing", "name": "文档写作", "category": "软技能", "aliases": ["写作", "文档", "复盘", "总结"], "estHours": 15, "resources": [
+      { "title": "技术写作指南", "platform": "掘金" },
+      { "title": "文档写作实践", "platform": "知乎" }
+    ]}
+  ]
+}
