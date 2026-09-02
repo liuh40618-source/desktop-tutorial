@@ -2376,24 +2376,24 @@ function Records({
             disabled={!plans.length}
             title={
               plans.length
-                ? `把 ${plans.length} 份规划合并导出成一份 .md 文件`
-                : "还没有可导出的记录"
+                ? `把 ${plans.length} 份规划拼成一份 .md 文件下载到本地`
+                : "还没有记录"
             }
             className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs disabled:opacity-40"
           >
-            导出全部 .md
+            下载全部 .md
           </button>
           <button
             onClick={() => backupAllJson(plans)}
             disabled={!plans.length}
             title={
               plans.length
-                ? `把 ${plans.length} 份规划备份为 .json（含生成时间与原始 markdown）`
-                : "还没有可备份的记录"
+                ? `把 ${plans.length} 份规划下载成一个 .json 文件，存在你电脑/网盘里，换设备时可用来恢复`
+                : "还没有记录"
             }
             className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs disabled:opacity-40"
           >
-            备份 .json
+            下载全部 .json
           </button>
           <button onClick={onBack} className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs">
             返回
