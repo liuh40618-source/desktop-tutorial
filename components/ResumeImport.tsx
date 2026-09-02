@@ -89,7 +89,7 @@ export function ResumeImport({ onDetected, onUndoDetected, onNotice }: ResumeImp
       onDetected(ids);
       setPhase("ok");
       notice(
-        `识别到 ${ids.length} 项技能，已预勾选并入下方「已掌握的技能」，可逐条取消${onUndoDetected ? "，或一键撤销本次识别" : ""}。`,
+        `识别到 ${ids.length} 项技能，已加入下方「你会什么」清单并预勾选，可逐条取消${onUndoDetected ? "，或一键撤销本次识别" : ""}。`,
         "info"
       );
     } catch {

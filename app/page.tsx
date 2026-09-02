@@ -34,6 +34,7 @@ interface Profile {
   selfDescription: string;
   interests: string;
   knownSkillIds: string[];
+  customSkills: string[];
   targetTracks: string[];
   hoursPerWeek: number;
   goal: string;
@@ -47,6 +48,7 @@ const emptyProfile: Profile = {
   selfDescription: "",
   interests: "",
   knownSkillIds: [],
+  customSkills: [],
   targetTracks: [],
   hoursPerWeek: 10,
   goal: "",
@@ -802,7 +804,9 @@ export default function Home() {
                 onNotice={handleNotice}
                 onNext={() => {
                   if (!profile.knownSkillIds.length) {
-                    setError("至少勾选 1 项你已掌握的技能，否则无法计算覆盖率");
+                    setError(
+                      "至少要有 1 项「技能库里的技能」才能开始计算：先点自动识别或从技能库手动挑；自定义添加的技能只作记录、不参与评分"
+                    );
                     return;
                   }
                   setError(null);
@@ -936,14 +940,80 @@ function ProfileForm({
     );
   }
 
+  const [customInput, setCustomInput] = useState("");
+
+  /** 自动识别：优先用已填资料；命中即预勾选并提示「仅供参考，请核对」 */
   function autoDetect() {
-    const detected = detectSkills(profileText(profile));
-    if (!detected.length) {
-      reportError("没识别到技能，请手动勾选");
+    const text = profileText(profile);
+    if (!text.trim()) {
+      reportError("先在专业 / 作品 / 介绍里写点内容，或上传一份简历，我再帮你识别");
       return;
     }
-    set("knownSkillIds", Array.from(new Set([...profile.knownSkillIds, ...detected])));
+    const detected = detectSkills(text);
+    if (!detected.length) {
+      reportError("没识别到知识库里的技能关键词——直接在上方输入框里添加你会的技能也行");
+      return;
+    }
+    const fresh = detected.filter((id) => !profile.knownSkillIds.includes(id));
+    if (!fresh.length) {
+      onNotice("你填的内容里能识别的技能都已经勾上了", "info");
+      return;
+    }
+    set("knownSkillIds", [...profile.knownSkillIds, ...fresh]);
+    onNotice(
+      `从填的内容里识别到 ${fresh.length} 项，已预勾选——自动识别仅供参考，可能有偏差，请逐条核对`,
+      "info"
+    );
   }
+
+  /**
+   * 自由添加：优先对齐知识库词条（名称/别名精确或包含命中 → 计入评分）；
+   * 完全对不上 → 存为自定义技能，仅记录不参与匹配分，避免“库里没有就加不了”。
+   */
+  function addCustom() {
+    const raw = customInput.trim();
+    if (!raw) return;
+    const low = raw.toLowerCase();
+    const exact = skills.find(
+      (s) =>
+        s.name.toLowerCase() === low ||
+        s.aliases.some((a) => a.toLowerCase() === low)
+    );
+    let matched = exact;
+    if (!matched) {
+      const sub = skills.filter(
+        (s) =>
+          low.includes(s.name.toLowerCase()) ||
+          s.name.toLowerCase().includes(low)
+      );
+      matched = sub.sort((a, b) => a.name.length - b.name.length)[0];
+    }
+    if (matched) {
+      if (!profile.knownSkillIds.includes(matched.id)) {
+        set("knownSkillIds", [...profile.knownSkillIds, matched.id]);
+        onNotice(`「${matched.name}」在技能库里，已帮你勾上`, "info");
+      } else {
+        onNotice(`「${matched.name}」已经在列表里了`, "info");
+      }
+    } else {
+      if (!profile.customSkills.includes(raw)) {
+        set("customSkills", [...profile.customSkills, raw]);
+        onNotice(
+          `已添加「${raw}」；知识库里没有对应词条，它不参与匹配分，只作记录`,
+          "info"
+        );
+      } else {
+        onNotice(`「${raw}」已经在列表里了`, "info");
+      }
+    }
+    setCustomInput("");
+  }
+
+  function removeCustom(name: string) {
+    set("customSkills", profile.customSkills.filter((x) => x !== name));
+  }
+
+  const totalKnown = profile.knownSkillIds.length + profile.customSkills.length;
 
   return (
     <section>
@@ -1032,42 +1102,115 @@ function ProfileForm({
       </div>
 
       <div className="card mt-4 p-5">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-medium text-foreground">
-              已掌握的技能
+              你会什么
               <span className="ml-2 text-xs font-normal text-muted">
-                已选 {profile.knownSkillIds.length} 项
+                已确认 {totalKnown} 项
               </span>
             </h3>
             <p className="mt-0.5 text-xs text-muted">
-              只勾你真能干活的，虚报会让后面的差距全部失真
+              不用翻列表——自动从你填的资料、导入的简历里挑候选，你核对后留下靠谱的
             </p>
           </div>
-          <button onClick={autoDetect} className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs">
-            从文字识别
+          <button onClick={autoDetect} className="btn btn-ghost shrink-0 whitespace-nowrap px-3 py-1.5 text-xs">
+            从填的内容识别
           </button>
         </div>
 
-        <div className="mt-4 space-y-4">
-          {groups.map(([cat, list]) => (
-            <div key={cat}>
-              <div className="mb-2 text-xs font-medium text-muted">{cat}</div>
-              <div className="flex flex-wrap gap-2">
-                {list.map((s) => (
+        {profile.knownSkillIds.length > 0 && (
+          <div className="mt-4">
+            <div className="flex flex-wrap gap-2">
+              {profile.knownSkillIds.map((id) => {
+                const s = SKILL_MAP[id];
+                if (!s) return null;
+                return (
                   <button
-                    key={s.id}
-                    onClick={() => toggleSkill(s.id)}
-                    className={`chip-btn ${profile.knownSkillIds.includes(s.id) ? "on" : ""}`}
-                    title={`预估掌握需 ${s.estHours} 小时`}
+                    key={id}
+                    onClick={() => toggleSkill(id)}
+                    className="chip-btn on"
+                    title={`${s.name} · 已勾选（点一下取消）`}
                   >
                     {s.name}
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          ))}
+            <p className="mt-2 text-xs text-muted">
+              上面的条目来自自动识别或手动勾选。自动识别仅供参考、可能不准确，点一下就能取消
+            </p>
+          </div>
+        )}
+
+        {profile.knownSkillIds.length === 0 && profile.customSkills.length === 0 && (
+          <p className="mt-4 text-xs text-muted">
+            还没添加技能。填好上方资料后点「从填的内容识别」，或直接拖一份简历上来；
+            也可以在下方的输入框里直接添加。
+          </p>
+        )}
+
+        <div className="mt-4 flex gap-2">
+          <input
+            value={customInput}
+            onChange={(e) => setCustomInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addCustom();
+              }
+            }}
+            placeholder="直接输入你会的技能，如「Vue」「接口测试」，回车或点添加"
+            className="input"
+            style={{ flex: 1 }}
+          />
+          <button onClick={addCustom} className="btn btn-ghost shrink-0 px-3 py-1.5 text-xs">
+            添加
+          </button>
         </div>
+
+        {profile.customSkills.length > 0 && (
+          <div className="mt-3">
+            <div className="mb-1.5 text-xs font-medium text-muted">自定义添加（仅记录，不影响匹配分）</div>
+            <div className="flex flex-wrap gap-2">
+              {profile.customSkills.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => removeCustom(c)}
+                  className="chip-btn on"
+                  title={`${c} · 自定义技能（点一下移除）`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <details className="mt-4 group">
+          <summary className="cursor-pointer select-none text-xs text-muted transition-colors hover:text-foreground">
+            手动从技能库挑（共 {skills.length} 项，按分类）——一般用不到，供精确补充
+          </summary>
+          <div className="mt-3 space-y-3">
+            {groups.map(([cat, list]) => (
+              <div key={cat}>
+                <div className="mb-2 text-xs font-medium text-muted">{cat}</div>
+                <div className="flex flex-wrap gap-2">
+                  {list.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => toggleSkill(s.id)}
+                      className={`chip-btn ${profile.knownSkillIds.includes(s.id) ? "on" : ""}`}
+                      title={`预估掌握需 ${s.estHours} 小时`}
+                    >
+                      {s.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </details>
       </div>
 
       <div className="card mt-4 p-5">
