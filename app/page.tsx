@@ -21,7 +21,7 @@ import {
 import { resolveUrl } from "@/lib/links";
 import { ResumeImport } from "@/components/ResumeImport";
 
-const STEPS = ["我的画像", "方向定位", "岗位匹配", "技能差距", "学习路径"];
+const STEPS = ["我的情况", "选方向", "找岗位", "查差距", "定计划"];
 const STORAGE_KEY = "zhitu_state_v2";
 const PLANS_KEY = "zhitu_plans_v2";
 const ACTIVE_KEY = "zhitu_active_v1";
@@ -212,7 +212,7 @@ function compilePlan(p: Profile, m: JobMatch, path: PathItem[]): string {
   m.covered.forEach((s) => lines.push(`- ${s.name}（权重 ${s.weight}）`));
   if (!m.covered.length) lines.push("- 暂无");
   lines.push("");
-  lines.push(`## 待补齐技能与学习路径`, "");
+  lines.push(`## 接下来学什么`, "");
   if (!path.length) {
     lines.push("- 必备技能已全部覆盖，建议直接用真实 JD 做一次复核");
   } else {
@@ -405,7 +405,7 @@ export default function Home() {
   const [profiles, setProfiles] = useState<ProfileRowFront[]>([]);
   const [activeProfileId, setActiveProfileId] = useState("local");
 
-  // 打卡完成的技能并入画像，参与所有计算：缺口随进度实时下降
+  // 打卡完成的技能并入已勾选的技能，参与所有计算：缺口随进度实时下降
   const effective = useMemo<Profile>(
     () => ({
       ...profile,
@@ -713,7 +713,7 @@ export default function Home() {
             {step > 0 && (
               <button
                 onClick={() => {
-                  if (confirm("重新开始会清空当前画像与选择，确定要重来吗？")) reset();
+                  if (confirm("重新开始会清空已填的内容和选择，确定要重来吗？")) reset();
                 }}
                 className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs"
               >
@@ -862,7 +862,7 @@ function Footer() {
 }
 
 /* ============================================================
-   Step 0 · 我的画像
+   Step 0 · 我的情况
    ============================================================ */
 function ProfileForm({
   profile,
@@ -915,7 +915,7 @@ function ProfileForm({
 
   return (
     <section>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground">我的画像</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">先说说你的情况</h2>
       <p className="mt-1 text-sm text-muted">
         结构化填写，后面的每一个数字都由这里算出。
       </p>
@@ -1096,14 +1096,14 @@ function ProfileForm({
       </div>
 
       <button onClick={onNext} className="btn btn-primary mt-5 w-full">
-        生成方向定位
+        看看哪个方向更合适
       </button>
     </section>
   );
 }
 
 /* ============================================================
-   Step 1 · 方向定位
+   Step 1 · 看方向
    ============================================================ */
 function Orientation({
   profile,
@@ -1142,7 +1142,7 @@ function Orientation({
 
   return (
     <section>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground">方向定位</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">哪个方向更合你</h2>
       <p className="mt-1 text-sm text-muted">
         按你勾选的 {profile.knownSkillIds.length} 项技能，与 {jobIds().size} 个岗位的要求逐条对齐后的结果。
       </p>
@@ -1188,10 +1188,10 @@ function Orientation({
 
       <div className="mt-5 flex gap-3">
         <button onClick={onBack} className="btn btn-ghost flex-1">
-          上一步 · 我的画像
+          上一步 · 我的情况
         </button>
         <button onClick={onNext} className="btn btn-primary flex-1">
-          查看岗位匹配
+          去看看匹配的岗位
         </button>
       </div>
     </section>
@@ -1279,7 +1279,7 @@ function ScoreBreakdown({
 }
 
 /* ============================================================
-   Step 2 · 岗位匹配
+   Step 2 · 找岗位
    ============================================================ */
 function JobList({
   matches,
@@ -1298,7 +1298,7 @@ function JobList({
 
   return (
     <section>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground">岗位匹配</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">哪些岗位适合你</h2>
       <p className="mt-1 text-sm text-muted">
         按匹配分排序（覆盖率 75% + 加分项 15% + 方向契合 10%）。点「依据」看计算过程。
       </p>
@@ -1372,7 +1372,7 @@ function JobList({
                     selectedId === m.jobId ? "btn-primary" : "btn-ghost"
                   }`}
                 >
-                  {selectedId === m.jobId ? "已选中 · 分析差距" : "选它 · 分析差距"}
+                  {selectedId === m.jobId ? "已选中 · 看还差什么" : "选它 · 看还差什么"}
                 </button>
                 <button
                   onClick={() => setOpenId(open ? null : m.jobId)}
@@ -1429,7 +1429,7 @@ function JobList({
 }
 
 /* ============================================================
-   Step 3 · 技能差距
+   Step 3 · 查差距
    ============================================================ */
 function GapView({
   match,
@@ -1449,7 +1449,7 @@ function GapView({
 
   return (
     <section>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground">技能差距</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">你还差哪些技能</h2>
       <p className="mt-1 text-sm text-muted">
         目标岗位：{match.title} · 岗位要求 {totalCore} 项必备技能，你已具备{" "}
         {coveredCount} 项（覆盖 {match.coverage}%）
@@ -1582,7 +1582,7 @@ function GapView({
           换一个岗位
         </button>
         <button onClick={onNext} className="btn btn-primary flex-1">
-          生成学习路径
+          查看学习计划
         </button>
       </div>
     </section>
@@ -1590,7 +1590,7 @@ function GapView({
 }
 
 /* ============================================================
-   Step 4 · 学习路径
+   Step 4 · 定计划
    ============================================================ */
 function PathView({
   match,
@@ -1621,7 +1621,7 @@ function PathView({
 
   return (
     <section>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground">学习路径</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">接下来补什么</h2>
       <p className="mt-1 text-sm text-muted">
         {match.title} · 按「权重 ÷ 耗时」排序，先补性价比高的
       </p>
@@ -1826,10 +1826,10 @@ function Landing({
   const jobCount = jobIds().size;
   const skillCount = allSkills().length;
   const modules = [
-    { n: "01", t: "技能画像", d: `${skillCount} 项技能按分类勾选，也可以从简历或文字里自动预识别` },
-    { n: "02", t: "岗位匹配", d: `${jobCount} 个岗位按必备技能覆盖率排序，匹配分拆成三部分、依据逐条可查` },
-    { n: "03", t: "差距地图", d: "横向对比五个相近岗位，找出复用率最高的技能，优先补" },
-    { n: "04", t: "学习路径", d: "按性价比排序 + 打卡追踪，覆盖率随进度实时上升" },
+    { n: "01", t: "我的情况", d: `把你会的东西挑出来——${skillCount} 项技能分门别类，也能从简历或文字里自动认个大概` },
+    { n: "02", t: "找岗位", d: `拿 ${jobCount} 个岗位的要求跟你的技能逐个比对、排个先后，分数怎么来的能拆开看` },
+    { n: "03", t: "查差距", d: "横向比几个相近岗位，看哪些技能最常被要求，先补复用率高的" },
+    { n: "04", t: "定计划", d: "按「先学性价比高的」排计划，边学边打卡，缺口实时变小" },
   ];
   return (
     <section>
@@ -1941,7 +1941,7 @@ function Records({
         <div className="card p-8 text-center">
           <div className="text-sm text-foreground">还没有保存的规划</div>
           <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-muted">
-            走到第 5 步「学习路径」，点「保存这份规划」，就会出现在这里。
+            走到最后一步后，点「保存这份规划」，就会出现在这里。
             单份规划可在详情页单独复制或下载。
           </p>
           <button onClick={onBack} className="btn btn-ghost mt-4 text-xs">
