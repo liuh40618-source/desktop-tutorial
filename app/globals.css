@@ -83,6 +83,17 @@ body {
 .input::placeholder {
   color: #9aa2b0;
 }
+
+/* 数字输入框去原生 spinner：避免与后置单位标签挤在一起、视觉更干净 */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spinner {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
 .input:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--ring);

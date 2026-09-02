@@ -1232,30 +1232,38 @@ function ProfileForm({
 
         <label className="mt-5 block">
           <span className="lbl">每周能投入的学习时间</span>
-          <div className="mt-1 flex items-center gap-2">
+          <div className="mt-2 flex items-center gap-2">
             <input
-              list="hours-presets"
               type="number"
+              inputMode="numeric"
               min={1}
               max={80}
               value={profile.hoursPerWeek}
-              onChange={(e) => set("hoursPerWeek", Math.max(1, Number(e.target.value) || 1))}
-              className="input"
-              style={{ flex: 1 }}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                set("hoursPerWeek", v >= 1 && v <= 80 ? v : 1);
+              }}
+              className="input no-spinner w-24 text-base font-semibold tracking-tight tabular-nums"
+              aria-label="每周学习小时数"
             />
             <span className="text-sm text-muted">小时 / 周</span>
           </div>
-          <datalist id="hours-presets">
-            <option value="4" />
-            <option value="6" />
-            <option value="8" />
-            <option value="10" />
-            <option value="12" />
-            <option value="15" />
-            <option value="20" />
-            <option value="30" />
-          </datalist>
-          <span className="hint">下拉选常见值或直接输入；用于估算补齐缺口需要多久</span>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {[4, 6, 10, 12, 15, 20, 30].map((h) => (
+              <button
+                key={h}
+                type="button"
+                onClick={() => set("hoursPerWeek", h)}
+                className={`chip-btn px-3 py-1 text-xs num ${
+                  profile.hoursPerWeek === h ? "on" : ""
+                }`}
+                title={`设为每周 ${h} 小时`}
+              >
+                {h} 小时
+              </button>
+            ))}
+          </div>
+          <span className="hint">默认值 10 小时/周；选了常用值后，下面的「补齐大概 X 周」会跟着变</span>
         </label>
 
         <label className="mt-3 block">
