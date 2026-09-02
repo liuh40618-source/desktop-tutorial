@@ -19,6 +19,7 @@ import {
   type PathItem,
 } from "@/lib/matcher";
 import { resolveUrl } from "@/lib/links";
+import { ResumeImport } from "@/components/ResumeImport";
 
 const STEPS = ["我的画像", "方向定位", "岗位匹配", "技能差距", "学习路径"];
 const STORAGE_KEY = "zhitu_state_v2";
@@ -226,6 +227,49 @@ function compilePlan(p: Profile, m: JobMatch, path: PathItem[]): string {
   lines.push("---");
   lines.push("说明：匹配分 = 覆盖率×75% + 加分项×15% + 方向契合×10%；时长为经验估算，非精确值。");
   return lines.join("\n");
+}
+
+/* ============================================================
+   记录导出 / 备份（全量 .md 与 .json）
+   ============================================================ */
+function downloadBlob(fileName: string, content: string, mime: string) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function plansToMarkdown(plans: PlanRecord[]): string {
+  return plans
+    .map(
+      (p, i) =>
+        `# ${i + 1}. ${p.major || "未填专业"} · ${p.jobTitle}\n\n` +
+        `> 保存于 ${new Date(p.createdAt).toLocaleString("zh-CN")}\n> ${p.summary}\n\n${p.markdown}`
+    )
+    .join("\n\n---\n\n");
+}
+
+function exportAllMd(plans: PlanRecord[]) {
+  downloadBlob("职途-全部记录.md", plansToMarkdown(plans), "text/markdown;charset=utf-8");
+}
+
+function backupAllJson(plans: PlanRecord[]) {
+  const payload = {
+    app: "职途 career-navigator",
+    dataVersion: DATA_META.version,
+    exportedAt: new Date().toISOString(),
+    count: plans.length,
+    plans,
+  };
+  const stamp = new Date().toISOString().slice(0, 10);
+  downloadBlob(
+    `职途-备份-${stamp}.json`,
+    JSON.stringify(payload, null, 2),
+    "application/json;charset=utf-8"
+  );
 }
 
 /* ============================================================
@@ -926,6 +970,20 @@ function ProfileForm({
             onChange={(e) => set("selfDescription", e.target.value)}
           />
         </label>
+      </div>
+
+      <div className="card mt-4 p-5">
+        <h3 className="text-base font-medium text-foreground">简历导入（选填）</h3>
+        <p className="mt-0.5 text-xs text-muted">
+          有简历就传一份：本地解析出文字后自动识别技能并预勾选，比手动填更省事
+        </p>
+        <div className="mt-3">
+          <ResumeImport
+            onDetected={(ids) =>
+              set("knownSkillIds", Array.from(new Set([...profile.knownSkillIds, ...ids])))
+            }
+          />
+        </div>
       </div>
 
       <div className="card mt-4 p-5">
@@ -1646,11 +1704,29 @@ function Records({
   if (sel) return <PlanDetail plan={sel} onBack={() => setSel(null)} />;
   return (
     <section>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-xl font-semibold tracking-tight text-foreground">我的记录</h2>
-        <button onClick={onBack} className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs">
-          返回
-        </button>
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <button
+            onClick={() => exportAllMd(plans)}
+            disabled={!plans.length}
+            title={plans.length ? "把全部记录拼成一份 .md" : "还没有记录"}
+            className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs disabled:opacity-40"
+          >
+            导出全部 .md
+          </button>
+          <button
+            onClick={() => backupAllJson(plans)}
+            disabled={!plans.length}
+            title={plans.length ? "备份全部记录为 .json（含原始 markdown）" : "还没有记录"}
+            className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs disabled:opacity-40"
+          >
+            备份 .json
+          </button>
+          <button onClick={onBack} className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs">
+            返回
+          </button>
+        </div>
       </div>
 
       {plans.length === 0 ? (
