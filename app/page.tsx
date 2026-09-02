@@ -941,6 +941,19 @@ function ProfileForm({
   }
 
   const [customInput, setCustomInput] = useState("");
+  // 未命中库内词条时的映射待选：输入「仅记录」前先让用户决定要不要按某个相近技能计入本次评分
+  const [suggestFor, setSuggestFor] = useState<string | null>(null);
+
+  /** 未命中词条 → 找最多 6 个名称/别名沾边的库内技能，供用户「临时按它计分」 */
+  function suggestCandidates(raw: string) {
+    const low = raw.toLowerCase();
+    if (low.length < 2) return [];
+    const sc = skills.filter((s) => {
+      const names = [s.name.toLowerCase(), ...s.aliases.map((a) => a.toLowerCase())];
+      return names.some((n) => n.includes(low) || low.includes(n));
+    });
+    return sc.sort((a, b) => a.name.length - b.name.length).slice(0, 6);
+  }
 
   // 学习小时数：本地字符串态，允许清空/自由输入，失焦或回车时才落库，
   // 避免「删不掉、强制回 1」的输入 bug；合法范围 1–80，非法/空回默认 10
@@ -1012,16 +1025,39 @@ function ProfileForm({
         onNotice(`「${matched.name}」已经在列表里了`, "info");
       }
     } else {
+      const cands = suggestCandidates(raw);
+      if (cands.length) {
+        // 有相近库内词条 → 不自动落自定义，先让用户选「临时按哪个计分」
+        setSuggestFor(raw);
+        return;
+      }
       if (!profile.customSkills.includes(raw)) {
         set("customSkills", [...profile.customSkills, raw]);
         onNotice(
-          `已添加「${raw}」；知识库里没有对应词条，它不参与匹配分，只作记录`,
+          `已添加「${raw}」；知识库里找不到接近的词条，它不参与匹配分，只作记录`,
           "info"
         );
       } else {
         onNotice(`「${raw}」已经在列表里了`, "info");
       }
     }
+    setCustomInput("");
+  }
+
+  /** 把用户自定义说法按库内技能临时计入（仅当前档案的 knownSkillIds，不写全局知识库） */
+  function addAsMapped(raw: string, skillId: string) {
+    const s = SKILL_MAP[skillId];
+    if (!s) return;
+    if (!profile.knownSkillIds.includes(skillId)) {
+      set("knownSkillIds", [...profile.knownSkillIds, skillId]);
+      onNotice(
+        `已把「${raw}」按库内技能「${s.name}」计入本次评分；不满意可点它取消`,
+        "info"
+      );
+    } else {
+      onNotice(`「${s.name}」已经在列表里了`, "info");
+    }
+    setSuggestFor(null);
     setCustomInput("");
   }
 
@@ -1184,6 +1220,56 @@ function ProfileForm({
             添加
           </button>
         </div>
+
+        {suggestFor && (
+          <div className="mt-3 rounded-xl bg-[var(--surface-2)] p-3">
+            <div className="text-xs text-foreground">
+              「{suggestFor}」不在知识库里。下面这些比较接近——选一个会<strong>按它临时计分</strong>（仅当前档案，随时可取消）：
+            </div>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {suggestCandidates(suggestFor).map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => addAsMapped(suggestFor, s.id)}
+                  className="chip-btn px-2.5 py-1 text-xs"
+                  title={`按「${s.name}」计入评分（预估掌握需 ${s.estHours} 小时）`}
+                >
+                  {s.name}
+                </button>
+              ))}
+            </div>
+            <div className="mt-2.5 flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!profile.customSkills.includes(suggestFor)) {
+                    set("customSkills", [...profile.customSkills, suggestFor]);
+                    onNotice(
+                      `已把「${suggestFor}」存为自定义记录，不参与评分（库内没有可信的相近词条）`,
+                      "info"
+                    );
+                  }
+                  setSuggestFor(null);
+                  setCustomInput("");
+                }}
+                className="btn btn-ghost px-2.5 py-1 text-xs"
+              >
+                都不太对 → 仅记录
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSuggestFor(null);
+                  setCustomInput("");
+                }}
+                className="px-2.5 text-xs text-muted hover:text-foreground"
+              >
+                算了
+              </button>
+            </div>
+          </div>
+        )}
 
         {profile.customSkills.length > 0 && (
           <div className="mt-3">
