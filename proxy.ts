@@ -5,10 +5,12 @@ import { NextRequest, NextResponse } from "next/server";
  * - 未配置 ADMIN_TOKEN（本地开发）→ 全部放行，无摩擦
  * - 配置后：/admin 页面与 /api/admin/* 写接口需要 cookie zhitu_admin == ADMIN_TOKEN
  * - 未登录访问页面 → 302 到 /admin/login；直调写接口 → 401
+ *
+ * Next 16 中间件文件约定由 `middleware.ts` 改名为 `proxy.ts`，导出名同步为 proxy。
  */
 const TOKEN = process.env.ADMIN_TOKEN;
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   if (!TOKEN) return NextResponse.next();
 
   const { pathname } = req.nextUrl;
@@ -16,7 +18,6 @@ export function middleware(req: NextRequest) {
   if (authed) return NextResponse.next();
 
   if (pathname.startsWith("/api/admin")) {
-    // 登录/登出入口本身不要求已认证
     if (pathname === "/api/admin/login" || pathname === "/api/admin/logout") {
       return NextResponse.next();
     }

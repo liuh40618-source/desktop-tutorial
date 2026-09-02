@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function AdminLogin() {
+// useSearchParams 必须在 Suspense 边界内使用，否则 build 期预渲染会失败
+function AdminLoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") || "/admin";
@@ -35,35 +36,43 @@ export default function AdminLogin() {
   }
 
   return (
-    <main className="app-shell grid min-h-screen place-items-center px-4">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          submit();
-        }}
-        className="w-full max-w-sm"
-      >
-        <div className="text-center">
-          <div className="text-lg font-semibold tracking-tight text-foreground">职途 · 数据后台</div>
-          <p className="mt-1 text-xs text-muted">输入 ADMIN_TOKEN 环境变量对应的口令</p>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        submit();
+      }}
+      className="w-full max-w-sm"
+    >
+      <div className="text-center">
+        <div className="text-lg font-semibold tracking-tight text-foreground">职途 · 数据后台</div>
+        <p className="mt-1 text-xs text-muted">输入 ADMIN_TOKEN 环境变量对应的口令</p>
+      </div>
+      <input
+        autoFocus
+        type="password"
+        value={token}
+        onChange={(e) => setToken(e.target.value)}
+        placeholder="管理口令"
+        className="input mt-4"
+      />
+      {err && (
+        <div role="alert" className="toast-info mt-3 rounded-xl px-4 py-2.5 text-xs">
+          {err}
         </div>
-        <input
-          autoFocus
-          type="password"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          placeholder="管理口令"
-          className="input mt-4"
-        />
-        {err && (
-          <div role="alert" className="toast-info mt-3 rounded-xl px-4 py-2.5 text-xs">
-            {err}
-          </div>
-        )}
-        <button type="submit" disabled={!token.trim() || busy} className="btn btn-primary mt-3 w-full">
-          {busy ? "验证中…" : "进入后台"}
-        </button>
-      </form>
+      )}
+      <button type="submit" disabled={!token.trim() || busy} className="btn btn-primary mt-3 w-full">
+        {busy ? "验证中…" : "进入后台"}
+      </button>
+    </form>
+  );
+}
+
+export default function AdminLogin() {
+  return (
+    <main className="app-shell grid min-h-screen place-items-center px-4">
+      <Suspense fallback={null}>
+        <AdminLoginForm />
+      </Suspense>
     </main>
   );
 }
