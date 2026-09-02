@@ -11,7 +11,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     upsertSkill(v.skill);
     return NextResponse.json({ ok: true, skill: v.skill });
   } catch {
-    return NextResponse.json({ ok: false, error: "invalid body" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "请求体不是合法的 JSON，或字段缺失" }, { status: 400 });
   }
 }
 

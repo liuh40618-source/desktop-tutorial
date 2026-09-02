@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "职途 · 大学生岗位认知与技能定位",
-  description: "输入专业与技能，按岗位必备技能覆盖率算出匹配度、差距地图与学习路径；可选 AI 建议。",
+  title: "职途 · 大学生岗位匹配与技能规划",
+  description:
+    "不靠 LLM 的岗位匹配工具：输入专业与技能，按岗位必备技能的覆盖率算出匹配分、技能差距与学习路径，每个数字都能拆开看依据。",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

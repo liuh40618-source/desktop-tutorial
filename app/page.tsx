@@ -361,8 +361,11 @@ function ProfileSwitcher({
               </button>
               <button
                 onClick={() => {
-                  onDelete(p.id);
-                  setOpen(false);
+                  const nm = p.name || "未命名档案";
+                  if (confirm(`删除档案「${nm}」？其中的进度与打卡记录会一并清除，且不可撤销。`)) {
+                    onDelete(p.id);
+                    setOpen(false);
+                  }
                 }}
                 className="px-1 text-xs text-muted hover:text-red-500"
                 title="删除"
@@ -669,7 +672,7 @@ export default function Home() {
 
   return (
     <main className="app-shell min-h-screen px-4 py-8 sm:px-6 sm:py-12">
-      <header className="mb-6 flex items-end justify-between">
+      <header className="mb-6 flex flex-wrap items-end justify-between gap-x-3 gap-y-2">
         <div>
           <h1
             onClick={() => {
@@ -685,7 +688,7 @@ export default function Home() {
             </span>
           </h1>
           <p className="mt-1 text-xs text-muted">
-            岗位知识库 × 技能覆盖率 · 算出你的差距和路径
+            岗位要求 × 你的技能 · 每个数字都能拆开看
           </p>
         </div>
         <ProfileSwitcher
@@ -708,7 +711,12 @@ export default function Home() {
               返回首页
             </button>
             {step > 0 && (
-              <button onClick={reset} className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs">
+              <button
+                onClick={() => {
+                  if (confirm("重新开始会清空当前画像与选择，确定要重来吗？")) reset();
+                }}
+                className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs"
+              >
                 重新开始
               </button>
             )}
@@ -754,9 +762,7 @@ export default function Home() {
           <p className="mt-2 text-xs text-muted">进度已自动保存，刷新不丢失</p>
 
           {error && (
-            <div className="mt-4 rounded-xl border border-accent/30 bg-accent-soft px-4 py-3 text-sm text-accent">
-              {error}
-            </div>
+            <div className="alert-error mt-4 rounded-xl px-4 py-3 text-sm">{error}</div>
           )}
 
           <div key={step} className="mt-6 animate-step">
@@ -779,6 +785,7 @@ export default function Home() {
               <Orientation
                 profile={effective}
                 matches={matches}
+                onBack={() => setStep(0)}
                 onNext={() => setStep(2)}
               />
             )}
@@ -787,6 +794,7 @@ export default function Home() {
               <JobList
                 matches={topMatches}
                 selectedId={activeId}
+                targetTracks={effective.targetTracks}
                 onSelect={(id) => {
                   setSelectedJobId(id);
                   setStep(3);
@@ -816,6 +824,10 @@ export default function Home() {
                   )
                 }
                 onSave={saveCurrentPlan}
+                onGoRecords={() => {
+                  loadPlansFromServer().then(setPlans);
+                  setView("records");
+                }}
                 onBack={() => setStep(3)}
               />
             )}
@@ -1004,7 +1016,7 @@ function ProfileForm({
           </button>
         </div>
 
-        {error && <p className="mt-2 text-xs text-accent">{error}</p>}
+        {error && <p className="danger-text mt-2 text-xs">{error}</p>}
 
         <div className="mt-4 space-y-4">
           {groups.map(([cat, list]) => (
@@ -1096,10 +1108,12 @@ function ProfileForm({
 function Orientation({
   profile,
   matches,
+  onBack,
   onNext,
 }: {
   profile: Profile;
   matches: JobMatch[];
+  onBack: () => void;
   onNext: () => void;
 }) {
   // 按方向聚合：该方向下所有岗位覆盖率的平均值
@@ -1172,10 +1186,95 @@ function Orientation({
         </ul>
       </div>
 
-      <button onClick={onNext} className="btn btn-primary mt-5 w-full">
-        查看岗位匹配
-      </button>
+      <div className="mt-5 flex gap-3">
+        <button onClick={onBack} className="btn btn-ghost flex-1">
+          上一步 · 我的画像
+        </button>
+        <button onClick={onNext} className="btn btn-primary flex-1">
+          查看岗位匹配
+        </button>
+      </div>
     </section>
+  );
+}
+
+/* ============================================================
+   Step 2 用 · 匹配分构成（公式公开，逐项给数）
+   coverage 与方向项可精确给出；加分项只能拿到「命中名单」，
+   如实标 0–15，不反推编数——数字可追溯优先于好看。
+   ============================================================ */
+function fmtScore(n: number): string {
+  const r = Math.round(n * 10) / 10;
+  return Number.isInteger(r) ? String(r) : r.toFixed(1);
+}
+
+function ScoreBreakdown({
+  match,
+  targetTracks,
+}: {
+  match: JobMatch;
+  targetTracks: string[];
+}) {
+  const totalCore = match.covered.length + match.missing.length;
+  const covPts = Math.round(match.coverage * 0.75 * 10) / 10;
+  const dirOk = targetTracks.length === 0 || targetTracks.includes(match.track);
+  const dirPts = dirOk ? 10 : 5;
+
+  const rows: { label: string; scale: string; state: string; pts: string }[] = [
+    {
+      label: "必备技能覆盖率",
+      scale: "×0.75",
+      state: `必备技能命中 ${match.covered.length}/${totalCore} 项（按权重计 ${match.coverage}%）`,
+      pts: `${fmtScore(covPts)} / 75`,
+    },
+    {
+      label: "加分项",
+      scale: "×0.15",
+      state:
+        match.plusCovered.length > 0
+          ? `已命中：${match.plusCovered.join("、")}`
+          : "未命中加分技能",
+      pts: match.plusCovered.length > 0 ? "按命中计 0–15" : "0 / 15",
+    },
+    {
+      label: "方向契合",
+      scale: "×0.10",
+      state: dirOk
+        ? targetTracks.length === 0
+          ? "未限定方向，不打折"
+          : `勾选了「${match.trackName}」，不打折`
+        : "未勾选此方向，按一半计",
+      pts: `${fmtScore(dirPts)} / 10`,
+    },
+  ];
+
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-xs font-semibold text-foreground">匹配分构成</span>
+        <span className="num text-xs text-foreground">合计 {match.score} 分</span>
+      </div>
+      <p className="mt-0.5 text-[0.68rem] leading-relaxed text-muted">
+        公开公式：覆盖率 ×0.75 ＋ 加分项 ×0.15 ＋ 方向契合 ×0.10，加总后四舍五入。
+      </p>
+      <div className="mt-1 text-xs">
+        {rows.map((r) => (
+          <div
+            key={r.label}
+            className="flex items-center justify-between gap-3 border-b border-border/60 py-1.5 last:border-b-0"
+          >
+            <div className="min-w-0 flex-1">
+              <span className="text-foreground">{r.label}</span>
+              <span className="ml-1.5 rounded border border-border bg-white px-1 align-middle text-[0.62rem] text-muted">
+                {r.scale}
+              </span>
+              <div className="mt-0.5 truncate text-[0.68rem] text-muted">{r.state}</div>
+            </div>
+            <span className="num shrink-0 whitespace-nowrap text-muted">{r.pts}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -1185,11 +1284,13 @@ function Orientation({
 function JobList({
   matches,
   selectedId,
+  targetTracks,
   onSelect,
   onBack,
 }: {
   matches: JobMatch[];
   selectedId: string;
+  targetTracks: string[];
   onSelect: (id: string) => void;
   onBack: () => void;
 }) {
@@ -1202,11 +1303,18 @@ function JobList({
         按匹配分排序（覆盖率 75% + 加分项 15% + 方向契合 10%）。点「依据」看计算过程。
       </p>
 
-      <div className="mt-5 space-y-3">
-        {matches.map((m) => {
-          const open = openId === m.jobId;
-          const hardMissing = m.missing.filter((s) => s.weight === 3);
-          return (
+      <div className="mt-5">
+        {matches.length === 0 ? (
+          <div className="card p-8 text-center text-sm text-muted">
+            知识库里还没有可匹配的岗位，或技能勾选过少导致没有命中。
+            可回上一步多勾选几项技能，或到后台补充岗位数据。
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {matches.map((m) => {
+              const open = openId === m.jobId;
+              const hardMissing = m.missing.filter((s) => s.weight === 3);
+              return (
             <div key={m.jobId} className="card p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -1271,21 +1379,42 @@ function JobList({
               </div>
 
               {open && (
-                <div className="mt-3 rounded-xl bg-[var(--surface-2)] p-3">
-                  <ul className="space-y-1 text-xs leading-relaxed text-muted">
-                    {m.reasons.map((r, i) => (
-                      <li key={i}>· {r}</li>
-                    ))}
-                  </ul>
-                  <div className="mt-2 border-t border-border pt-2 text-xs leading-relaxed text-muted">
-                    <div>入门门槛：{m.threshold}</div>
-                    <div className="mt-1">发展路径：{m.growth}</div>
+                <div className="mt-3 space-y-2">
+                  <div className="rounded-xl bg-[var(--surface-2)] p-3">
+                    <ScoreBreakdown match={m} targetTracks={targetTracks} />
+                  </div>
+                  <div className="rounded-xl bg-[var(--surface-2)] p-3">
+                    <div className="text-xs font-semibold text-foreground">逐条依据</div>
+                    <ul className="mt-1.5 space-y-1 text-xs leading-relaxed text-muted">
+                      {m.reasons.map((r, i) => (
+                        <li key={i} className="flex gap-1.5">
+                          <span aria-hidden className="shrink-0 text-accent">
+                            ·
+                          </span>
+                          <span>{r}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-2 space-y-1 border-t border-border pt-2 text-xs leading-relaxed text-muted">
+                      <div>
+                        <span className="text-muted">入门门槛</span>
+                        <span className="mx-1">：</span>
+                        {m.threshold || "—"}
+                      </div>
+                      <div>
+                        <span className="text-muted">发展路径</span>
+                        <span className="mx-1">：</span>
+                        {m.growth || "—"}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
-            </div>
-          );
-        })}
+              </div>
+            );
+          })}
+          </div>
+        )}
       </div>
 
       <button onClick={onBack} className="btn btn-ghost mt-5 w-full">
@@ -1310,16 +1439,31 @@ function GapView({
   onNext: () => void;
 }) {
   const rows = [...match.covered, ...match.missing].sort((a, b) => b.weight - a.weight);
+  const totalCore = rows.length;
+  const coveredCount = match.covered.length;
+  const missingHard = match.missing.filter((s) => s.weight === 3);
 
   return (
     <section>
       <h2 className="text-xl font-semibold tracking-tight text-foreground">技能差距</h2>
       <p className="mt-1 text-sm text-muted">
-        目标岗位：{match.title} · 必备技能覆盖 {match.coverage}%
+        目标岗位：{match.title} · 岗位要求 {totalCore} 项必备技能，你已具备{" "}
+        {coveredCount} 项（覆盖 {match.coverage}%）
       </p>
 
       <div className="card mt-5 p-5">
-        <h3 className="text-base font-medium text-foreground">这个岗位要求什么</h3>
+        <div className="flex items-baseline justify-between gap-2">
+          <h3 className="text-base font-medium text-foreground">这个岗位要求什么</h3>
+          <span className="shrink-0 text-[0.68rem] text-muted">
+            权重 3=硬门槛 · 2=重要 · 1=加分
+          </span>
+        </div>
+        {missingHard.length > 0 && (
+          <div className="mt-3 rounded-lg bg-[var(--surface-2)] px-3 py-2 text-xs leading-relaxed text-foreground">
+            <span className="tag w3 mr-1">硬门槛缺失</span>
+            还差 {missingHard.map((s) => s.name).join("、")}——这类往往是投递初筛的硬条件，建议排在补齐的第一优先级。
+          </div>
+        )}
         <div className="mt-3 space-y-2">
           {rows.map((s) => {
             const known = match.covered.some((c) => c.id === s.id);
@@ -1356,52 +1500,77 @@ function GapView({
         )}
       </div>
 
-      <div className="card mt-4 overflow-x-auto p-5">
-        <h3 className="text-base font-medium text-foreground">五个相近岗位横向对比</h3>
+      <div className="card mt-4 p-5">
+        <div className="flex items-baseline justify-between gap-2">
+          <h3 className="text-base font-medium text-foreground">相近岗位横向对比</h3>
+          {gapMap.jobs.length > 0 && (
+            <span className="shrink-0 text-[0.68rem] text-muted">
+              与目标岗位最接近的 {gapMap.jobs.length} 个
+            </span>
+          )}
+        </div>
         <p className="mt-0.5 text-xs text-muted">
-          同一批技能在哪些岗位被反复要求，优先补复用率高的
+          同一项技能被越多个岗位要求，越值得先补。表内可左右滑动。
         </p>
-        <table className="mt-3 w-full border-separate border-spacing-1 text-xs">
-          <thead>
-            <tr>
-              <th className="text-left font-medium text-muted">技能</th>
-              {gapMap.jobs.map((j) => (
-                <th key={j.jobId} className="font-medium text-muted">
-                  <div className="max-w-[4.5rem] truncate" title={j.title}>
-                    {j.title}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {gapMap.skills.map((s) => (
-              <tr key={s.id}>
-                <td className="whitespace-nowrap">
-                  <span className={s.known ? "text-foreground" : "text-muted"}>
-                    {s.known ? "✓ " : "· "}
-                    {s.name}
-                  </span>
-                </td>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[30rem] border-separate border-spacing-1 text-xs">
+            <thead>
+              <tr>
+                <th className="matrix-sticky text-left font-medium text-muted">技能</th>
                 {gapMap.jobs.map((j) => (
-                  <td key={j.jobId}>
-                    <div
-                      className={`cell ${
-                        !s.requiredBy.includes(j.title)
-                          ? "cell-na"
-                          : s.known
-                            ? "cell-yes"
-                            : "cell-no"
-                      }`}
-                    >
-                      {!s.requiredBy.includes(j.title) ? "—" : s.known ? "有" : "缺"}
+                  <th key={j.jobId} className="align-bottom font-medium text-muted">
+                    <div className="w-24">
+                      <div className="clamp-2 leading-tight" title={j.title}>
+                        {j.title}
+                      </div>
+                      <div className="num mt-0.5 text-[0.62rem] text-muted">
+                        覆盖 {j.coverage}%
+                      </div>
                     </div>
-                  </td>
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {gapMap.skills.map((s) => (
+                <tr key={s.id}>
+                  <td className="matrix-sticky whitespace-nowrap">
+                    <span className={s.known ? "text-foreground" : "text-muted"}>
+                      {s.known ? "✓ " : "· "}
+                      {s.name}
+                    </span>
+                  </td>
+                  {gapMap.jobs.map((j) => (
+                    <td key={j.jobId}>
+                      <div
+                        className={`cell ${
+                          !s.requiredBy.includes(j.title)
+                            ? "cell-na"
+                            : s.known
+                              ? "cell-yes"
+                              : "cell-no"
+                        }`}
+                      >
+                        {!s.requiredBy.includes(j.title) ? "—" : s.known ? "有" : "缺"}
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.68rem] text-muted">
+          <span className="inline-flex items-center gap-1">
+            <span className="tag cell-yes">有</span> 你已具备
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="tag cell-no">缺</span> 待补齐
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="tag cell-na">—</span> 该岗位不要求
+          </span>
+        </div>
       </div>
 
       <div className="mt-5 flex gap-3">
@@ -1426,6 +1595,7 @@ function PathView({
   doneSkills,
   onToggleDone,
   onSave,
+  onGoRecords,
   onBack,
 }: {
   match: JobMatch;
@@ -1434,6 +1604,7 @@ function PathView({
   doneSkills: string[];
   onToggleDone: (id: string) => void;
   onSave: () => void;
+  onGoRecords: () => void;
   onBack: () => void;
 }) {
   const [saved, setSaved] = useState(false);
@@ -1571,9 +1742,18 @@ function PathView({
           返回差距分析
         </button>
         <button onClick={handleSave} className="btn btn-primary flex-1">
-          {saved ? "已保存到我的记录" : "保存这份规划"}
+          {saved ? "已保存 ✓" : "保存这份规划"}
         </button>
       </div>
+
+      {saved && (
+        <p className="mt-3 text-center text-xs text-accent">
+          已写入「我的记录」
+          <button onClick={onGoRecords} className="ml-2 underline underline-offset-2">
+            去看看 →
+          </button>
+        </p>
+      )}
 
       <p className="mt-3 text-[0.7rem] leading-relaxed text-muted">
         说明：时长为经验估算，用于排序与节奏参考；资源链接指向各平台搜索结果，内容可能更新，以搜索到的最新版本为准。
@@ -1596,18 +1776,25 @@ function Progress({
   return (
     <div>
       <div className="mb-2 flex flex-wrap gap-1.5">
-        {STEPS.map((label, i) => (
-          <button
-            key={label}
-            onClick={() => i <= step && onStepClick(i)}
-            disabled={i > step}
-            className={`chip-btn ${i === step ? "on" : ""} ${
-              i > step ? "opacity-45" : ""
-            }`}
-          >
-            {i + 1}. {label}
-          </button>
-        ))}
+        {STEPS.map((label, i) => {
+          const finished = i < step;
+          const current = i === step;
+          const future = i > step;
+          return (
+            <button
+              key={label}
+              onClick={() => onStepClick(i)}
+              disabled={future}
+              title={future ? `先完成第 ${i} 步，前面步骤还没走` : finished ? `回到：${label}` : `当前：${label}`}
+              className={`chip-btn ${current ? "on" : ""} ${finished ? "done" : ""} ${
+                future ? "opacity-45" : ""
+              }`}
+            >
+              {finished ? "✓ " : `${i + 1}. `}
+              {label}
+            </button>
+          );
+        })}
       </div>
       <div className="track">
         <i style={{ width: `${pct}%` }} />
@@ -1632,20 +1819,23 @@ function Landing({
   onRecords: () => void;
   plansCount: number;
 }) {
+  const jobCount = jobIds().size;
+  const skillCount = allSkills().length;
   const modules = [
-    { n: "01", t: "技能画像", d: `${allSkills().length} 项技能勾选，从文字自动预识别` },
-    { n: "02", t: "岗位匹配", d: `${jobIds().size} 个岗位按必备技能覆盖率排序，附计算依据` },
-    { n: "03", t: "差距地图", d: "横向对比五个相近岗位，找出复用率最高的技能" },
-    { n: "04", t: "学习路径", d: "按性价比排序 + 打卡追踪，缺口随进度下降" },
+    { n: "01", t: "技能画像", d: `${skillCount} 项技能按分类勾选，也可以从简历或文字里自动预识别` },
+    { n: "02", t: "岗位匹配", d: `${jobCount} 个岗位按必备技能覆盖率排序，匹配分拆成三部分、依据逐条可查` },
+    { n: "03", t: "差距地图", d: "横向对比五个相近岗位，找出复用率最高的技能，优先补" },
+    { n: "04", t: "学习路径", d: "按性价比排序 + 打卡追踪，覆盖率随进度实时上升" },
   ];
   return (
     <section>
       <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-        把你的技能，和岗位要求对齐
+        把「学过什么」对齐到「岗位要什么」
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-muted">
-        内置 20 个互联网岗位的必备技能与权重。不靠猜，靠算——每个匹配度都能拆开看。
-        无需注册，规划进度自动保存在服务端数据库，刷新或换设备都不丢。
+        内置 {jobCount} 个互联网岗位的必备技能与权重。不靠猜，靠算——匹配分
+        = 覆盖率 ×0.75 + 加分项 ×0.15 + 方向契合 ×0.10，每个数字都能拆开看。
+        无需注册，进度自动保存，刷新不丢。
       </p>
 
       {draft && (
@@ -1710,7 +1900,11 @@ function Records({
           <button
             onClick={() => exportAllMd(plans)}
             disabled={!plans.length}
-            title={plans.length ? "把全部记录拼成一份 .md" : "还没有记录"}
+            title={
+              plans.length
+                ? `把 ${plans.length} 份规划合并导出成一份 .md 文件`
+                : "还没有可导出的记录"
+            }
             className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs disabled:opacity-40"
           >
             导出全部 .md
@@ -1718,7 +1912,11 @@ function Records({
           <button
             onClick={() => backupAllJson(plans)}
             disabled={!plans.length}
-            title={plans.length ? "备份全部记录为 .json（含原始 markdown）" : "还没有记录"}
+            title={
+              plans.length
+                ? `把 ${plans.length} 份规划备份为 .json（含生成时间与原始 markdown）`
+                : "还没有可备份的记录"
+            }
             className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs disabled:opacity-40"
           >
             备份 .json
@@ -1730,8 +1928,15 @@ function Records({
       </div>
 
       {plans.length === 0 ? (
-        <div className="card p-8 text-center text-sm text-muted">
-          还没有保存的规划。走到最后一步点「保存这份规划」即可。
+        <div className="card p-8 text-center">
+          <div className="text-sm text-foreground">还没有保存的规划</div>
+          <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-muted">
+            走到第 5 步「学习路径」，点「保存这份规划」，就会出现在这里。
+            单份规划可在详情页单独复制或下载。
+          </p>
+          <button onClick={onBack} className="btn btn-ghost mt-4 text-xs">
+            先去做一份规划
+          </button>
         </div>
       ) : (
         <div className="space-y-3">
@@ -1748,8 +1953,11 @@ function Records({
                   </div>
                 </button>
                 <button
-                  onClick={() => onDelete(p.id)}
-                  className="shrink-0 rounded-lg px-2 py-1 text-xs text-muted transition-colors hover:text-accent"
+                  onClick={() => {
+                    const title = p.jobTitle || "这份规划";
+                    if (confirm(`删除「${title}」？此操作不可撤销。`)) onDelete(p.id);
+                  }}
+                  className="shrink-0 rounded-lg px-2 py-1 text-xs text-muted transition-colors hover:text-red-500"
                 >
                   删除
                 </button>

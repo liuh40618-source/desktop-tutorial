@@ -18,6 +18,6 @@ export async function POST(req: Request) {
     upsertJob(v.job);
     return NextResponse.json({ ok: true, job: v.job });
   } catch {
-    return NextResponse.json({ ok: false, error: "invalid body" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "请求体不是合法的 JSON，或字段缺失" }, { status: 400 });
   }
 }

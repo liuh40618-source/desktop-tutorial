@@ -264,3 +264,44 @@ body {
     transition: none !important;
   }
 }
+
+/* ===== 支路 C 补充（延续既有 token，仅作可解释性/移动端支撑） ===== */
+
+/* 进度条「已完成」步骤：比未到步骤更实在，但弱于当前步骤 */
+.chip-btn.done {
+  border-color: rgba(47, 107, 255, 0.35);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 500;
+}
+
+/* 差距矩阵横向滚动时固定首列（技能名），背景与卡片同色避免透视重影 */
+.matrix-sticky {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--card);
+}
+
+/* 岗位列标题两行省略，替代单行截断，窄屏也能读懂岗位名 */
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 数字使用等宽数字字形：表格/分数对齐更稳定 */
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 真正的错误/失败提示用红系浅底，与品牌蓝的「信息提示」区分开 */
+.alert-error {
+  background: #fdf1ef;
+  border: 1px solid #f3cdc7;
+  color: #b3372b;
+}
+.danger-text {
+  color: #b3372b;
+}
