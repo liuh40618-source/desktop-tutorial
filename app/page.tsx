@@ -394,22 +394,6 @@ function PlanMd({ text }: { text: string }) {
   );
 }
 
-function backupAllJson(plans: PlanRecord[]) {
-  const payload = {
-    app: "职途 career-navigator",
-    dataVersion: DATA_META.version,
-    exportedAt: new Date().toISOString(),
-    count: plans.length,
-    plans,
-  };
-  const stamp = new Date().toISOString().slice(0, 10);
-  downloadBlob(
-    `职途-备份-${stamp}.json`,
-    JSON.stringify(payload, null, 2),
-    "application/json;charset=utf-8"
-  );
-}
-
 /* ============================================================
    档案切换器（多档案：保存 / 切换 / 重命名 / 删除）
    ============================================================ */
@@ -2382,18 +2366,6 @@ function Records({
             className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs disabled:opacity-40"
           >
             下载全部 .md
-          </button>
-          <button
-            onClick={() => backupAllJson(plans)}
-            disabled={!plans.length}
-            title={
-              plans.length
-                ? `把 ${plans.length} 份规划下载成一个 .json 文件，存在你电脑/网盘里，换设备时可用来恢复`
-                : "还没有记录"
-            }
-            className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs disabled:opacity-40"
-          >
-            下载全部 .json
           </button>
           <button onClick={onBack} className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs">
             返回
