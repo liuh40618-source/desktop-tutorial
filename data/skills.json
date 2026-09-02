@@ -1,7 +1,7 @@
 {
   "_meta": {
-    "version": "2.0",
-    "note": "技能库。estHours = 零基础到能独立完成基本工作的经验估算（小时），非精确值，仅用于排序与周期预估。resources 的链接由代码按 platform + query 拼成平台搜索链接，不写死具体 URL，避免死链。",
+    "version": "3.0",
+    "note": "技能库。estHours = 零基础到能独立完成基本工作的经验估算（小时），非精确值，仅用于排序与周期预估。resources 的链接由代码按 platform + query 拼成平台搜索链接，不写死具体 URL，避免死链。v3：数据为手工维护，改动后请运行 node scripts/validate-data.mjs 做回归校验。",
     "platforms": [
       "B站",
       "掘金",
