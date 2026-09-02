@@ -407,17 +407,25 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [error, info]);
   const [ready, setReady] = useState(false);
+  const [jobPage, setJobPage] = useState(0);
+  const JOB_PAGE_SIZE = 8;
 
   // 学习路径直接展示：不设打卡，画像即计算依据
   const effective = profile;
 
   const matches = useMemo(() => rankJobs(effective, 20), [effective]);
-  const topMatches = useMemo(() => matches.slice(0, 8), [matches]);
+  // 岗位列表按「换一批」翻页展示；默认最优岗位与差距地图仍用固定 top5，避免翻页导致已选岗位跳变
+  const pageJobs = useMemo(
+    () => matches.slice(jobPage * JOB_PAGE_SIZE, (jobPage + 1) * JOB_PAGE_SIZE),
+    [matches, jobPage]
+  );
+  const pageCount = Math.max(1, Math.ceil(matches.length / JOB_PAGE_SIZE));
+  const gapJobIds = useMemo(() => matches.slice(0, 5).map((m) => m.jobId), [matches]);
   // localStorage 里可能存着已被改名或删除的岗位 id，直接用会让 matchJob 抛错、整页白屏
   const activeId =
     selectedJobId && jobIds().has(selectedJobId)
       ? selectedJobId
-      : topMatches[0]?.jobId || "";
+      : matches[0]?.jobId || "";
   const selected = useMemo(
     () => (activeId ? matchJob(effective, activeId) : null),
     [effective, activeId]
@@ -427,8 +435,8 @@ export default function Home() {
     [effective, activeId]
   );
   const gapMap = useMemo(
-    () => buildGapMap(effective, topMatches.slice(0, 5).map((m) => m.jobId)),
-    [effective, topMatches]
+    () => buildGapMap(effective, gapJobIds),
+    [effective, gapJobIds]
   );
 
   // 草稿：只在挂载时读取，不自动套用，避免打开就跳进旧流程让用户困惑
@@ -691,7 +699,10 @@ export default function Home() {
 
             {step === 2 && (
               <JobList
-                matches={topMatches}
+                matches={pageJobs}
+                page={jobPage}
+                pageCount={pageCount}
+                onPageChange={setJobPage}
                 selectedId={activeId}
                 targetTracks={effective.targetTracks}
                 onSelect={(id) => {
@@ -1459,12 +1470,18 @@ function ScoreBreakdown({
    ============================================================ */
 function JobList({
   matches,
+  page,
+  pageCount,
+  onPageChange,
   selectedId,
   targetTracks,
   onSelect,
   onBack,
 }: {
   matches: JobMatch[];
+  page: number;
+  pageCount: number;
+  onPageChange: (next: number) => void;
   selectedId: string;
   targetTracks: string[];
   onSelect: (id: string) => void;
@@ -1596,6 +1613,15 @@ function JobList({
           </div>
         )}
       </div>
+
+      {pageCount > 1 && (
+        <button
+          onClick={() => onPageChange((page + 1) % pageCount)}
+          className="btn btn-ghost mt-4 w-full text-xs"
+        >
+          换一批 · 第 {page + 1}/{pageCount} 批（往后翻看更多匹配）
+        </button>
+      )}
 
       <button onClick={onBack} className="btn btn-ghost mt-5 w-full">
         返回上一步
