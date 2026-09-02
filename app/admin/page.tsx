@@ -305,6 +305,15 @@ export default function AdminPage() {
               若想恢复出厂数据：删除 career.db 后重启，会自动按 data/*.json 重新种子化。
             </p>
           </div>
+          <button
+            onClick={async () => {
+              await fetch("/api/admin/logout", { method: "POST" });
+              window.location.replace("/admin/login");
+            }}
+            className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 transition-colors hover:bg-slate-100"
+          >
+            退出后台
+          </button>
           <div className="flex gap-2">
             <button
               onClick={loadAll}
