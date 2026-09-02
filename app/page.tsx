@@ -571,7 +571,7 @@ export default function Home() {
     setJds((l) => [jd, ...l]);
     if (!skills.length) {
       setError(
-        "这份 JD 没识别到知识库里的技能关键词，已保存但匹配会显示“无要求识别”——试试粘贴完整的岗位要求段落"
+        "这份 JD 未识别到知识库内的技能关键词，已保存；匹配将显示“无要求识别”。可粘贴完整岗位要求后重试"
       );
     } else {
       setInfo(
@@ -654,7 +654,7 @@ export default function Home() {
             </span>
           </h1>
           <p className="mt-1 text-xs text-muted">
-            岗位要求 × 你的技能 · 每个数字都能拆开看
+            岗位要求 × 你的技能 · 分数来源可追溯
           </p>
         </div>
         {started && (
@@ -935,7 +935,7 @@ function ProfileForm({
     }
     const detected = detectSkills(text);
     if (!detected.length) {
-      reportError("没识别到知识库里的技能关键词——直接在上方输入框里添加你会的技能也行");
+      reportError("未识别到知识库内的技能关键词，可在上方输入框手动添加");
       return;
     }
     const fresh = detected.filter((id) => !profile.knownSkillIds.includes(id));
@@ -1028,9 +1028,9 @@ function ProfileForm({
 
   return (
     <section>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground">先说说你的情况</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">基本情况</h2>
       <p className="mt-1 text-sm text-muted">
-        结构化填写，后面的每一个数字都由这里算出。
+        以下信息将作为匹配计算的输入。
       </p>
 
       <div className="card mt-5 p-5">
@@ -1090,7 +1090,7 @@ function ProfileForm({
           <span className="lbl">自我介绍</span>
           <textarea
             className="input min-h-[76px] resize-y"
-            placeholder="你怎么描述自己，会用于自动识别技能"
+            placeholder="自我描述，将用于技能自动识别"
             value={profile.selfDescription}
             onChange={(e) => set("selfDescription", e.target.value)}
           />
@@ -1122,7 +1122,7 @@ function ProfileForm({
               </span>
             </h3>
             <p className="mt-0.5 text-xs text-muted">
-              不用翻列表——自动从你填的资料、导入的简历里挑候选，你核对后留下靠谱的
+              自动从资料与简历中识别候选技能，逐项核对后保留
             </p>
           </div>
           <button onClick={autoDetect} className="btn btn-ghost shrink-0 whitespace-nowrap px-3 py-1.5 text-xs">
@@ -1149,22 +1149,20 @@ function ProfileForm({
                     }
                   >
                     {s.name}
-                    {isTemp && <span className="ml-1 text-[0.65rem] font-normal opacity-70">临时</span>}
+                    {isTemp && <span className="ml-1 text-[0.7rem] font-normal opacity-70">临时</span>}
                   </button>
                 );
               })}
             </div>
             <p className="mt-2 text-xs text-muted">
-              上面的条目来自自动识别或手动勾选。自动识别仅供参考、可能不准确，点一下就能取消；
-              带「临时」标记的只在本次规划有效，保存后会自动移除
+              条目标注来源：自动识别仅供参考可取消，或手动勾选；标「临时」的技能仅本次规划有效，保存后自动移除
             </p>
           </div>
         )}
 
         {profile.knownSkillIds.length === 0 && profile.customSkills.length === 0 && (
           <p className="mt-4 text-xs text-muted">
-            还没添加技能。填好上方资料后点「从填的内容识别」，或直接拖一份简历上来；
-            也可以在下方的输入框里直接添加。
+            尚未添加技能：可填写资料后自动识别、上传简历识别，或在下方输入框中手动添加。
           </p>
         )}
 
@@ -1178,7 +1176,7 @@ function ProfileForm({
                 addCustom();
               }
             }}
-            placeholder="直接输入你会的技能，如「Vue」「接口测试」，回车或点添加"
+            placeholder="输入技能名称（如 Vue、接口测试），回车或点添加"
             className="input"
             style={{ flex: 1 }}
           />
@@ -1284,7 +1282,7 @@ function ProfileForm({
       <div className="card mt-4 p-5">
         <h3 className="text-base font-medium text-foreground">想去的领域</h3>
         <p className="mt-0.5 text-xs text-muted">
-          可多选。不选则全部同等对待，选了会给对应方向加权
+          可多选；未选时各方向权重相同
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {tracks.map((t) => (
@@ -1347,7 +1345,7 @@ function ProfileForm({
             )}
           </div>
           <span className="hint">
-            最低 1 小时/周，默认 10。改这里，后面的「补齐大概 X 周」会跟着变
+            默认 10 小时/周，调整后补齐周期估算随之更新
           </span>
         </label>
 
@@ -1363,7 +1361,7 @@ function ProfileForm({
       </div>
 
       <button onClick={onNext} className="btn btn-primary mt-5 w-full">
-        看看哪个方向更合适
+        查看方向结果
       </button>
     </section>
   );
@@ -1409,7 +1407,7 @@ function Orientation({
 
   return (
     <section>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground">哪个方向更合你</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">方向偏好</h2>
       <p className="mt-1 text-sm text-muted">
         按你勾选的 {profile.knownSkillIds.length} 项技能，与 {jobIds().size} 个岗位的要求逐条对齐后的结果。
       </p>
@@ -1445,7 +1443,7 @@ function Orientation({
             · 覆盖率不是能力评分，它只说明「岗位要求里你已经会了多少」。
           </li>
           <li>
-            · 优先补齐权重 3 的硬门槛技能，它们通常是初筛的过滤条件。
+            · 优先补齐权重 3 的硬门槛技能，通常是初筛过滤条件。
           </li>
           <li>
             · 时长均为经验估算，用于排序与节奏参考，不是承诺。
@@ -1458,7 +1456,7 @@ function Orientation({
           上一步 · 我的情况
         </button>
         <button onClick={onNext} className="btn btn-primary flex-1">
-          去看看匹配的岗位
+          查看岗位列表
         </button>
       </div>
     </section>
@@ -1499,7 +1497,7 @@ function JdSection({
     return (
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-dashed border-border px-4 py-3">
         <span className="text-xs text-muted">
-          有想投的真实岗位？把它的 JD 贴进来，直接从这份 JD 算差距
+          内置库未覆盖的目标岗位，可粘贴 JD 加入个人比对
         </span>
         <button
           onClick={() => setShowForm(true)}
@@ -1525,7 +1523,7 @@ function JdSection({
         </button>
       </div>
       <p className="mt-0.5 text-xs text-muted">
-        内置岗位库可能没有你真想投的那一条——把真实 JD 贴进来，直接从它算差距
+        用于收藏内置库未覆盖的真实岗位，按此 JD 计算差距
       </p>
 
       {showForm && (
@@ -1546,7 +1544,7 @@ function JdSection({
               onChange={(e) => setRaw(e.target.value)}
               rows={5}
               className="input min-h-[110px] resize-y"
-              placeholder="把 JD 的岗位职责与任职要求原文贴进来…"
+              placeholder="粘贴 JD 原文（含岗位职责与任职要求）"
             />
           </label>
           <div className="flex gap-2">
@@ -1760,10 +1758,9 @@ function JobList({
 
   return (
     <section>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground">哪些岗位适合你</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">匹配的岗位</h2>
       <p className="mt-1 text-sm text-muted">
-        你收藏的真实 JD 排在最前，接着是内置岗位按匹配分排序（覆盖率 75% + 加分项 15% + 方向契合 10%），
-        点「依据」看计算过程。
+        真实 JD 与内置岗位分开排列；匹配分 = 覆盖率 75% + 加分项 15% + 方向契合 10%，点击「依据」查看来源。
       </p>
 
       <JdSection
@@ -1846,7 +1843,7 @@ function JobList({
                     selectedId === m.jobId ? "btn-primary" : "btn-ghost"
                   }`}
                 >
-                  {selectedId === m.jobId ? "已选中 · 看还差什么" : "选它 · 看还差什么"}
+                  {selectedId === m.jobId ? "已选择 · 看差距" : "选它 · 看差距"}
                 </button>
                 <button
                   onClick={() => setOpenId(open ? null : m.jobId)}
@@ -1932,7 +1929,7 @@ function GapView({
 
   return (
     <section>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground">你还差哪些技能</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">技能差距</h2>
       <p className="mt-1 text-sm text-muted">
         目标岗位：{match.title} · 岗位要求 {totalCore} 项必备技能，你已具备{" "}
         {coveredCount} 项（覆盖 {match.coverage}%）
@@ -1948,7 +1945,7 @@ function GapView({
         {missingHard.length > 0 && (
           <div className="mt-3 rounded-lg bg-[var(--surface-2)] px-3 py-2 text-xs leading-relaxed text-foreground">
             <span className="tag w3 mr-1">硬门槛缺失</span>
-            还差 {missingHard.map((s) => s.name).join("、")}——这类往往是投递初筛的硬条件，建议排在补齐的第一优先级。
+            还差 {missingHard.map((s) => s.name).join("、")}。这类通常是投递初筛的硬条件，应优先补齐。
           </div>
         )}
         <div className="mt-3 space-y-2">
@@ -1997,7 +1994,7 @@ function GapView({
           )}
         </div>
         <p className="mt-0.5 text-xs text-muted">
-          同一项技能被越多个岗位要求，越值得先补。表内可左右滑动。
+          被越多岗位要求的技能，越应优先补齐。表格支持横向滑动。
         </p>
         <div className="mt-3 overflow-x-auto">
           <table className="w-full min-w-[30rem] border-separate border-spacing-1 text-xs">
@@ -2100,9 +2097,9 @@ function PathView({
 
   return (
     <section>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground">接下来补什么</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">学习计划</h2>
       <p className="mt-1 text-sm text-muted">
-        {match.title} · 按「权重 ÷ 耗时」排序，先补性价比高的
+        {match.title} · 按「权重 ÷ 预估耗时」排序
       </p>
 
       <div className="card mt-5 p-5">
@@ -2130,7 +2127,7 @@ function PathView({
 
       {!path.length ? (
         <div className="card mt-4 p-8 text-center text-sm text-muted">
-          必备技能已全部覆盖。建议拿真实 JD 逐条复核，再决定是否投递。
+          必备技能已全部覆盖。投递前建议对照真实 JD 复核。
         </div>
       ) : (
         <div className="mt-4 space-y-3">
@@ -2179,7 +2176,7 @@ function PathView({
 
       <div className="mt-5 flex gap-3">
         <button onClick={onBack} className="btn btn-ghost flex-1">
-          返回差距分析
+          返回上一步
         </button>
         <button onClick={handleSave} className="btn btn-primary flex-1">
           {saved ? "已保存 ✓" : "保存这份规划"}
@@ -2190,13 +2187,13 @@ function PathView({
         <p className="mt-3 text-center text-xs text-accent">
           已写入「我的记录」
           <button onClick={onGoRecords} className="ml-2 underline underline-offset-2">
-            去看看 →
+            前往我的记录
           </button>
         </p>
       )}
 
       <p className="mt-3 text-[0.7rem] leading-relaxed text-muted">
-        说明：时长为经验估算，用于排序与节奏参考；资源链接指向各平台搜索结果，内容可能更新，以搜索到的最新版本为准。
+        时长为经验估算，用于排序参考；资源链接为平台搜索结果，内容以最新版本为准。
       </p>
     </section>
   );
@@ -2262,10 +2259,10 @@ function Landing({
   const jobCount = jobIds().size;
   const skillCount = allSkills().length;
   const modules = [
-    { n: "01", t: "我的情况", d: `把你会的东西挑出来——${skillCount} 项技能分门别类，也能从简历或文字里自动认个大概` },
-    { n: "02", t: "找岗位", d: `拿 ${jobCount} 个岗位的要求跟你的技能逐个比对、排个先后，分数怎么来的能拆开看` },
-    { n: "03", t: "查差距", d: "横向比几个相近岗位，看哪些技能最常被要求，先补复用率高的" },
-    { n: "04", t: "定计划", d: "按「先学性价比高的」排好顺序，配好各平台的搜索链接，照着学就行" },
+    { n: "01", t: "我的情况", d: `从资料与简历中自动识别技能（库内 ${skillCount} 项），确认后参与匹配` },
+    { n: "02", t: "找岗位", d: `与 ${jobCount} 个岗位的要求逐项比对排序，分数来源可展开查看` },
+    { n: "03", t: "查差距", d: "横向比较相近岗位的技能要求，优先补充重合度高的技能" },
+    { n: "04", t: "定计划", d: "按性价比排序生成学习顺序，附各平台资源入口" },
   ];
   return (
     <section>
@@ -2275,9 +2272,7 @@ function Landing({
         到「岗位要什么」
       </h2>
       <p className="mt-3 max-w-xl text-[0.95rem] leading-relaxed text-muted">
-        内置 {jobCount} 个互联网岗位的必备技能与权重。不靠猜，靠算——匹配分
-        = 覆盖率 ×0.75 + 加分项 ×0.15 + 方向契合 ×0.10，每个数字都能拆开看。
-        无需注册，进度自动保存，刷新不丢。
+        与 {jobCount} 个互联网岗位的技能要求比对。匹配分 = 覆盖率×0.75 + 加分项×0.15 + 方向契合×0.10，计算过程可逐项追溯。进度自动保存。
       </p>
 
       {draft && (
