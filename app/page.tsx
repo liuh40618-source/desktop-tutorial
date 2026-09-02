@@ -61,7 +61,8 @@ interface Persisted {
   started: boolean;
   profile: Profile;
   selectedJobId: string;
-  doneSkills: string[];
+  /** 旧版打卡存档遗留字段（已弃用打卡）；读取时一次性并入 knownSkillIds */
+  doneSkills?: string[];
 }
 
 interface PlanRecord {
@@ -388,7 +389,6 @@ export default function Home() {
   const [started, setStarted] = useState(false);
   const [view, setView] = useState<"landing" | "records">("landing");
   const [profile, setProfile] = useState<Profile>(emptyProfile);
-  const [doneSkills, setDoneSkills] = useState<string[]>([]);
   const [selectedJobId, setSelectedJobId] = useState("");
   const [plans, setPlans] = useState<PlanRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -408,14 +408,8 @@ export default function Home() {
   }, [error, info]);
   const [ready, setReady] = useState(false);
 
-  // 打卡完成的技能并入已勾选的技能，参与所有计算：缺口随进度实时下降
-  const effective = useMemo<Profile>(
-    () => ({
-      ...profile,
-      knownSkillIds: Array.from(new Set([...profile.knownSkillIds, ...doneSkills])),
-    }),
-    [profile, doneSkills]
-  );
+  // 学习路径直接展示：不设打卡，画像即计算依据
+  const effective = profile;
 
   const matches = useMemo(() => rankJobs(effective, 20), [effective]);
   const topMatches = useMemo(() => matches.slice(0, 8), [matches]);
@@ -474,22 +468,28 @@ export default function Home() {
   useEffect(() => {
     if (!restored) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    const snapshot: Persisted = { step, started, profile, selectedJobId, doneSkills };
+    const snapshot: Persisted = { step, started, profile, selectedJobId };
     saveTimer.current = setTimeout(() => {
       pushProfileToServer(snapshot, "local", "");
     }, 500);
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
     };
-  }, [restored, step, started, profile, selectedJobId, doneSkills]);
+  }, [restored, step, started, profile, selectedJobId]);
 
   function continueDraft() {
     const s = draftRef.current;
     if (s) {
       setStep(s.step ?? 0);
-      setProfile({ ...emptyProfile, ...(s.profile || {}) });
+      // 历史存档里若带 doneSkills（旧打卡），一次性并入已勾选技能，不再有打卡概念
+      const legacy = s.doneSkills ?? [];
+      const merged = Array.from(new Set([...(s.profile?.knownSkillIds || []), ...legacy]));
+      setProfile({
+        ...emptyProfile,
+        ...(s.profile || {}),
+        knownSkillIds: merged,
+      });
       setSelectedJobId(s.selectedJobId ?? "");
-      setDoneSkills(s.doneSkills ?? []);
       const resume = !!(s.started || (s.step ?? 0) > 0);
       setStarted(resume);
     }
@@ -510,7 +510,6 @@ export default function Home() {
     setStep(0);
     setStarted(false);
     setProfile(emptyProfile);
-    setDoneSkills([]);
     setSelectedJobId("");
     setError(null);
     setInfo(null);
@@ -717,12 +716,6 @@ export default function Home() {
                 match={selected}
                 path={path}
                 hoursPerWeek={effective.hoursPerWeek}
-                doneSkills={doneSkills}
-                onToggleDone={(id) =>
-                  setDoneSkills((prev) =>
-                    prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-                  )
-                }
                 onSave={saveCurrentPlan}
                 onGoRecords={() => {
                   loadPlansFromServer().then(setPlans);
@@ -1779,8 +1772,6 @@ function PathView({
   match,
   path,
   hoursPerWeek,
-  doneSkills,
-  onToggleDone,
   onSave,
   onGoRecords,
   onBack,
@@ -1788,8 +1779,6 @@ function PathView({
   match: JobMatch;
   path: PathItem[];
   hoursPerWeek: number;
-  doneSkills: string[];
-  onToggleDone: (id: string) => void;
   onSave: () => void;
   onGoRecords: () => void;
   onBack: () => void;
@@ -1838,89 +1827,46 @@ function PathView({
         </div>
       ) : (
         <div className="mt-4 space-y-3">
-          {path.map((item, i) => {
-            const done = doneSkills.includes(item.skillId);
-            return (
-              <div key={item.skillId} className="card p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex min-w-0 items-start gap-2.5">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xs font-medium text-accent-strong">
-                      {i + 1}
-                    </span>
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-sm font-medium text-foreground">
-                          {item.name}
-                        </span>
-                        <span className={`tag w${item.weight}`}>
-                          {item.weight === 3 ? "硬门槛" : item.weight === 2 ? "重要" : "加分"}
-                        </span>
-                      </div>
-                      <div className="mt-1 text-xs text-muted">
-                        约 {item.estHours} 小时 · 优先级 {item.priority} · 累计第{" "}
-                        {item.cumulativeWeeks} 周
-                      </div>
+          {path.map((item, i) => (
+            <div key={item.skillId} className="card p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 items-start gap-2.5">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xs font-medium text-accent-strong">
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-sm font-medium text-foreground">
+                        {item.name}
+                      </span>
+                      <span className={`tag w${item.weight}`}>
+                        {item.weight === 3 ? "硬门槛" : item.weight === 2 ? "重要" : "加分"}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-xs text-muted">
+                      约 {item.estHours} 小时 · 优先级 {item.priority} · 累计第{" "}
+                      {item.cumulativeWeeks} 周
                     </div>
                   </div>
-                  <button
-                    onClick={() => onToggleDone(item.skillId)}
-                    className={`btn shrink-0 px-2.5 py-1 text-[0.7rem] ${
-                      done ? "btn-primary" : "btn-ghost"
-                    }`}
-                  >
-                    {done ? "已掌握" : "打卡"}
-                  </button>
-                </div>
-
-                <div className="mt-2.5 space-y-1">
-                  {item.resources.map((r) => (
-                    <a
-                      key={r.title}
-                      href={resolveUrl(r.platform, r.query)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center justify-between gap-2 rounded-lg bg-[var(--surface-2)] px-3 py-1.5 text-xs text-foreground transition-colors hover:bg-accent-soft"
-                    >
-                      <span className="truncate">{r.title}</span>
-                      <span className="shrink-0 text-muted">{r.platform}</span>
-                    </a>
-                  ))}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
 
-      {/* 打卡后技能会移出上面的待补清单，按钮随之消失，所以在这里单独给撤销入口 */}
-      {doneSkills.length > 0 && (
-        <div className="card mt-4 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="text-sm font-medium text-foreground">
-              已打卡 {doneSkills.length} 项
-            </h3>
-            <button
-              onClick={() => doneSkills.forEach((id) => onToggleDone(id))}
-              className="shrink-0 text-xs text-muted transition-colors hover:text-accent"
-            >
-              全部撤销
-            </button>
-          </div>
-          <p className="mt-1 text-xs text-muted">
-            打卡的技能已从待补清单移出，覆盖率按打卡结果实时重算。点任一项可撤销。
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {doneSkills.map((id) => (
-              <button
-                key={id}
-                onClick={() => onToggleDone(id)}
-                title="点击撤销"
-                className="chip-btn on"
-              >
-                {SKILL_MAP[id]?.name || id} ×
-              </button>
-            ))}
-          </div>
+              <div className="mt-2.5 space-y-1">
+                {item.resources.map((r) => (
+                  <a
+                    key={r.title}
+                    href={resolveUrl(r.platform, r.query)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-between gap-2 rounded-lg bg-[var(--surface-2)] px-3 py-1.5 text-xs text-foreground transition-colors hover:bg-accent-soft"
+                  >
+                    <span className="truncate">{r.title}</span>
+                    <span className="shrink-0 text-muted">{r.platform}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -2012,7 +1958,7 @@ function Landing({
     { n: "01", t: "我的情况", d: `把你会的东西挑出来——${skillCount} 项技能分门别类，也能从简历或文字里自动认个大概` },
     { n: "02", t: "找岗位", d: `拿 ${jobCount} 个岗位的要求跟你的技能逐个比对、排个先后，分数怎么来的能拆开看` },
     { n: "03", t: "查差距", d: "横向比几个相近岗位，看哪些技能最常被要求，先补复用率高的" },
-    { n: "04", t: "定计划", d: "按「先学性价比高的」排计划，边学边打卡，缺口实时变小" },
+    { n: "04", t: "定计划", d: "按「先学性价比高的」排好顺序，配好各平台的搜索链接，照着学就行" },
   ];
   return (
     <section>
