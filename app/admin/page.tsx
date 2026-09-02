@@ -297,7 +297,7 @@ export default function AdminPage() {
           <div>
             <h1 className="text-2xl font-bold">职途 · 后台</h1>
             <p className="text-sm text-slate-500">
-              直接编辑 SQLite 中的岗位 / 技能数据。保存即写入 career.db，重启服务不会覆盖你的改动
+              编辑 SQLite 中的岗位 / 技能数据，保存即写入 career.db
               （数据版本号不变时不会重新种子化）。
             </p>
             <p className="mt-1 text-xs text-slate-400">
@@ -444,7 +444,7 @@ export default function AdminPage() {
                         <div className="text-sm text-slate-500">
                           {jobs.length === 0
                             ? "知识库还没有岗位。点右上角「+ 新建岗位」录入第一个岗位。"
-                            : `没有匹配「${jobFilter}」的岗位，试试别的关键词。`}
+                            : `未找到匹配「${jobFilter}」的岗位，请更换关键词。`}
                         </div>
                         {jobs.length > 0 && jobFilter && (
                           <button
@@ -564,7 +564,7 @@ export default function AdminPage() {
                         <div className="text-sm text-slate-500">
                           {skills.length === 0
                             ? "知识库还没有技能。点右上角「+ 新建技能」录入第一个技能。"
-                            : `没有匹配「${skillFilter}」的技能，试试别的关键词。`}
+                            : `未找到匹配「${skillFilter}」的技能，请更换关键词。`}
                         </div>
                         {skills.length > 0 && skillFilter && (
                           <button
