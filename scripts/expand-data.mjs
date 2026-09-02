@@ -14,6 +14,10 @@
  *
  * 设计说明：数据来自公开招聘平台常见报价的整理，薪资仅作量级参考；权重为人工评定，
  * 用于可解释的覆盖率计算，非精确统计。
+ *
+ * 与 scripts/validate-data.mjs 的分工：本脚本是「写路径」（扩充/合并/重建 DB），
+ * validate-data.mjs 是「只读校验器」，负责把守最终落在 data/*.json 的一致性，
+ * 二者独立运行；手工改动数据后用 validate-data.mjs 回归，勿依赖本脚本做校验。
  */
 import fs from "node:fs";
 import path from "node:path";
