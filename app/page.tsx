@@ -401,6 +401,20 @@ export default function Home() {
   const [selectedJobId, setSelectedJobId] = useState("");
   const [plans, setPlans] = useState<PlanRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
+  /** 统一下发全局动态提示：错误走红 Toast，成功/中性反馈走蓝 Toast */
+  const handleNotice = (msg: string, kind: "error" | "info") =>
+    kind === "error" ? setError(msg) : setInfo(msg);
+
+  // 动态提示自动消失（错误/成功共用一个计时器，新提示会重置）
+  useEffect(() => {
+    if (!error && !info) return;
+    const t = setTimeout(() => {
+      setError(null);
+      setInfo(null);
+    }, 3800);
+    return () => clearTimeout(t);
+  }, [error, info]);
   const [ready, setReady] = useState(false);
   const [profiles, setProfiles] = useState<ProfileRowFront[]>([]);
   const [activeProfileId, setActiveProfileId] = useState("local");
@@ -641,6 +655,7 @@ export default function Home() {
     setDoneSkills([]);
     setSelectedJobId("");
     setError(null);
+    setInfo(null);
   }
 
   function saveCurrentPlan() {
@@ -761,8 +776,21 @@ export default function Home() {
           <Progress step={step} onStepClick={goToStep} />
           <p className="mt-2 text-xs text-muted">进度已自动保存，刷新不丢失</p>
 
-          {error && (
-            <div className="alert-error mt-4 rounded-xl px-4 py-3 text-sm">{error}</div>
+          {(error || info) && (
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-4"
+            >
+              <div
+                className={
+                  "toast-in pointer-events-auto max-w-md rounded-xl px-4 py-3 text-sm shadow-md " +
+                  (error ? "alert-error" : "toast-info")
+                }
+              >
+                {error || info}
+              </div>
+            </div>
           )}
 
           <div key={step} className="mt-6 animate-step">
@@ -771,6 +799,7 @@ export default function Home() {
                 profile={profile}
                 setProfile={setProfile}
                 setError={setError}
+                onNotice={handleNotice}
                 onNext={() => {
                   if (!profile.knownSkillIds.length) {
                     setError("至少勾选 1 项你已掌握的技能，否则无法计算覆盖率");
@@ -869,11 +898,13 @@ function ProfileForm({
   profile,
   setProfile,
   setError: reportError,
+  onNotice,
   onNext,
 }: {
   profile: Profile;
   setProfile: (p: Profile) => void;
   setError: (msg: string | null) => void;
+  onNotice: (msg: string, kind: "error" | "info") => void;
   onNext: () => void;
 }) {
   const skills = allSkills();
@@ -992,6 +1023,7 @@ function ProfileForm({
         </p>
         <div className="mt-3">
           <ResumeImport
+            onNotice={onNotice}
             onDetected={(ids) =>
               set("knownSkillIds", Array.from(new Set([...profile.knownSkillIds, ...ids])))
             }

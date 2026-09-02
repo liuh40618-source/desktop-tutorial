@@ -336,3 +336,23 @@ body {
 .danger-text {
   color: #b3372b;
 }
+
+/* 顶部动态 Toast：错误=红卡（.alert-error 复用），成功/中性反馈=品牌蓝浅底 */
+.toast-info {
+  background: var(--accent-soft);
+  border: 1px solid rgba(47, 107, 255, 0.32);
+  color: var(--accent-strong);
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.toast-in {
+  animation: toastIn 0.24s ease both;
+}

@@ -17,6 +17,8 @@ export interface ResumeImportProps {
   onDetected: (ids: string[]) => void;
   /** 一键撤销「上次并入的 ids」（可选；父级未接入时不展示撤销入口，避免点了没效果） */
   onUndoDetected?: (ids: string[]) => void;
+  /** 全局动态提示（可选）：错误 kind="error" 红 Toast，成功/撤销反馈 kind="info" 蓝 Toast */
+  onNotice?: (msg: string, kind: "error" | "info") => void;
 }
 
 /** 把服务端 / 网络错误翻译成人话 */
@@ -27,19 +29,19 @@ function humanizeErr(status: number, serverMsg: string | undefined): string {
     : "这份文件没能解析成功，换一份试试。";
 }
 
-export function ResumeImport({ onDetected, onUndoDetected }: ResumeImportProps) {
+export function ResumeImport({ onDetected, onUndoDetected, onNotice }: ResumeImportProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [phase, setPhase] = useState<"idle" | "parsing" | "ok" | "err">("idle");
-  const [msg, setMsg] = useState("");
   const [fileName, setFileName] = useState("");
   const [lastIds, setLastIds] = useState<string[]>([]); // 最近一次识别并入的 ids，用于撤销
   const [chars, setChars] = useState(0); // 本次解析出的文本长度
   const [dragging, setDragging] = useState(false);
 
+  const notice = (msg: string, kind: "error" | "info") => onNotice?.(msg, kind);
+
   async function handleFile(f: File | undefined) {
     if (!f || phase === "parsing") return;
     setPhase("parsing");
-    setMsg("正在解析，请稍候…");
     setFileName(f.name);
     setLastIds([]);
     setChars(0);
@@ -57,7 +59,7 @@ export function ResumeImport({ onDetected, onUndoDetected }: ResumeImportProps) 
 
       if (!res.ok) {
         setPhase("err");
-        setMsg(humanizeErr(res.status, data?.message));
+        notice(humanizeErr(res.status, data?.message), "error");
         return;
       }
 
@@ -66,15 +68,19 @@ export function ResumeImport({ onDetected, onUndoDetected }: ResumeImportProps) 
 
       if (!text.length) {
         setPhase("err");
-        setMsg("没能从这份文件里提取到文字——可能是扫描件 / 图片型 PDF，或文件本身是空的。");
+        notice(
+          "没能从这份文件里提取到文字——可能是扫描件 / 图片型 PDF，或文件本身是空的。",
+          "error"
+        );
         return;
       }
 
       const ids = detectSkills(text);
       if (!ids.length) {
         setPhase("err");
-        setMsg(
-          "文字解析出来了，但没有命中知识库里的技能关键词。可能这份简历的措辞和库中词条对不上，直接在下方手动勾选就好。"
+        notice(
+          "文字解析出来了，但没有命中知识库里的技能关键词。可能这份简历的措辞和库中词条对不上，直接在下方手动勾选就好。",
+          "error"
         );
         return;
       }
@@ -82,12 +88,13 @@ export function ResumeImport({ onDetected, onUndoDetected }: ResumeImportProps) 
       setLastIds(ids);
       onDetected(ids);
       setPhase("ok");
-      setMsg(
-        `识别到 ${ids.length} 项技能，已预勾选并入下方「已掌握的技能」，可逐条取消${onUndoDetected ? "，或一键撤销本次识别" : ""}。`
+      notice(
+        `识别到 ${ids.length} 项技能，已预勾选并入下方「已掌握的技能」，可逐条取消${onUndoDetected ? "，或一键撤销本次识别" : ""}。`,
+        "info"
       );
     } catch {
       setPhase("err");
-      setMsg("解析请求没送达，可能是网络断了或服务没启动，请重试。");
+      notice("解析请求没送达，可能是网络断了或服务没启动，请重试。", "error");
     } finally {
       if (inputRef.current) inputRef.current.value = "";
     }
@@ -101,7 +108,7 @@ export function ResumeImport({ onDetected, onUndoDetected }: ResumeImportProps) 
     if (!rest.length) {
       setChars(0);
       setPhase("idle");
-      setMsg("已撤销本次识别并入的技能，手动勾选的不受影响。");
+      notice("已撤销本次识别并入的技能，手动勾选的不受影响。", "info");
     }
   }
 
@@ -113,7 +120,7 @@ export function ResumeImport({ onDetected, onUndoDetected }: ResumeImportProps) 
     setLastIds([]);
     setChars(0);
     setPhase("idle");
-    setMsg(`已撤销本次识别并入的 ${n} 项技能，手动勾选的不受影响。`);
+    notice(`已撤销本次识别并入的 ${n} 项技能，手动勾选的不受影响。`, "info");
   }
 
   return (
@@ -168,8 +175,6 @@ export function ResumeImport({ onDetected, onUndoDetected }: ResumeImportProps) 
           5MB 内 · 仅本地提取文字做技能识别，不保存、不调用模型
         </span>
       </div>
-
-      {msg && <div className="alert-error mt-3 rounded-xl px-4 py-2.5 text-xs">{msg}</div>}
 
       {phase === "ok" && lastIds.length > 0 && (
         <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
