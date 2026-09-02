@@ -35,6 +35,8 @@ interface Profile {
   interests: string;
   knownSkillIds: string[];
   customSkills: string[];
+  /** 映射来源的「一次性临时技能」（同时存在于 knownSkillIds），保存本次规划后自动移除 */
+  tempSkillIds: string[];
   targetTracks: string[];
   hoursPerWeek: number;
   goal: string;
@@ -49,6 +51,7 @@ const emptyProfile: Profile = {
   interests: "",
   knownSkillIds: [],
   customSkills: [],
+  tempSkillIds: [],
   targetTracks: [],
   hoursPerWeek: 10,
   goal: "",
@@ -662,6 +665,7 @@ export default function Home() {
 
   function saveCurrentPlan() {
     if (!selected) return;
+    const temps = profile.tempSkillIds || [];
     const rec: PlanRecord = {
       id: `${profile.major}|${selected.jobId}|${Date.now()}`,
       createdAt: Date.now(),
@@ -672,6 +676,16 @@ export default function Home() {
     };
     pushPlanToServer(rec);
     setPlans((list) => [rec, ...list.filter((p) => p.id !== rec.id)].slice(0, 50));
+    // 「一次性」临时技能：本次规划已保存快照，自动移除，避免带进下一次计算
+    if (temps.length) {
+      const rem = new Set(temps);
+      setProfile((p) => ({
+        ...p,
+        knownSkillIds: p.knownSkillIds.filter((id) => !rem.has(id)),
+        tempSkillIds: [],
+      }));
+      setInfo(`已自动移除 ${temps.length} 项临时技能（本次规划已保存）；下次要用可回第 1 步重新添加`);
+    }
   }
 
   if (!ready) {
@@ -926,10 +940,15 @@ function ProfileForm({
 
   function toggleSkill(id: string) {
     const has = profile.knownSkillIds.includes(id);
-    set(
-      "knownSkillIds",
-      has ? profile.knownSkillIds.filter((x) => x !== id) : [...profile.knownSkillIds, id]
-    );
+    if (has) {
+      setProfile({
+        ...profile,
+        knownSkillIds: profile.knownSkillIds.filter((x) => x !== id),
+        tempSkillIds: (profile.tempSkillIds || []).filter((x) => x !== id),
+      });
+    } else {
+      setProfile({ ...profile, knownSkillIds: [...profile.knownSkillIds, id] });
+    }
   }
 
   function toggleTrack(id: string) {
@@ -1044,14 +1063,18 @@ function ProfileForm({
     setCustomInput("");
   }
 
-  /** 把用户自定义说法按库内技能临时计入（仅当前档案的 knownSkillIds，不写全局知识库） */
+  /** 把用户自定义说法按库内技能一次性计入（保存本次规划后自动移除；不写全局知识库） */
   function addAsMapped(raw: string, skillId: string) {
     const s = SKILL_MAP[skillId];
     if (!s) return;
     if (!profile.knownSkillIds.includes(skillId)) {
-      set("knownSkillIds", [...profile.knownSkillIds, skillId]);
+      setProfile({
+        ...profile,
+        knownSkillIds: [...profile.knownSkillIds, skillId],
+        tempSkillIds: [...(profile.tempSkillIds || []), skillId],
+      });
       onNotice(
-        `已把「${raw}」按库内技能「${s.name}」计入本次评分；不满意可点它取消`,
+        `已把「${raw}」按「${s.name}」临时计入（同权重参与本次计算，保存这份规划后会自动移除）`,
         "info"
       );
     } else {
@@ -1177,20 +1200,27 @@ function ProfileForm({
               {profile.knownSkillIds.map((id) => {
                 const s = SKILL_MAP[id];
                 if (!s) return null;
+                const isTemp = (profile.tempSkillIds || []).includes(id);
                 return (
                   <button
                     key={id}
                     onClick={() => toggleSkill(id)}
                     className="chip-btn on"
-                    title={`${s.name} · 已勾选（点一下取消）`}
+                    title={
+                      isTemp
+                        ? `${s.name} · 临时技能（本次规划用，保存后自动移除；点一下取消）`
+                        : `${s.name} · 已勾选（点一下取消）`
+                    }
                   >
                     {s.name}
+                    {isTemp && <span className="ml-1 text-[0.65rem] font-normal opacity-70">临时</span>}
                   </button>
                 );
               })}
             </div>
             <p className="mt-2 text-xs text-muted">
-              上面的条目来自自动识别或手动勾选。自动识别仅供参考、可能不准确，点一下就能取消
+              上面的条目来自自动识别或手动勾选。自动识别仅供参考、可能不准确，点一下就能取消；
+              带「临时」标记的只在本次规划有效，保存后会自动移除
             </p>
           </div>
         )}
