@@ -1,5 +1,17 @@
 /**
- * 扩充职途岗位/技能知识库（20 → 130+ 岗位）
+ * ⚠️ 历史一次性扩编脚本（2026-09-01 执行过：把 20 个岗位/55 项技能扩到 130+）
+ *
+ * **不要再运行它**：本脚本内部硬编码把 _meta.version 写回 "2.0"、note 写死 v2 叙事，
+ * 且其 NEW_TRACKS/NEW_SKILLS/NEW_JOBS 是当年那批旧词条——现在 data/*.json 已是
+ * 133 岗/13 方向/109 技能、_meta.version 3.0（v3：手工维护）。重跑会把版本号回退、
+ * 覆盖 v3 note 并重建 DB，属于破坏性误操作。
+ *
+ * 现役维护方式（见 data/*.json 的 _meta.note 与 scripts/validate-data.mjs）：
+ *  1. 手工编辑 data/skills.json / data/jobs.json（新增技能/岗位/方向）；
+ *  2. 运行 `node scripts/validate-data.mjs` 做一致性回归（零错误才可提交）；
+ *  3. 版本号统一升一档（如 3.0 → 3.1），重启 dev 后自动重灌知识库表（用户数据保留）。
+ *
+ * —— 以下为历史行为说明（仅供追溯，勿执行）——
  *
  * 用法（在 career-navigator 根目录运行）：
  *   node --experimental-sqlite scripts/expand-data.mjs
@@ -11,13 +23,6 @@
  *     任何错误都会打印并退出（不写文件、不污染 DB）。
  *  4. 校验通过 → 写回合并后的 JSON（_meta.version 升到 2.0），并清空+重建 SQLite 里的
  *     jobs/skills/tracks 表（不动 user_profile / user_plans）。
- *
- * 设计说明：数据来自公开招聘平台常见报价的整理，薪资仅作量级参考；权重为人工评定，
- * 用于可解释的覆盖率计算，非精确统计。
- *
- * 与 scripts/validate-data.mjs 的分工：本脚本是「写路径」（扩充/合并/重建 DB），
- * validate-data.mjs 是「只读校验器」，负责把守最终落在 data/*.json 的一致性，
- * 二者独立运行；手工改动数据后用 validate-data.mjs 回归，勿依赖本脚本做校验。
  */
 import fs from "node:fs";
 import path from "node:path";

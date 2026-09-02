@@ -14,7 +14,9 @@ LLM 擅长生成，但生成职业规划时会编造 JD、编造薪资、编造�
 `app/` 与 `lib/` 下也不存在任何调模型的代码。所有数字都由可复核的公式算出。
 
 > 岗位与技能条目**持续扩充**中，以 `data/*.json` 与 `/api/knowledge` 实时返回为准；
-> 数量不在文档里写死——`scripts/expand-data.mjs` 描述了扩编流程。
+> 数量不在文档里写死。当前数据已是手工维护模式（133 岗 / 13 方向 / 109 技能，`_meta.version` 3.0），
+> 扩编流程：编辑 `data/*.json` → 跑 `node scripts/validate-data.mjs` 回归 → 版本号升档，
+> 详见 `data/*.json` 的 `_meta.note`。
 
 ## 五步流程
 
@@ -95,9 +97,12 @@ app/
   api/admin/      岗位 / 技能数据后台（CRUD，写 SQLite）
   admin/          配套管理界面
 scripts/
-  expand-data.mjs 数据扩编脚本：合并预设的 NEW_* 词条到 data/*.json 并重建 SQLite
+  validate-data.mjs 只读一致性校验器：id/track/引用/权重/薪资/estHours/平台白名单/meta 版本，
+                    改动 data 后必跑，零错误才算过
+  expand-data.mjs   ⚠️ 历史一次性扩编脚本（20→130+，2026-09 已执行），内含硬编码 v2.0 版本号，
+                    不要再运行，防版本回退
 python-version/   Python 版孪生实现（见下）
-demo/             截图与单文件交互演示
+demo/             截图与单文件交互演示（demo/index.html 为旧原型期的模拟数据演示，见下）
 ```
 
 ## Python 版
@@ -118,7 +123,8 @@ python app.py                     # http://localhost:5000
 
 ## 演示 / 截图
 
-- `demo/index.html` —— 单文件交互演示，浏览器直接打开即可体验五步流程
+- `demo/index.html` —— **旧 LLM 原型期**留下的单文件交互演示：内置模拟假数据（约 9 个岗位，
+  非当前 133 岗知识库），打开即可体验五步交互形态，仅作流程示意，不是当前引擎的实时数据
 - `demo/preview-landing-v2.png` —— 产品首页（桌面端）
 - `demo/preview-admin-final.png` —— 数据后台（桌面端）
 - `demo/m-*.png` —— 五步流程的移动端实机截图
@@ -126,7 +132,7 @@ python app.py                     # http://localhost:5000
 ## 已知边界
 
 - 知识库是手工整理的，覆盖面有限，且会随时间过时——以 `data/*.json` 实际内容与
-  `/api/knowledge` 实时返回为准；扩编流程见 `scripts/expand-data.mjs`。
+  `/api/knowledge` 实时返回为准；扩编 = 改 `data/*.json` + `node scripts/validate-data.mjs` 回归 + 版本升档。
 - 覆盖率只看「你勾选的技能」与「岗位要求」的交集，不评估熟练程度，也不看项目经历
   （简历导入也只是辅助勾选，不代表经历被计入评分）。
 - 单用户本地场景，没有账号、权限与多端同步。
