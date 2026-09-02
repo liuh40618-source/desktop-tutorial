@@ -169,7 +169,7 @@ export function ResumeImport({ onDetected, onUndoDetected }: ResumeImportProps) 
         </span>
       </div>
 
-      {msg && <p className="mt-2 text-xs text-accent">{msg}</p>}
+      {msg && <div className="alert-error mt-3 rounded-xl px-4 py-2.5 text-xs">{msg}</div>}
 
       {phase === "ok" && lastIds.length > 0 && (
         <div className="mt-2.5 flex flex-wrap items-center gap-1.5">

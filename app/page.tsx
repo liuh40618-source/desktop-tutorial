@@ -770,6 +770,7 @@ export default function Home() {
               <ProfileForm
                 profile={profile}
                 setProfile={setProfile}
+                setError={setError}
                 onNext={() => {
                   if (!profile.knownSkillIds.length) {
                     setError("至少勾选 1 项你已掌握的技能，否则无法计算覆盖率");
@@ -867,10 +868,12 @@ function Footer() {
 function ProfileForm({
   profile,
   setProfile,
+  setError: reportError,
   onNext,
 }: {
   profile: Profile;
   setProfile: (p: Profile) => void;
+  setError: (msg: string | null) => void;
   onNext: () => void;
 }) {
   const skills = allSkills();
@@ -905,13 +908,11 @@ function ProfileForm({
   function autoDetect() {
     const detected = detectSkills(profileText(profile));
     if (!detected.length) {
-      setError("没识别到技能，请手动勾选");
+      reportError("没识别到技能，请手动勾选");
       return;
     }
     set("knownSkillIds", Array.from(new Set([...profile.knownSkillIds, ...detected])));
   }
-
-  const [error, setError] = useState<string | null>(null);
 
   return (
     <section>
@@ -1015,8 +1016,6 @@ function ProfileForm({
             从文字识别
           </button>
         </div>
-
-        {error && <p className="danger-text mt-2 text-xs">{error}</p>}
 
         <div className="mt-4 space-y-4">
           {groups.map(([cat, list]) => (
