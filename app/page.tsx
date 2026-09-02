@@ -6,6 +6,7 @@ import {
   matchJob,
   buildPath,
   buildGapMap,
+  matchJdSkills,
   detectSkills,
   profileText,
   allSkills,
@@ -175,6 +176,47 @@ async function removePlanOnServer(id: string) {
     } catch {
       /* 忽略 */
     }
+  }
+}
+
+/* ============================================================
+   我的 JD 库（真实岗位收藏，来源 career.db user_jds）
+   ============================================================ */
+interface JdFront {
+  id: string;
+  title: string;
+  raw: string;
+  skills: string[];
+  createdAt: number;
+}
+
+async function loadJdsFromServer(): Promise<JdFront[]> {
+  try {
+    const r = await fetch("/api/jds");
+    const d = await r.json();
+    return Array.isArray(d) ? d : [];
+  } catch {
+    return [];
+  }
+}
+
+async function pushJdToServer(jd: JdFront) {
+  try {
+    await fetch("/api/jds", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(jd),
+    });
+  } catch {
+    /* 忽略 */
+  }
+}
+
+async function removeJdOnServer(id: string) {
+  try {
+    await fetch(`/api/jds?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+  } catch {
+    /* 忽略 */
   }
 }
 
@@ -510,6 +552,40 @@ export default function Home() {
     loadPlansFromServer().then(setPlans);
   }, []);
 
+  // 我的 JD 库（真实岗位收藏）
+  const [jds, setJds] = useState<JdFront[]>([]);
+  useEffect(() => {
+    loadJdsFromServer().then(setJds);
+  }, []);
+  const [step2Tab, setStep2Tab] = useState<"jobs" | "jd">("jobs");
+
+  function saveJd(title: string, raw: string) {
+    const skills = detectSkills(raw);
+    const jd: JdFront = {
+      id: `jd_${Date.now()}`,
+      title: title.trim() || "未命名 JD",
+      raw,
+      skills,
+      createdAt: Date.now(),
+    };
+    pushJdToServer(jd);
+    setJds((l) => [jd, ...l]);
+    if (!skills.length) {
+      setError(
+        "这份 JD 没识别到知识库里的技能关键词，已保存但匹配会显示“无要求识别”——试试粘贴完整的岗位要求段落"
+      );
+    } else {
+      setInfo(
+        `已收藏「${jd.title}」，从 JD 里识别到 ${skills.length} 项要求（JD 无权重信息，一律按“重要”计）`
+      );
+    }
+  }
+
+  function removeJd(id: string) {
+    removeJdOnServer(id);
+    setJds((l) => l.filter((x) => x.id !== id));
+  }
+
   function goToStep(i: number) {
     if (i >= 0 && i <= STEPS.length - 1) setStep(i);
   }
@@ -698,19 +774,51 @@ export default function Home() {
             )}
 
             {step === 2 && (
-              <JobList
-                matches={pageJobs}
-                page={jobPage}
-                pageCount={pageCount}
-                onPageChange={setJobPage}
-                selectedId={activeId}
-                targetTracks={effective.targetTracks}
-                onSelect={(id) => {
-                  setSelectedJobId(id);
-                  setStep(3);
-                }}
-                onBack={() => setStep(1)}
-              />
+              <>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setStep2Tab("jobs")}
+                    className={`chip-btn px-3.5 py-1.5 text-xs ${step2Tab === "jobs" ? "on" : ""}`}
+                  >
+                    内置推荐岗位
+                  </button>
+                  <button
+                    onClick={() => setStep2Tab("jd")}
+                    className={`chip-btn px-3.5 py-1.5 text-xs ${step2Tab === "jd" ? "on" : ""}`}
+                    title="你收藏的真实 JD，从你自己的岗位库里匹配"
+                  >
+                    我的 JD {jds.length > 0 ? `(${jds.length})` : ""}
+                  </button>
+                </div>
+
+                {step2Tab === "jobs" ? (
+                  <div className="mt-1">
+                    <JobList
+                      matches={pageJobs}
+                      page={jobPage}
+                      pageCount={pageCount}
+                      onPageChange={setJobPage}
+                      selectedId={activeId}
+                      targetTracks={effective.targetTracks}
+                      onSelect={(id) => {
+                        setSelectedJobId(id);
+                        setStep(3);
+                      }}
+                      onBack={() => setStep(1)}
+                    />
+                  </div>
+                ) : (
+                  <JdLibrary
+                    jds={jds}
+                    knownSkillIds={effective.knownSkillIds}
+                    hoursPerWeek={effective.hoursPerWeek}
+                    onAdd={saveJd}
+                    onDelete={removeJd}
+                    onBackToJobs={() => setStep2Tab("jobs")}
+                    onBack={() => setStep(1)}
+                  />
+                )}
+              </>
             )}
 
             {step === 3 && selected && (
@@ -1379,6 +1487,203 @@ function Orientation({
         </button>
         <button onClick={onNext} className="btn btn-primary flex-1">
           去看看匹配的岗位
+        </button>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   我的 JD 库：真实岗位收藏 → 匹配差距
+   （零 LLM：JD 文本用知识库别名抽取技能；无权重 → 一律「重要」）
+   ============================================================ */
+function JdLibrary({
+  jds,
+  knownSkillIds,
+  hoursPerWeek,
+  onAdd,
+  onDelete,
+  onBackToJobs,
+  onBack,
+}: {
+  jds: JdFront[];
+  knownSkillIds: string[];
+  hoursPerWeek: number;
+  onAdd: (title: string, raw: string) => void;
+  onDelete: (id: string) => void;
+  onBackToJobs: () => void;
+  onBack: () => void;
+}) {
+  const [showForm, setShowForm] = useState(false);
+  const [title, setTitle] = useState("");
+  const [raw, setRaw] = useState("");
+  const hours = hoursPerWeek || 10;
+
+  function submit() {
+    if (!raw.trim()) return;
+    onAdd(title, raw);
+    setShowForm(false);
+    setTitle("");
+    setRaw("");
+  }
+
+  return (
+    <section>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">我的 JD · 真实目标</h2>
+      <p className="mt-1 text-sm text-muted">
+        贴真实的岗位 JD，存进你的数据库，之后随时按你会的技能算这份 JD 的差距。
+        JD 没有权重信息，识别到的要求一律按「重要」对待。
+      </p>
+
+      {jds.length === 0 && !showForm && (
+        <div className="card mt-5 p-6 text-center">
+          <p className="text-sm text-foreground">还没有收藏任何 JD</p>
+          <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-muted">
+            内置岗位库可能没有你真正想去的岗位——把它的 JD 贴进来，就能从这份 JD 出发算差距，而不是只在库内挑。
+          </p>
+          <button onClick={() => setShowForm(true)} className="btn btn-primary mt-4">
+            收藏第一条 JD
+          </button>
+        </div>
+      )}
+
+      {(showForm || jds.length > 0) && (
+        <>
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={() => setShowForm((v) => !v)}
+              className="btn btn-ghost px-3 py-1.5 text-xs"
+            >
+              {showForm ? "收起表单" : "+ 收藏一条 JD"}
+            </button>
+          </div>
+          {showForm && (
+            <div className="card mt-3 space-y-3 p-5">
+              <label className="block">
+                <span className="lbl">岗位名称（给自己看的）</span>
+                <input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="input"
+                  placeholder="例：XX公司 数据分析师"
+                />
+              </label>
+              <label className="block">
+                <span className="lbl">粘贴完整 JD（岗位要求段落齐全识别最准）</span>
+                <textarea
+                  value={raw}
+                  onChange={(e) => setRaw(e.target.value)}
+                  rows={6}
+                  className="input min-h-[120px] resize-y"
+                  placeholder="把 JD 的岗位职责与任职要求原文贴进来…"
+                />
+              </label>
+              <div className="flex gap-2">
+                <button onClick={submit} className="btn btn-primary flex-1" disabled={!raw.trim()}>
+                  保存并计算差距
+                </button>
+                <button
+                  onClick={() => {
+                    setShowForm(false);
+                    setTitle("");
+                    setRaw("");
+                  }}
+                  className="btn btn-ghost flex-1"
+                >
+                  取消
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {jds.length > 0 && (
+        <div className="mt-4 space-y-3">
+          {jds.map((jd) => {
+            const m = matchJdSkills({ knownSkillIds, hoursPerWeek: hours }, jd.skills);
+            return (
+              <div key={jd.id} className="card p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-base font-semibold tracking-tight text-foreground">
+                        {jd.title}
+                      </span>
+                      {jd.skills.length > 0 && (
+                        <span className="tag w1">识别要求 {jd.skills.length} 项</span>
+                      )}
+                    </div>
+                    <div className="mt-1 text-xs text-muted">
+                      {new Date(jd.createdAt).toLocaleString("zh-CN")}
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <div className="num text-xl font-semibold tracking-tight text-accent">
+                      {m.coverage}%
+                    </div>
+                    <div className="text-xs text-muted">JD 覆盖</div>
+                  </div>
+                </div>
+                <div className="mt-3 track">
+                  <i style={{ width: `${m.coverage}%` }} />
+                </div>
+                <ul className="mt-3 space-y-1 text-xs leading-relaxed text-muted">
+                  {m.reasons.map((r, i) => (
+                    <li key={i} className="flex gap-1.5">
+                      <span aria-hidden className="shrink-0 text-accent">
+                        ·
+                      </span>
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+                {m.missing.length > 0 && (
+                  <div className="mt-3 space-y-1.5">
+                    {m.missing.slice(0, 6).map((s) => (
+                      <div
+                        key={s.id}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[var(--surface-2)] px-3 py-1.5 text-xs"
+                      >
+                        <span className="min-w-0 truncate text-foreground">
+                          {s.name}
+                          <span className="text-muted"> · 约 {s.estHours} 小时</span>
+                        </span>
+                        <span className="shrink-0 text-muted">
+                          缺口 ·{" "}
+                          <a
+                            className="text-accent hover:underline"
+                            target="_blank"
+                            rel="noreferrer"
+                            href={resolveUrl("B站", s.name)}
+                          >
+                            去学 ↗
+                          </a>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-3 flex justify-end">
+                  <button
+                    onClick={() => onDelete(jd.id)}
+                    className="shrink-0 text-xs text-muted transition-colors hover:text-red-500"
+                  >
+                    删除
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="mt-5 flex gap-3">
+        <button onClick={onBack} className="btn btn-ghost flex-1">
+          返回上一步
+        </button>
+        <button onClick={onBackToJobs} className="btn btn-primary flex-1">
+          看内置推荐岗位
         </button>
       </div>
     </section>

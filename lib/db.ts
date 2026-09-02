@@ -76,6 +76,13 @@ function migrate(d: DatabaseSync) {
       summary    TEXT,
       markdown   TEXT
     );
+    CREATE TABLE IF NOT EXISTS user_jds (
+      id         TEXT PRIMARY KEY,
+      title      TEXT NOT NULL DEFAULT '',
+      raw        TEXT NOT NULL DEFAULT '',
+      skills     TEXT NOT NULL DEFAULT '[]',
+      created_at INTEGER NOT NULL
+    );
   `);
   // 兼容旧库：早期 user_profile 无 name 列，CREATE TABLE IF NOT EXISTS 不会改动已有表
   const cols = (d.prepare("PRAGMA table_info(user_profile)").all() as { name: string }[]).map(
@@ -431,6 +438,53 @@ export function upsertSkill(skill: SkillInput) {
 
 export function deleteSkill(id: string) {
   db().prepare("DELETE FROM skills WHERE id = ?").run(id);
+}
+
+/* ============================================================
+   用户 JD 库（真实岗位收藏：标题 + JD 全文 + 抽取的技能 id）
+   从你的目标 JD 出发做匹配，作为内置 133 岗之外的「个人真实目标」来源。
+   ============================================================ */
+export interface JdRow {
+  id: string;
+  title: string;
+  raw: string;
+  /** 从 JD 文本抽取的库内技能 id 列表（出现即视为「重要(2)」，JD 无权重信息） */
+  skills: string[];
+  createdAt: number;
+}
+
+export function listJds(): JdRow[] {
+  const d = db();
+  return (
+    d
+      .prepare("SELECT id, title, raw, skills, created_at FROM user_jds ORDER BY created_at DESC")
+      .all() as any[]
+  ).map((r) => ({
+    id: r.id,
+    title: r.title ?? "",
+    raw: r.raw ?? "",
+    skills: JSON.parse(r.skills || "[]"),
+    createdAt: r.created_at,
+  }));
+}
+
+export function addJd(jd: JdRow) {
+  const d = db();
+  d.prepare(
+    `INSERT OR REPLACE INTO user_jds
+       (id, title, raw, skills, created_at)
+     VALUES (@id, @title, @raw, @skills, @created_at)`
+  ).run({
+    id: jd.id,
+    title: jd.title ?? "",
+    raw: jd.raw ?? "",
+    skills: JSON.stringify(jd.skills ?? []),
+    created_at: jd.createdAt,
+  });
+}
+
+export function deleteJd(id: string) {
+  db().prepare("DELETE FROM user_jds WHERE id = ?").run(id);
 }
 
 /** 校验岗位提交：id 合法、方向存在、core/plus 引用的技能存在、权重∈{1,2,3} */

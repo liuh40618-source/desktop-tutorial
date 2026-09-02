@@ -279,3 +279,48 @@ export function buildGapMap(profile: ProfileInput, jobIds: string[]) {
     })),
   };
 }
+
+/* ============================================================
+   真实 JD 匹配（用户收藏的岗位 JD → 抽取技能后与本画像比对）
+   JD 文本本身没有权重信息：抽取到的技能一律按「重要(2)」对待，
+   并在 reasons 里如实说明，不做虚假的硬门槛分级。
+   ============================================================ */
+export interface JdMatch {
+  coverage: number;
+  covered: SkillRef[];
+  missing: SkillRef[];
+  gapHours: number;
+  etaWeeks: number;
+  reasons: string[];
+}
+
+export function matchJdSkills(profile: ProfileInput, jdSkillIds: string[]): JdMatch {
+  const known = new Set(profile.knownSkillIds || []);
+  const hoursPerWeek = profile.hoursPerWeek && profile.hoursPerWeek > 0 ? profile.hoursPerWeek : 10;
+  const covered: SkillRef[] = [];
+  const missing: SkillRef[] = [];
+  for (const id of jdSkillIds) {
+    if (!SKILL_MAP[id]) continue;
+    (known.has(id) ? covered : missing).push(ref(id, 2));
+  }
+  const totalW = jdSkillIds.length * 2;
+  const coverage = totalW ? Math.round((covered.reduce((a, s) => a + s.weight, 0) / totalW) * 100) : 0;
+  const gapHours = missing.reduce((a, s) => a + s.estHours, 0);
+  const etaWeeks = Math.round((gapHours / hoursPerWeek) * 10) / 10;
+
+  const reasons: string[] = [];
+  if (!jdSkillIds.length) {
+    reasons.push("这份 JD 里没有识别到知识库里的技能关键词，可能 JD 写法与库中词条对不上");
+  } else {
+    reasons.push(
+      `这份 JD 提到的要求里你已具备 ${covered.length}/${covered.length + missing.length} 项（按权重计 ${coverage}%）`
+    );
+    if (missing.length) {
+      reasons.push(`还没具备：${missing.map((s) => s.name).join("、")}`);
+    } else {
+      reasons.push("JD 提到的技能你都覆盖了，可以对照岗位要求逐条复核后投递");
+    }
+    reasons.push("JD 没有权重信息，抽取到的技能一律按「重要」对待；建议结合 JD 原文确认优先级");
+  }
+  return { coverage, covered, missing, gapHours, etaWeeks, reasons };
+}
