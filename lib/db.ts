@@ -69,6 +69,7 @@ function migrate(d: DatabaseSync) {
     );
     CREATE TABLE IF NOT EXISTS user_plans (
       id         TEXT PRIMARY KEY,
+      name       TEXT NOT NULL DEFAULT '',
       created_at INTEGER NOT NULL,
       major      TEXT,
       job_title  TEXT,
@@ -82,6 +83,13 @@ function migrate(d: DatabaseSync) {
   );
   if (!cols.includes("name")) {
     d.exec("ALTER TABLE user_profile ADD COLUMN name TEXT NOT NULL DEFAULT ''");
+  }
+  // 兼容旧库：user_plans 无 name 列（记录命名管理）
+  const planCols = (d.prepare("PRAGMA table_info(user_plans)").all() as { name: string }[]).map(
+    (c) => c.name
+  );
+  if (!planCols.includes("name")) {
+    d.exec("ALTER TABLE user_plans ADD COLUMN name TEXT NOT NULL DEFAULT ''");
   }
 }
 
@@ -265,6 +273,7 @@ export function deleteUserProfile(id: string) {
 
 export interface PlanRow {
   id: string;
+  name: string;
   createdAt: number;
   major: string;
   jobTitle: string;
@@ -277,11 +286,12 @@ export function listPlans(): PlanRow[] {
   return (
     d
       .prepare(
-        "SELECT id, created_at, major, job_title, summary, markdown FROM user_plans ORDER BY created_at DESC LIMIT 50"
+        "SELECT id, name, created_at, major, job_title, summary, markdown FROM user_plans ORDER BY created_at DESC LIMIT 50"
       )
       .all() as any[]
   ).map((r) => ({
     id: r.id,
+    name: r.name ?? "",
     createdAt: r.created_at,
     major: r.major,
     jobTitle: r.job_title,
@@ -294,10 +304,11 @@ export function addPlanRec(rec: PlanRow) {
   const d = db();
   d.prepare(
     `INSERT OR REPLACE INTO user_plans
-       (id, created_at, major, job_title, summary, markdown)
-     VALUES (@id, @created_at, @major, @job_title, @summary, @markdown)`
+       (id, name, created_at, major, job_title, summary, markdown)
+     VALUES (@id, @name, @created_at, @major, @job_title, @summary, @markdown)`
   ).run({
     id: rec.id,
+    name: rec.name ?? "",
     created_at: rec.createdAt,
     major: rec.major ?? "",
     job_title: rec.jobTitle ?? "",

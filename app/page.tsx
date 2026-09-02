@@ -24,7 +24,6 @@ import { ResumeImport } from "@/components/ResumeImport";
 const STEPS = ["我的情况", "选方向", "找岗位", "查差距", "定计划"];
 const STORAGE_KEY = "zhitu_state_v2";
 const PLANS_KEY = "zhitu_plans_v2";
-const ACTIVE_KEY = "zhitu_active_v1";
 
 interface Profile {
   major: string;
@@ -67,6 +66,8 @@ interface Persisted {
 
 interface PlanRecord {
   id: string;
+  /** 用户给记录起的名字（可选）；为空时展示「专业 · 岗位」的默认名 */
+  name?: string;
   createdAt: number;
   major: string;
   jobTitle: string;
@@ -86,15 +87,6 @@ interface ProfileRowFront {
   updatedAt: string;
 }
 
-async function loadProfilesFromServer(): Promise<ProfileRowFront[]> {
-  try {
-    const r = await fetch("/api/profile");
-    const data = await r.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-}
 
 async function loadProfileFromServer(id: string): Promise<Persisted | null> {
   try {
@@ -136,13 +128,6 @@ async function pushProfileToServer(s: Persisted, id: string, name: string) {
   }
 }
 
-async function deleteProfileOnServer(id: string) {
-  try {
-    await fetch(`/api/profile?id=${encodeURIComponent(id)}`, { method: "DELETE" });
-  } catch {
-    /* 忽略 */
-  }
-}
 
 async function loadPlansFromServer(): Promise<PlanRecord[]> {
   try {
@@ -394,122 +379,6 @@ function PlanMd({ text }: { text: string }) {
   );
 }
 
-/* ============================================================
-   档案切换器（多档案：保存 / 切换 / 重命名 / 删除）
-   ============================================================ */
-function ProfileSwitcher({
-  profiles,
-  activeId,
-  onSwitch,
-  onCreate,
-  onRename,
-  onDelete,
-}: {
-  profiles: ProfileRowFront[];
-  activeId: string;
-  onSwitch: (id: string) => void;
-  onCreate: () => void;
-  onRename: (id: string, name: string) => void;
-  onDelete: (id: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [renaming, setRenaming] = useState<string | null>(null);
-  const [nameVal, setNameVal] = useState("");
-  const current = profiles.find((p) => p.id === activeId);
-
-  function startRename(p: ProfileRowFront) {
-    setRenaming(p.id);
-    setNameVal(p.name);
-  }
-  function commitRename(id: string) {
-    const trimmed = nameVal.trim();
-    if (trimmed) onRename(id, trimmed);
-    setRenaming(null);
-  }
-
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="chip-btn whitespace-nowrap"
-        title="切换 / 新建求职档案"
-      >
-        {current?.name || "未命名档案"} ▾
-      </button>
-      {open && (
-        <div className="absolute right-0 z-30 mt-1 w-64 rounded-lg border border-border bg-[var(--surface-2)] p-2 shadow-xl">
-          {profiles.length === 0 && (
-            <div className="px-2 py-1 text-xs text-muted">暂无档案</div>
-          )}
-          {profiles.map((p) => (
-            <div
-              key={p.id}
-              className="flex items-center gap-1 rounded px-1 py-1 hover:bg-accent-soft"
-            >
-              {renaming === p.id ? (
-                <input
-                  autoFocus
-                  onFocus={(e) => e.currentTarget.select()}
-                  value={nameVal}
-                  onChange={(e) => setNameVal(e.target.value)}
-                  onBlur={() => commitRename(p.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") commitRename(p.id);
-                    if (e.key === "Escape") setRenaming(null);
-                  }}
-                  className="flex-1 rounded border border-border bg-transparent px-1 py-0.5 text-xs text-foreground"
-                />
-              ) : (
-                <button
-                  onClick={() => {
-                    onSwitch(p.id);
-                    setOpen(false);
-                  }}
-                  className={`flex-1 truncate text-left text-xs ${
-                    p.id === activeId
-                      ? "font-semibold text-accent-strong"
-                      : "text-foreground"
-                  }`}
-                >
-                  {p.name || "未命名档案"}
-                </button>
-              )}
-              <button
-                onClick={() => startRename(p)}
-                className="px-1 text-xs text-muted hover:text-foreground"
-                title="重命名"
-              >
-                ✎
-              </button>
-              <button
-                onClick={() => {
-                  const nm = p.name || "未命名档案";
-                  if (confirm(`删除档案「${nm}」？其中的进度与打卡记录会一并清除，且不可撤销。`)) {
-                    onDelete(p.id);
-                    setOpen(false);
-                  }
-                }}
-                className="px-1 text-xs text-muted hover:text-red-500"
-                title="删除"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-          <button
-            onClick={() => {
-              onCreate();
-              setOpen(false);
-            }}
-            className="mt-1 w-full rounded border border-dashed border-border px-2 py-1 text-xs text-muted hover:text-foreground"
-          >
-            + 新建档案
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
 
 /* ============================================================
    主流程
@@ -538,8 +407,6 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [error, info]);
   const [ready, setReady] = useState(false);
-  const [profiles, setProfiles] = useState<ProfileRowFront[]>([]);
-  const [activeProfileId, setActiveProfileId] = useState("local");
 
   // 打卡完成的技能并入已勾选的技能，参与所有计算：缺口随进度实时下降
   const effective = useMemo<Profile>(
@@ -575,38 +442,12 @@ export default function Home() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [hasDraft, setHasDraft] = useState(false);
   useEffect(() => {
-    loadProfilesFromServer().then((list) => {
-      const display: ProfileRowFront[] =
-        list.length > 0
-          ? list
-          : [
-              {
-                id: "local",
-                name: "档案 1",
-                step: 0,
-                started: false,
-                profile: emptyProfile,
-                selectedJobId: "",
-                doneSkills: [],
-                updatedAt: new Date().toISOString(),
-              },
-            ];
-      setProfiles(display);
-      let active = display[0].id;
-      try {
-        const stored = localStorage.getItem(ACTIVE_KEY);
-        if (stored && display.some((p) => p.id === stored)) active = stored;
-      } catch {
-        /* 忽略 */
-      }
-      setActiveProfileId(active);
-      loadProfileFromServer(active).then((s) => {
-        draftRef.current = s;
-        const has = !!(s && (s.started || (s.profile && s.profile.knownSkillIds?.length)));
-        setHasDraft(has);
-        // 无草稿的新用户直接开启持久化，避免"新用户进度不落库"的旧问题
-        setRestored(!has);
-      });
+    loadProfileFromServer("local").then((s) => {
+      draftRef.current = s;
+      const has = !!(s && (s.started || (s.profile && s.profile.knownSkillIds?.length)));
+      setHasDraft(has);
+      // 无草稿的新用户直接开启持久化，避免"新用户进度不落库"的旧问题
+      setRestored(!has);
     });
   }, []);
 
@@ -634,15 +475,13 @@ export default function Home() {
     if (!restored) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     const snapshot: Persisted = { step, started, profile, selectedJobId, doneSkills };
-    const foundName = profiles.find((p) => p.id === activeProfileId)?.name;
-    const nm = foundName || (activeProfileId === "local" ? "档案 1" : "");
     saveTimer.current = setTimeout(() => {
-      pushProfileToServer(snapshot, activeProfileId, nm);
+      pushProfileToServer(snapshot, "local", "");
     }, 500);
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
     };
-  }, [restored, step, started, profile, selectedJobId, doneSkills, activeProfileId, profiles]);
+  }, [restored, step, started, profile, selectedJobId, doneSkills]);
 
   function continueDraft() {
     const s = draftRef.current;
@@ -658,109 +497,6 @@ export default function Home() {
     setHasDraft(false);
   }
 
-  function applyProfile(s: Persisted | null) {
-    if (s) {
-      setStep(s.step ?? 0);
-      setProfile({ ...emptyProfile, ...(s.profile || {}) });
-      setSelectedJobId(s.selectedJobId ?? "");
-      setDoneSkills(s.doneSkills ?? []);
-      setStarted(!!(s.started || (s.step ?? 0) > 0));
-    } else {
-      reset();
-    }
-  }
-
-  function switchTo(id: string) {
-    if (id === activeProfileId) return;
-    loadProfileFromServer(id).then((s) => {
-      setActiveProfileId(id);
-      try {
-        localStorage.setItem(ACTIVE_KEY, id);
-      } catch {
-        /* 忽略 */
-      }
-      applyProfile(s);
-      setRestored(true);
-      setHasDraft(false);
-      loadProfilesFromServer().then(setProfiles);
-    });
-  }
-
-  function createProfile() {
-    const id = `p_${Date.now()}`;
-    const name = `档案 ${profiles.length + 1}`;
-    const empty: Persisted = {
-      step: 0,
-      started: false,
-      profile: emptyProfile,
-      selectedJobId: "",
-      doneSkills: [],
-    };
-    pushProfileToServer(empty, id, name);
-    setActiveProfileId(id);
-    try {
-      localStorage.setItem(ACTIVE_KEY, id);
-    } catch {
-      /* 忽略 */
-    }
-    setProfiles((list) => [
-      {
-        id,
-        name,
-        step: 0,
-        started: false,
-        profile: emptyProfile,
-        selectedJobId: "",
-        doneSkills: [],
-        updatedAt: new Date().toISOString(),
-      },
-      ...list,
-    ]);
-    applyProfile(null);
-    setRestored(true);
-    setHasDraft(false);
-  }
-
-  function renameProfile(id: string, name: string) {
-    const row = profiles.find((p) => p.id === id);
-    if (!row) return;
-    const s: Persisted = {
-      step: row.step,
-      started: row.started,
-      profile: row.profile,
-      selectedJobId: row.selectedJobId,
-      doneSkills: row.doneSkills,
-    };
-    pushProfileToServer(s, id, name);
-    setProfiles((list) => list.map((p) => (p.id === id ? { ...p, name } : p)));
-  }
-
-  function deleteProfile(id: string) {
-    deleteProfileOnServer(id);
-    setProfiles((list) => {
-      const next = list.filter((p) => p.id !== id);
-      if (id === activeProfileId) {
-        const fallback = next[0];
-        if (fallback) {
-          setActiveProfileId(fallback.id);
-          try {
-            localStorage.setItem(ACTIVE_KEY, fallback.id);
-          } catch {
-            /* 忽略 */
-          }
-          loadProfileFromServer(fallback.id).then((s) => {
-            applyProfile(s);
-            setRestored(true);
-          });
-        } else {
-          setActiveProfileId("local");
-          applyProfile(null);
-          setRestored(true);
-        }
-      }
-      return next;
-    });
-  }
 
   useEffect(() => {
     loadPlansFromServer().then(setPlans);
@@ -839,14 +575,6 @@ export default function Home() {
             岗位要求 × 你的技能 · 每个数字都能拆开看
           </p>
         </div>
-        <ProfileSwitcher
-          profiles={profiles}
-          activeId={activeProfileId}
-          onSwitch={switchTo}
-          onCreate={createProfile}
-          onRename={renameProfile}
-          onDelete={deleteProfile}
-        />
         {started && (
           <div className="flex gap-2">
             <button
@@ -876,6 +604,13 @@ export default function Home() {
         <Records
           plans={plans}
           onBack={() => setView("landing")}
+          onRename={(id, name) => {
+            const cur = plans.find((p) => p.id === id);
+            if (!cur) return;
+            const up = { ...cur, name };
+            pushPlanToServer(up);
+            setPlans((list) => list.map((p) => (p.id === id ? up : p)));
+          }}
           onDelete={(id) => {
             removePlanOnServer(id);
             setPlans((list) => list.filter((p) => p.id !== id));
@@ -2342,13 +2077,33 @@ function Landing({
 function Records({
   plans,
   onBack,
+  onRename,
   onDelete,
 }: {
   plans: PlanRecord[];
   onBack: () => void;
+  onRename: (id: string, name: string) => void;
   onDelete: (id: string) => void;
 }) {
   const [sel, setSel] = useState<PlanRecord | null>(null);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [nameVal, setNameVal] = useState("");
+
+  function planTitle(p: PlanRecord): string {
+    return p.name?.trim() || `${p.major || "未填专业"} · ${p.jobTitle}`;
+  }
+
+  function commitRename() {
+    const trimmed = nameVal.trim();
+    if (renamingId) {
+      const target = plans.find((x) => x.id === renamingId);
+      if (trimmed && target && trimmed !== planTitle(target) && trimmed !== target.name) {
+        onRename(renamingId, trimmed);
+      }
+    }
+    setRenamingId(null);
+  }
+
   if (sel) return <PlanDetail plan={sel} onBack={() => setSel(null)} />;
   return (
     <section>
@@ -2386,30 +2141,63 @@ function Records({
         </div>
       ) : (
         <div className="space-y-3">
-          {plans.map((p) => (
-            <div key={p.id} className="card p-4">
-              <div className="flex items-start justify-between gap-3">
-                <button onClick={() => setSel(p)} className="min-w-0 flex-1 text-left">
-                  <div className="truncate text-sm font-medium text-foreground">
-                    {p.major || "未填专业"} · {p.jobTitle}
+          {plans.map((p) => {
+            const editing = renamingId === p.id;
+            return (
+              <div key={p.id} className="card p-4">
+                <div className="flex items-start justify-between gap-3">
+                  {editing ? (
+                    <input
+                      autoFocus
+                      value={nameVal}
+                      onChange={(e) => setNameVal(e.target.value)}
+                      onBlur={commitRename}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          commitRename();
+                        }
+                        if (e.key === "Escape") setRenamingId(null);
+                      }}
+                      placeholder={planTitle(p)}
+                      className="input min-w-0 flex-1 py-1.5 text-sm"
+                    />
+                  ) : (
+                    <button onClick={() => setSel(p)} className="min-w-0 flex-1 text-left">
+                      <div className="truncate text-sm font-medium text-foreground">
+                        {planTitle(p)}
+                      </div>
+                      <div className="mt-1 text-xs text-muted">{p.summary}</div>
+                      <div className="mt-1 text-xs text-muted">
+                        {new Date(p.createdAt).toLocaleString("zh-CN")}
+                      </div>
+                    </button>
+                  )}
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button
+                      onClick={() => {
+                        setRenamingId(p.id);
+                        setNameVal(p.name ?? planTitle(p));
+                      }}
+                      title="改个名，方便以后分辨"
+                      className="rounded-lg px-2 py-1 text-xs text-muted transition-colors hover:text-accent"
+                    >
+                      改名
+                    </button>
+                    <button
+                      onClick={() => {
+                        const title = p.jobTitle || "这份规划";
+                        if (confirm(`删除「${title}」？此操作不可撤销。`)) onDelete(p.id);
+                      }}
+                      className="rounded-lg px-2 py-1 text-xs text-muted transition-colors hover:text-red-500"
+                    >
+                      删除
+                    </button>
                   </div>
-                  <div className="mt-1 text-xs text-muted">{p.summary}</div>
-                  <div className="mt-1 text-xs text-muted">
-                    {new Date(p.createdAt).toLocaleString("zh-CN")}
-                  </div>
-                </button>
-                <button
-                  onClick={() => {
-                    const title = p.jobTitle || "这份规划";
-                    if (confirm(`删除「${title}」？此操作不可撤销。`)) onDelete(p.id);
-                  }}
-                  className="shrink-0 rounded-lg px-2 py-1 text-xs text-muted transition-colors hover:text-red-500"
-                >
-                  删除
-                </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </section>
@@ -2442,7 +2230,9 @@ function PlanDetail({ plan, onBack }: { plan: PlanRecord; onBack: () => void }) 
   return (
     <section>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">规划详情</h2>
+        <h2 className="min-w-0 truncate text-xl font-semibold tracking-tight text-foreground">
+          {plan.name?.trim() || `${plan.major || "未填专业"} · ${plan.jobTitle}`}
+        </h2>
         <button onClick={onBack} className="btn btn-ghost whitespace-nowrap px-3 py-1.5 text-xs">
           返回
         </button>
