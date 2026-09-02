@@ -99,35 +99,7 @@ app/
 scripts/
   validate-data.mjs 只读一致性校验器：id/track/引用/权重/薪资/estHours/平台白名单/meta 版本，
                     改动 data 后必跑，零错误才算过
-  expand-data.mjs   ⚠️ 历史一次性扩编脚本（20→130+，2026-09 已执行），内含硬编码 v2.0 版本号，
-                    不要再运行，防版本回退
-python-version/   Python 版孪生实现（见下）
-demo/             截图与单文件交互演示（demo/index.html 为旧原型期的模拟数据演示，见下）
 ```
-
-## Python 版
-
-`python-version/` 是同一套产品逻辑的 Flask 孪生实现，**纯本地、零 LLM、零密钥**。
-两版共用 `data/*.json`，算法一一对应（`matcher.py` ↔ `lib/matcher.ts`）。
-唯一接口 `POST /api/plan`（`knowledge` / `detect` / `analyze` / `gap` / `path`），
-与 Next 版 `/api/knowledge` 返回同一份知识库。区别是它**在服务端**计算（Next 版可在浏览器本地），
-并自带一个 `index.html` 前端。
-
-```bash
-cd python-version
-pip install -r requirements.txt   # 只需 flask
-python app.py                     # http://localhost:5000
-```
-
-详见 `python-version/README.md`。
-
-## 演示 / 截图
-
-- `demo/index.html` —— **旧 LLM 原型期**留下的单文件交互演示：内置模拟假数据（约 9 个岗位，
-  非当前 133 岗知识库），打开即可体验五步交互形态，仅作流程示意，不是当前引擎的实时数据
-- `demo/preview-landing-v2.png` —— 产品首页（桌面端）
-- `demo/preview-admin-final.png` —— 数据后台（桌面端）
-- `demo/m-*.png` —— 五步流程的移动端实机截图
 
 ## 已知边界
 
