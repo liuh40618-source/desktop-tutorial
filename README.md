@@ -2,7 +2,7 @@
 
 把你的技能，和岗位要求对齐。
 
-不是一个"问 AI 我适合干什么"的聊天框。它内置了 20 个互联网岗位（8 个方向）的必备技能与权重，
+不是一个"问 AI 我适合干什么"的聊天框。它内置了一份**可解释的岗位 × 技能知识库**，
 用你的技能画像逐条比对，算出覆盖率、缺口、补齐周期和学习顺序。每个数字都能拆开看。
 
 ## 核心思路
@@ -13,13 +13,16 @@ LLM 擅长生成，但生成职业规划时会编造 JD、编造薪资、编造�
 当前 TypeScript 版本**全程零 LLM、零外部 API**——`lib/db.ts` 里没有一个网络请求，
 `app/` 与 `lib/` 下也不存在任何调模型的代码。所有数字都由可复核的公式算出。
 
+> 岗位与技能条目**持续扩充**中，以 `data/*.json` 与 `/api/knowledge` 实时返回为准；
+> 数量不在文档里写死——`scripts/expand-data.mjs` 描述了扩编流程。
+
 ## 五步流程
 
 | 步骤 | 做什么 |
 | --- | --- |
-| 01 我的画像 | 填背景 + 勾选 55 项技能（可**上传简历** PDF/DOCX/TXT/MD 自动识别，或从文字自动预识别——两者都**只预勾选、不静默判定**，用户可逐条改）+ 选方向 + 设每周投入时长 |
-| 02 方向定位 | 按 8 个方向聚合平均覆盖率，看自己离哪个领域最近 |
-| 03 岗位匹配 | 20 个岗位按匹配分排序，附覆盖率、缺口时长、补齐周期、薪资参考，以及**逐条计算依据** |
+| 01 我的画像 | 填背景 + 勾选技能（可**上传简历** PDF/DOCX/TXT/MD 自动识别，或从文字自动预识别——两者都**只预勾选、不静默判定**，用户可逐条改）+ 选方向 + 设每周投入时长 |
+| 02 方向定位 | 按各方向聚合平均覆盖率，看自己离哪个领域最近 |
+| 03 岗位匹配 | 候选岗位按匹配分排序，附覆盖率、缺口时长、补齐周期、薪资参考，以及**逐条计算依据** |
 | 04 技能差距 | 目标岗位的必备技能清单 + 相近岗位横向对比矩阵 |
 | 05 学习路径 | 按「权重 ÷ 耗时」排序，配平台搜索链接，可打卡；打卡后缺口与覆盖率实时重算 |
 
@@ -68,15 +71,15 @@ npm run dev          # http://localhost:4000
 
 首次启动会读 `data/*.json` 种子化 `career.db`，之后所有读取走数据库。
 
-因为用了 `node:sqlite` 和服务端 API Route（`/api/knowledge`、`/api/plans`、`/api/profile`），
+因为用了 `node:sqlite` 和服务端 API Route（`/api/knowledge`、`/api/plans`、`/api/profile`、`/api/parse-resume`、`/api/admin/...`），
 **当前版本不能纯静态部署**，需要一个 Node 运行时。
 
 ## 目录
 
 ```
 data/
-  skills.json     55 项技能：分类、别名（用于文本识别）、预估时长、学习资源
-  jobs.json       20 个岗位 / 8 个方向：必备技能及权重、加分项、门槛、薪资区间、发展路径
+  skills.json     技能库：分类、别名（用于文本识别）、预估时长、学习资源（持续扩充）
+  jobs.json       岗位库 / 方向库：必备技能及权重、加分项、门槛、薪资区间、发展路径（持续扩充）
 lib/
   db.ts           SQLite 数据层：建表、种子化、知识库读取、用户画像与方案持久化
   matcher.ts      匹配 / 差距 / 路径算法（纯函数，前端拿到知识库后本地计算）
@@ -89,34 +92,41 @@ app/
   api/profile/    用户画像读写（SQLite，localStorage 兜底）
   api/plans/      保存的方案列表增删改查
   api/parse-resume/ 简历文本提取（unpdf / mammoth，本地，零模型）
-  admin/          岗位 / 技能数据后台（CRUD，写 SQLite）
-python-version/
-  app.py          Flask 版（见下）
+  api/admin/      岗位 / 技能数据后台（CRUD，写 SQLite）
+  admin/          配套管理界面
+scripts/
+  expand-data.mjs 数据扩编脚本：合并预设的 NEW_* 词条到 data/*.json 并重建 SQLite
+python-version/   Python 版孪生实现（见下）
+demo/             截图与单文件交互演示
 ```
 
 ## Python 版
 
-`python-version/` 是同一套产品逻辑的 Flask 实现，两版共用 `data/*.json`，
-算法一一对应（`matcher.py` ↔ `lib/matcher.ts`）。区别是它在服务端计算，自带一个 `index.html` 前端。
-
-它里面有**两代接口并存**：
-
-| 接口 | 状态 | 是否依赖 LLM |
-| --- | --- | --- |
-| `/api/plan`（`knowledge` / `detect` / `analyze` / `gap` / `path`） | 当前主链路 | 否，纯本地算法 |
-| `/api/career` | 早期实现，保留供对照 | 是，需要 `LLM_API_KEY`；未配置时按 `CAREER_MODE=offline` 或自动降级到 `local_engine.py` 规则引擎 |
+`python-version/` 是同一套产品逻辑的 Flask 孪生实现，**纯本地、零 LLM、零密钥**。
+两版共用 `data/*.json`，算法一一对应（`matcher.py` ↔ `lib/matcher.ts`）。
+唯一接口 `POST /api/plan`（`knowledge` / `detect` / `analyze` / `gap` / `path`），
+与 Next 版 `/api/knowledge` 返回同一份知识库。区别是它**在服务端**计算（Next 版可在浏览器本地），
+并自带一个 `index.html` 前端。
 
 ```bash
 cd python-version
-pip install -r requirements.txt
-python app.py         # http://localhost:5000
+pip install -r requirements.txt   # 只需 flask
+python app.py                     # http://localhost:5000
 ```
 
-只跑 `/api/plan` 的话不需要任何密钥。
+详见 `python-version/README.md`。
+
+## 演示 / 截图
+
+- `demo/index.html` —— 单文件交互演示，浏览器直接打开即可体验五步流程
+- `demo/preview-landing-v2.png` —— 产品首页（桌面端）
+- `demo/preview-admin-final.png` —— 数据后台（桌面端）
+- `demo/m-*.png` —— 五步流程的移动端实机截图
 
 ## 已知边界
 
-- 知识库是手工整理的 20 个岗位，覆盖面有限，且会随时间过时。
+- 知识库是手工整理的，覆盖面有限，且会随时间过时——以 `data/*.json` 实际内容与
+  `/api/knowledge` 实时返回为准；扩编流程见 `scripts/expand-data.mjs`。
 - 覆盖率只看「你勾选的技能」与「岗位要求」的交集，不评估熟练程度，也不看项目经历
   （简历导入也只是辅助勾选，不代表经历被计入评分）。
 - 单用户本地场景，没有账号、权限与多端同步。

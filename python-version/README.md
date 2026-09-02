@@ -1,34 +1,23 @@
 # 职途 · Python 版（career-navigator / python-version）
 
-用 Python 实现的「岗位知识库 × 技能差距计算」版本。
-后端 = Flask 提供知识库与算法接口；前端 = 单个 HTML 文件（原生 JS，零构建）。
+与 Next.js 版**共用同一份数据与算法**的 Flask 孪生实现。
 
-**不需要任何密钥**。全部计算基于 `../data/*.json` 里的技能库与岗位库。
+- 数据：`../data/skills.json` + `../data/jobs.json`（与 Next 版完全相同）
+- 算法：`matcher.py` ↔ `lib/matcher.ts`（一一对应，改动时请同步）
+- 接口：**只有 `POST /api/plan` 一个**，零 LLM、零外部 API、零密钥
+- 前端：单个 `index.html`（原生 JS，零构建）
+
+唯一区别：Next 版在**浏览器本地**计算（可与 Node 服务端配合），Python 版在**服务端**计算。
 
 ## 跑起来
 
 ```bash
-# 1. 安装依赖（建议先在项目目录建虚拟环境）
-pip install -r requirements.txt
-
-# 2. 启动
-python app.py
-
-# 3. 浏览器打开 http://localhost:5000
+cd python-version
+pip install -r requirements.txt   # 只需 flask
+python app.py                     # http://localhost:5000
 ```
 
-## 与 Next.js 版的关系
-
-两版是同一套产品逻辑的两个实现，**共用同一份数据与算法**：
-
-| Next.js 版 | Python 版 | 说明 |
-| --- | --- | --- |
-| `data/skills.json` | 同文件 | 55 项技能 |
-| `data/jobs.json` | 同文件 | 20 个岗位及技能权重 |
-| `lib/matcher.ts` | `matcher.py` | 匹配 / 差距 / 路径算法，一一对应 |
-| — | `local_engine.py` | 旧版关键词规则兜底，对应 `lib/local-engine.ts` |
-
-唯一区别：Next 版在**浏览器本地**计算（可静态部署），Python 版在**服务端**计算。
+不需要任何环境变量、不需要任何 API key。
 
 ## 接口
 
@@ -56,13 +45,11 @@ python app.py
 }
 ```
 
-另有旧版 `POST /api/career`（4 阶段大模型流程）保留着，配置 `LLM_API_KEY` 后可用，
-不配置则自动降级为 `local_engine` 规则兜底。想强制离线：设 `CAREER_MODE=offline`。
+`mode` 字段恒为 `"local"`，明示这是本地计算结果（非大模型生成）。
 
 ## 目录
 
-- `app.py` —— Flask 后端：`/api/plan` 新接口 + `/api/career` 旧接口 + 托管首页
+- `app.py` —— Flask 后端：唯一接口 `/api/plan` + 托管首页
 - `matcher.py` —— 匹配 / 差距 / 路径算法，读 `../data/*.json`
-- `local_engine.py` —— 旧版关键词规则兜底
 - `index.html` —— 前端：5 步向导，`fetch` 调 `/api/plan`，`localStorage` 存进度与打卡
-- `requirements.txt` / `.env.example` —— 依赖与配置模板
+- `requirements.txt` —— 依赖（仅 `flask`）
