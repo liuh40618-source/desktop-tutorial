@@ -683,7 +683,7 @@ export default function Home() {
             className="cursor-pointer text-xl font-semibold tracking-tight text-foreground"
           >
             <span>职途</span>
-            <span className="ml-2 inline-flex items-center rounded-full bg-accent-soft px-2 py-0.5 align-middle text-[0.65rem] font-medium text-accent-strong">
+            <span className="ml-2 inline-flex items-center rounded-full bg-accent-soft px-2 py-0.5 align-middle text-xs font-medium text-accent-strong">
               v{DATA_META.version}
             </span>
           </h1>
@@ -1319,15 +1319,19 @@ function JobList({
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium text-foreground">{m.title}</span>
+                    <span className="text-base font-semibold tracking-tight text-foreground">
+                      {m.title}
+                    </span>
                     <span className="tag w1">{m.trackName}</span>
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-muted">{m.summary}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted">{m.summary}</p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <div className="text-lg font-semibold text-accent">{m.coverage}%</div>
-                  <div className="text-[0.68rem] text-muted">覆盖率</div>
-                  <div className="mt-0.5 text-[0.68rem] text-muted">匹配分 {m.score}</div>
+                  <div className="num text-xl font-semibold tracking-tight text-accent">
+                    {m.coverage}%
+                  </div>
+                  <div className="text-xs text-muted">覆盖率</div>
+                  <div className="mt-0.5 num text-xs text-muted">匹配分 {m.score}</div>
                 </div>
               </div>
 
@@ -1337,13 +1341,13 @@ function JobList({
 
               <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
                 <span>
-                  待补齐 <b className="text-foreground">{m.missing.length}</b> 项
+                  待补齐 <b className="num text-foreground">{m.missing.length}</b> 项
                 </span>
                 <span>
-                  约 <b className="text-foreground">{m.gapHours}</b> 小时
+                  约 <b className="num text-foreground">{m.gapHours}</b> 小时
                 </span>
                 <span>
-                  按你的节奏 <b className="text-foreground">{fmtWeeks(m.etaWeeks)}</b>
+                  按你的节奏 <b className="num text-foreground">{fmtWeeks(m.etaWeeks)}</b>
                 </span>
                 <span>
                   实习 {m.salary.intern} · 应届 {m.salary.junior}
@@ -1657,7 +1661,7 @@ function PathView({
               <div key={item.skillId} className="card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-start gap-2.5">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[0.7rem] font-medium text-accent-strong">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xs font-medium text-accent-strong">
                       {i + 1}
                     </span>
                     <div className="min-w-0">
@@ -1829,17 +1833,19 @@ function Landing({
   ];
   return (
     <section>
-      <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-        把「学过什么」对齐到「岗位要什么」
+      <h2 className="text-[1.7rem] leading-snug font-semibold tracking-tight text-foreground sm:text-3xl">
+        把「学过什么」
+        <span className="text-accent">对齐</span>
+        到「岗位要什么」
       </h2>
-      <p className="mt-2 text-sm leading-relaxed text-muted">
+      <p className="mt-3 max-w-xl text-[0.95rem] leading-relaxed text-muted">
         内置 {jobCount} 个互联网岗位的必备技能与权重。不靠猜，靠算——匹配分
         = 覆盖率 ×0.75 + 加分项 ×0.15 + 方向契合 ×0.10，每个数字都能拆开看。
         无需注册，进度自动保存，刷新不丢。
       </p>
 
       {draft && (
-        <div className="mt-5 rounded-xl border border-accent/30 bg-accent-soft px-4 py-3">
+        <div className="mt-6 rounded-xl border border-accent/30 bg-accent-soft px-4 py-3">
           <div className="text-sm text-foreground">
             检测到上次的规划
             {draft.major ? `（${draft.major}）` : ""}
@@ -1856,17 +1862,21 @@ function Landing({
         </div>
       )}
 
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {modules.map((m) => (
-          <div key={m.n} className="card p-5">
-            <span className="text-xs font-medium tracking-[0.2em] text-accent">{m.n}</span>
-            <h3 className="mt-2 text-base font-medium text-foreground">{m.t}</h3>
-            <p className="mt-1 text-xs leading-relaxed text-muted">{m.d}</p>
+          <div key={m.n} className="card hover-lift p-5">
+            <div className="flex items-baseline gap-2.5">
+              <span className="num text-sm font-semibold tracking-tight text-accent">{m.n}</span>
+              <h3 className="text-[0.95rem] font-semibold tracking-tight text-foreground">
+                {m.t}
+              </h3>
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{m.d}</p>
           </div>
         ))}
       </div>
 
-      <div className="mt-5 flex gap-3">
+      <div className="mt-6 flex gap-3">
         <button onClick={onStart} className="btn btn-primary flex-1">
           开始规划
         </button>

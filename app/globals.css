@@ -4,8 +4,8 @@
 :root {
   --background: #f5f6f8;
   --foreground: #1c1f24;
-  --muted: #868d99;
-  --border: #e6e8ee;
+  --muted: #6f7684;
+  --border: #e3e6ee;
   --card: #ffffff;
   --accent: #2f6bff;
   --accent-strong: #1f57e6;
@@ -28,7 +28,19 @@ body {
   color: var(--foreground);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 键盘可达性：聚焦可见环（输入/按钮等原生控件之外的所有可交互元素） */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+::selection {
+  background: rgba(47, 107, 255, 0.18);
 }
 
 :root {
@@ -60,7 +72,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 0.9rem;
   padding: 0.75rem 0.9rem;
-  font-size: 0.925rem;
+  font-size: 0.9375rem;
   line-height: 1.55;
   color: var(--foreground);
   outline: none;
@@ -69,7 +81,7 @@ body {
     box-shadow 0.18s ease;
 }
 .input::placeholder {
-  color: #aab0bb;
+  color: #9aa2b0;
 }
 .input:focus {
   border-color: var(--accent);
@@ -83,7 +95,7 @@ body {
   gap: 0.45rem;
   border-radius: 0.9rem;
   padding: 0.8rem 1.1rem;
-  font-size: 0.9rem;
+  font-size: 0.9375rem;
   font-weight: 500;
   transition:
     transform 0.12s ease,
@@ -125,7 +137,7 @@ body {
   background: #fff;
   border-radius: 999px;
   padding: 0.34rem 0.78rem;
-  font-size: 0.78rem;
+  font-size: 0.8125rem;
   color: var(--foreground);
 }
 
@@ -139,7 +151,7 @@ body {
 .hint {
   display: block;
   margin-top: 0.3rem;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
@@ -151,7 +163,7 @@ body {
   background: #fff;
   border-radius: 999px;
   padding: 0.34rem 0.78rem;
-  font-size: 0.78rem;
+  font-size: 0.8125rem;
   color: var(--foreground);
   cursor: pointer;
   transition:
@@ -167,6 +179,25 @@ body {
   border-color: rgba(47, 107, 255, 0.4);
   color: var(--accent-strong);
   font-weight: 500;
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+/* 结果卡 / 模块卡悬浮：轻微抬升 + 阴影加强，保持克制 */
+.hover-lift {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: #d5dae6;
+}
+@media (hover: none) {
+  .hover-lift {
+    transition: none;
+  }
 }
 
 /* 权重标记：3=硬门槛 2=重要 1=加分 */
@@ -186,8 +217,8 @@ body {
   display: inline-flex;
   align-items: center;
   border-radius: 6px;
-  padding: 0.1rem 0.38rem;
-  font-size: 0.68rem;
+  padding: 0.12rem 0.42rem;
+  font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -195,8 +226,8 @@ body {
 /* 差距矩阵单元格 */
 .cell {
   border-radius: 7px;
-  padding: 0.3rem 0.4rem;
-  font-size: 0.7rem;
+  padding: 0.3rem 0.42rem;
+  font-size: 0.75rem;
   text-align: center;
   white-space: nowrap;
 }
@@ -214,7 +245,7 @@ body {
 }
 
 .track {
-  height: 5px;
+  height: 6px;
   background: var(--border);
   border-radius: 999px;
   overflow: hidden;
