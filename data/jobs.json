@@ -1,287 +1,5744 @@
 {
   "_meta": {
-    "version": "1.0",
-    "note": "岗位库。core 中 w 为权重：3=硬门槛（缺了基本过不了初筛）、2=重要、1=加分。薪资区间来自公开招聘平台常见报价，非精确统计，仅作量级参考，实际以具体 JD 为准。",
+    "version": "2.0",
+    "note": "岗位库 v2：在 v1 的 20 个互联网岗位基础上扩展到 130+ 岗位，新增设计/安全/游戏/移动端/基础架构 5 个方向，技能覆盖同步扩充。core 中 w 为权重：3=硬门槛、2=重要、1=加分。数据来自公开招聘平台常见报价的整理，薪资仅作量级参考，实际以目标 JD 为准。",
     "salaryNote": "数据来源：公开招聘平台（BOSS 直聘 / 拉勾 / 实习僧）2025 年常见报价，城市量级参考新一线。不同城市、公司、学历差异很大，请以目标岗位实际 JD 为准。"
   },
   "tracks": [
-    { "id": "ai", "name": "AI 应用" },
-    { "id": "data", "name": "数据" },
-    { "id": "algorithm", "name": "算法" },
-    { "id": "frontend", "name": "前端" },
-    { "id": "backend", "name": "后端" },
-    { "id": "qa", "name": "测试" },
-    { "id": "product", "name": "产品" },
-    { "id": "operation", "name": "运营" }
+    {
+      "id": "ai",
+      "name": "AI 应用"
+    },
+    {
+      "id": "data",
+      "name": "数据"
+    },
+    {
+      "id": "algorithm",
+      "name": "算法"
+    },
+    {
+      "id": "frontend",
+      "name": "前端"
+    },
+    {
+      "id": "backend",
+      "name": "后端"
+    },
+    {
+      "id": "qa",
+      "name": "测试"
+    },
+    {
+      "id": "product",
+      "name": "产品"
+    },
+    {
+      "id": "operation",
+      "name": "运营"
+    },
+    {
+      "id": "design",
+      "name": "设计"
+    },
+    {
+      "id": "security",
+      "name": "安全"
+    },
+    {
+      "id": "game",
+      "name": "游戏"
+    },
+    {
+      "id": "mobile",
+      "name": "移动端"
+    },
+    {
+      "id": "infra",
+      "name": "基础架构"
+    }
   ],
   "jobs": [
     {
-      "id": "ai-pm", "title": "AI 产品经理（应用方向）", "track": "ai",
+      "id": "ai-pm",
+      "title": "AI 产品经理（应用方向）",
+      "track": "ai",
       "summary": "把大模型能力落到具体业务里：定义场景、设计交互、评估效果、推动上线。",
       "core": [
-        { "s": "llm-theory", "w": 3 }, { "s": "prompt-eng", "w": 3 }, { "s": "prd", "w": 3 },
-        { "s": "user-research", "w": 2 }, { "s": "data-driven", "w": 2 }, { "s": "llm-api", "w": 2 }
+        {
+          "s": "llm-theory",
+          "w": 3
+        },
+        {
+          "s": "prompt-eng",
+          "w": 3
+        },
+        {
+          "s": "prd",
+          "w": 3
+        },
+        {
+          "s": "user-research",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "llm-api",
+          "w": 2
+        }
       ],
-      "plus": ["agent-dev", "rag", "sql", "project-mgmt", "business-sense"],
+      "plus": [
+        "agent-dev",
+        "rag",
+        "sql",
+        "project-mgmt",
+        "business-sense"
+      ],
       "threshold": "校招普遍要求有 AI 相关落地项目或实习；只有想法没有跑通过的产品很难过初筛。",
-      "salary": { "intern": "150–250 元/天", "junior": "10–18K/月" },
-      "certs": ["无硬性证书要求，作品与项目经历更重要"],
+      "salary": {
+        "intern": "150–250 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性证书要求，作品与项目经历更重要"
+      ],
       "growth": "AI 应用 PM → 资深 AI PM → AI 业务负责人"
     },
     {
-      "id": "ai-app-dev", "title": "AI 应用开发工程师", "track": "ai",
+      "id": "ai-app-dev",
+      "title": "AI 应用开发工程师",
+      "track": "ai",
       "summary": "用大模型 API / Agent 框架把业务需求做成能跑的服务，不是训练模型。",
       "core": [
-        { "s": "python", "w": 3 }, { "s": "llm-api", "w": 3 }, { "s": "prompt-eng", "w": 3 },
-        { "s": "agent-dev", "w": 3 }, { "s": "rag", "w": 2 }, { "s": "git", "w": 2 }, { "s": "api-design", "w": 2 }
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "llm-api",
+          "w": 3
+        },
+        {
+          "s": "prompt-eng",
+          "w": 3
+        },
+        {
+          "s": "agent-dev",
+          "w": 3
+        },
+        {
+          "s": "rag",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        },
+        {
+          "s": "api-design",
+          "w": 2
+        }
       ],
-      "plus": ["sql", "docker", "fe-build", "llm-theory"],
+      "plus": [
+        "sql",
+        "docker",
+        "fe-build",
+        "llm-theory"
+      ],
       "threshold": "要求能独立完成一个可演示的 Agent / RAG 应用，能说清为什么这么设计。",
-      "salary": { "intern": "180–300 元/天", "junior": "12–20K/月" },
-      "certs": ["阿里云/腾讯云 AI 相关认证（加分非必需）"],
+      "salary": {
+        "intern": "180–300 元/天",
+        "junior": "12–20K/月"
+      },
+      "certs": [
+        "阿里云/腾讯云 AI 相关认证（加分非必需）"
+      ],
       "growth": "AI 应用开发 → AI 架构 / AI 平台工程"
     },
     {
-      "id": "ai-content-ops", "title": "AIGC 内容运营", "track": "ai",
+      "id": "ai-content-ops",
+      "title": "AIGC 内容运营",
+      "track": "ai",
       "summary": "用 AI 工具批量生产内容，同时把住质量关，跑通选题—生成—分发—复盘的闭环。",
       "core": [
-        { "s": "content-plan", "w": 3 }, { "s": "prompt-eng", "w": 3 }, { "s": "data-driven", "w": 2 },
-        { "s": "short-video", "w": 2 }, { "s": "llm-theory", "w": 2 }
+        {
+          "s": "content-plan",
+          "w": 3
+        },
+        {
+          "s": "prompt-eng",
+          "w": 3
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "short-video",
+          "w": 2
+        },
+        {
+          "s": "llm-theory",
+          "w": 2
+        }
       ],
-      "plus": ["growth", "community", "prototype", "doc-writing"],
+      "plus": [
+        "growth",
+        "community",
+        "prototype",
+        "doc-writing"
+      ],
       "threshold": "要能拿出账号数据或作品集，仅会用工具不够，需要证明内容确实跑出过结果。",
-      "salary": { "intern": "100–180 元/天", "junior": "6–12K/月" },
-      "certs": ["无硬性要求"],
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–12K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
       "growth": "AIGC 运营 → 内容负责人 → 品牌/增长负责人"
     },
-
     {
-      "id": "data-analyst", "title": "数据分析师（业务方向）", "track": "data",
+      "id": "data-analyst",
+      "title": "数据分析师（业务方向）",
+      "track": "data",
       "summary": "从数据里回答业务问题：为什么跌了、哪个渠道好、下一步该做什么。",
       "core": [
-        { "s": "sql", "w": 3 }, { "s": "excel", "w": 3 }, { "s": "data-viz", "w": 3 },
-        { "s": "stats", "w": 2 }, { "s": "metric-system", "w": 2 }, { "s": "data-clean", "w": 2 },
-        { "s": "structured-expression", "w": 2 }
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "excel",
+          "w": 3
+        },
+        {
+          "s": "data-viz",
+          "w": 3
+        },
+        {
+          "s": "stats",
+          "w": 2
+        },
+        {
+          "s": "metric-system",
+          "w": 2
+        },
+        {
+          "s": "data-clean",
+          "w": 2
+        },
+        {
+          "s": "structured-expression",
+          "w": 2
+        }
       ],
-      "plus": ["python", "pandas", "ab-test", "business-sense", "bi-tools"],
+      "plus": [
+        "python",
+        "pandas",
+        "ab-test",
+        "business-sense",
+        "bi-tools"
+      ],
       "threshold": "SQL 熟练是硬门槛；面试常现场出题，需要能独立写多表关联与窗口函数。",
-      "salary": { "intern": "120–200 元/天", "junior": "8–15K/月" },
-      "certs": ["CDA 数据分析师（加分）", "计算机二级"],
+      "salary": {
+        "intern": "120–200 元/天",
+        "junior": "8–15K/月"
+      },
+      "certs": [
+        "CDA 数据分析师（加分）",
+        "计算机二级"
+      ],
       "growth": "数据分析师 → 高级分析师 → 数据负责人 / 转业务负责人"
     },
     {
-      "id": "bi-engineer", "title": "BI 工程师", "track": "data",
+      "id": "bi-engineer",
+      "title": "BI 工程师",
+      "track": "data",
       "summary": "搭指标体系、做报表看板，让业务方随时能看到可信的数字。",
       "core": [
-        { "s": "sql", "w": 3 }, { "s": "bi-tools", "w": 3 }, { "s": "warehouse", "w": 2 },
-        { "s": "data-viz", "w": 2 }, { "s": "etl", "w": 2 }, { "s": "metric-system", "w": 2 }
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "bi-tools",
+          "w": 3
+        },
+        {
+          "s": "warehouse",
+          "w": 2
+        },
+        {
+          "s": "data-viz",
+          "w": 2
+        },
+        {
+          "s": "etl",
+          "w": 2
+        },
+        {
+          "s": "metric-system",
+          "w": 2
+        }
       ],
-      "plus": ["python", "pandas", "db-design", "business-sense"],
+      "plus": [
+        "python",
+        "pandas",
+        "db-design",
+        "business-sense"
+      ],
       "threshold": "要能独立交付一套看板并说清口径；只会拖拽工具不够，需要懂底层数据。",
-      "salary": { "intern": "130–200 元/天", "junior": "9–16K/月" },
-      "certs": ["帆软/Tableau 官方认证（加分）"],
+      "salary": {
+        "intern": "130–200 元/天",
+        "junior": "9–16K/月"
+      },
+      "certs": [
+        "帆软/Tableau 官方认证（加分）"
+      ],
       "growth": "BI 工程师 → 数据平台 / 数据产品经理"
     },
     {
-      "id": "data-engineer", "title": "数据开发工程师（离线）", "track": "data",
+      "id": "data-engineer",
+      "title": "数据开发工程师（离线）",
+      "track": "data",
       "summary": "建数仓、写 ETL、做调度，把原始数据加工成可信可用的表。",
       "core": [
-        { "s": "sql", "w": 3 }, { "s": "python", "w": 3 }, { "s": "warehouse", "w": 3 },
-        { "s": "etl", "w": 3 }, { "s": "spark", "w": 2 }, { "s": "linux", "w": 2 }
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "warehouse",
+          "w": 3
+        },
+        {
+          "s": "etl",
+          "w": 3
+        },
+        {
+          "s": "spark",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        }
       ],
-      "plus": ["java", "flink", "db-design", "testing"],
+      "plus": [
+        "java",
+        "flink",
+        "db-design",
+        "testing"
+      ],
       "threshold": "工程属性强，需要懂 SQL 优化与任务调优，招聘看重的常是项目规模而非工具熟练度。",
-      "salary": { "intern": "150–250 元/天", "junior": "12–20K/月" },
-      "certs": ["软考软件设计师（加分）", "阿里云大数据认证（加分）"],
+      "salary": {
+        "intern": "150–250 元/天",
+        "junior": "12–20K/月"
+      },
+      "certs": [
+        "软考软件设计师（加分）",
+        "阿里云大数据认证（加分）"
+      ],
       "growth": "数据开发 → 数据平台工程师 → 数据架构师"
     },
     {
-      "id": "realtime-engineer", "title": "实时数据开发工程师", "track": "data",
+      "id": "realtime-engineer",
+      "title": "实时数据开发工程师",
+      "track": "data",
       "summary": "做秒级/分钟级的数据链路，支撑实时看板、风控、推荐等场景。",
       "core": [
-        { "s": "flink", "w": 3 }, { "s": "spark", "w": 3 }, { "s": "sql", "w": 3 },
-        { "s": "python", "w": 2 }, { "s": "linux", "w": 2 }, { "s": "warehouse", "w": 2 }
+        {
+          "s": "flink",
+          "w": 3
+        },
+        {
+          "s": "spark",
+          "w": 3
+        },
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "warehouse",
+          "w": 2
+        }
       ],
-      "plus": ["mq", "docker", "etl"],
+      "plus": [
+        "mq",
+        "docker",
+        "etl"
+      ],
       "threshold": "门槛在数据开发里偏高，通常要求先有离线数仓经验再转实时。",
-      "salary": { "intern": "180–280 元/天", "junior": "15–25K/月" },
-      "certs": ["阿里云/腾讯云大数据认证（加分）"],
+      "salary": {
+        "intern": "180–280 元/天",
+        "junior": "15–25K/月"
+      },
+      "certs": [
+        "阿里云/腾讯云大数据认证（加分）"
+      ],
       "growth": "实时开发 → 数据平台负责人"
     },
-
     {
-      "id": "algo-ml", "title": "机器学习工程师（应用算法）", "track": "algorithm",
+      "id": "algo-ml",
+      "title": "机器学习工程师（应用算法）",
+      "track": "algorithm",
       "summary": "用成熟模型解决业务问题：推荐、风控、预测，重点是特征与效果。",
       "core": [
-        { "s": "python", "w": 3 }, { "s": "ml-basics", "w": 3 }, { "s": "feature-eng", "w": 3 },
-        { "s": "stats", "w": 3 }, { "s": "model-eval", "w": 2 }, { "s": "sql", "w": 2 }
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "ml-basics",
+          "w": 3
+        },
+        {
+          "s": "feature-eng",
+          "w": 3
+        },
+        {
+          "s": "stats",
+          "w": 3
+        },
+        {
+          "s": "model-eval",
+          "w": 2
+        },
+        {
+          "s": "sql",
+          "w": 2
+        }
       ],
-      "plus": ["spark", "algo-basic", "dl-framework", "business-sense"],
+      "plus": [
+        "spark",
+        "algo-basic",
+        "dl-framework",
+        "business-sense"
+      ],
       "threshold": "学历与竞赛权重高，双非需要靠真实项目或 Kaggle 名次补位。",
-      "salary": { "intern": "200–350 元/天", "junior": "15–28K/月" },
-      "certs": ["无硬性要求，竞赛/论文/项目是关键"],
+      "salary": {
+        "intern": "200–350 元/天",
+        "junior": "15–28K/月"
+      },
+      "certs": [
+        "无硬性要求，竞赛/论文/项目是关键"
+      ],
       "growth": "应用算法 → 资深算法 → 算法负责人"
     },
     {
-      "id": "algo-dl", "title": "大模型 / 深度学习算法工程师", "track": "algorithm",
+      "id": "algo-dl",
+      "title": "大模型 / 深度学习算法工程师",
+      "track": "algorithm",
       "summary": "做预训练、微调、对齐与推理优化，是算法方向里门槛最高的一类。",
       "core": [
-        { "s": "python", "w": 3 }, { "s": "dl-framework", "w": 3 }, { "s": "llm-theory", "w": 3 },
-        { "s": "ml-basics", "w": 3 }, { "s": "algo-basic", "w": 3 }, { "s": "linux", "w": 2 }
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "dl-framework",
+          "w": 3
+        },
+        {
+          "s": "llm-theory",
+          "w": 3
+        },
+        {
+          "s": "ml-basics",
+          "w": 3
+        },
+        {
+          "s": "algo-basic",
+          "w": 3
+        },
+        {
+          "s": "linux",
+          "w": 2
+        }
       ],
-      "plus": ["rag", "tech-english", "model-eval"],
+      "plus": [
+        "rag",
+        "tech-english",
+        "model-eval"
+      ],
       "threshold": "绝大多数岗位要求硕士及以上，本科需顶级竞赛或论文才有面试机会。",
-      "salary": { "intern": "300–500 元/天", "junior": "20–40K/月" },
-      "certs": ["无硬性要求"],
+      "salary": {
+        "intern": "300–500 元/天",
+        "junior": "20–40K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
       "growth": "算法工程师 → 研究员 / 技术专家"
     },
-
     {
-      "id": "fe-web", "title": "前端开发工程师（Web）", "track": "frontend",
+      "id": "fe-web",
+      "title": "前端开发工程师（Web）",
+      "track": "frontend",
       "summary": "把设计稿变成可用的界面，并保证性能、兼容与可维护。",
       "core": [
-        { "s": "html-css", "w": 3 }, { "s": "js", "w": 3 }, { "s": "spa-framework", "w": 3 },
-        { "s": "ts", "w": 2 }, { "s": "fe-build", "w": 2 }, { "s": "git", "w": 2 }
+        {
+          "s": "html-css",
+          "w": 3
+        },
+        {
+          "s": "js",
+          "w": 3
+        },
+        {
+          "s": "spa-framework",
+          "w": 3
+        },
+        {
+          "s": "ts",
+          "w": 2
+        },
+        {
+          "s": "fe-build",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
       ],
-      "plus": ["node", "data-viz", "prototype"],
+      "plus": [
+        "node",
+        "data-viz",
+        "prototype"
+      ],
       "threshold": "作品集权重高，一个能打开、能讲清实现细节的项目胜过一堆课程证书。",
-      "salary": { "intern": "120–200 元/天", "junior": "8–16K/月" },
-      "certs": ["无硬性要求，作品说话"],
+      "salary": {
+        "intern": "120–200 元/天",
+        "junior": "8–16K/月"
+      },
+      "certs": [
+        "无硬性要求，作品说话"
+      ],
       "growth": "前端 → 全栈 / 前端架构 / 转产品"
     },
     {
-      "id": "fe-fullstack", "title": "全栈开发工程师", "track": "frontend",
+      "id": "fe-fullstack",
+      "title": "全栈开发工程师",
+      "track": "frontend",
       "summary": "前后端都能写，独立交付一个完整产品，小团队与创业公司需求大。",
       "core": [
-        { "s": "html-css", "w": 3 }, { "s": "js", "w": 3 }, { "s": "spa-framework", "w": 3 },
-        { "s": "node", "w": 3 }, { "s": "db-design", "w": 2 }, { "s": "api-design", "w": 2 }, { "s": "git", "w": 2 }
+        {
+          "s": "html-css",
+          "w": 3
+        },
+        {
+          "s": "js",
+          "w": 3
+        },
+        {
+          "s": "spa-framework",
+          "w": 3
+        },
+        {
+          "s": "node",
+          "w": 3
+        },
+        {
+          "s": "db-design",
+          "w": 2
+        },
+        {
+          "s": "api-design",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
       ],
-      "plus": ["docker", "ts", "python"],
+      "plus": [
+        "docker",
+        "ts",
+        "python"
+      ],
       "threshold": "要求能独立上线完整应用（含部署），面试常追问线上问题排查。",
-      "salary": { "intern": "150–250 元/天", "junior": "10–18K/月" },
-      "certs": ["无硬性要求"],
+      "salary": {
+        "intern": "150–250 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
       "growth": "全栈 → 技术负责人 / 独立开发"
     },
-
     {
-      "id": "be-java", "title": "Java 后端开发工程师", "track": "backend",
+      "id": "be-java",
+      "title": "Java 后端开发工程师",
+      "track": "backend",
       "summary": "写服务端业务逻辑与接口，是国内后端岗位数量最多的一条路。",
       "core": [
-        { "s": "java", "w": 3 }, { "s": "spring", "w": 3 }, { "s": "db-design", "w": 3 },
-        { "s": "api-design", "w": 2 }, { "s": "redis", "w": 2 }, { "s": "git", "w": 2 }, { "s": "linux", "w": 2 }
+        {
+          "s": "java",
+          "w": 3
+        },
+        {
+          "s": "spring",
+          "w": 3
+        },
+        {
+          "s": "db-design",
+          "w": 3
+        },
+        {
+          "s": "api-design",
+          "w": 2
+        },
+        {
+          "s": "redis",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        }
       ],
-      "plus": ["mq", "microservices", "docker", "testing"],
+      "plus": [
+        "mq",
+        "microservices",
+        "docker",
+        "testing"
+      ],
       "threshold": "八股与项目并重，需要能讲清 JVM、并发、事务与至少一个完整项目。",
-      "salary": { "intern": "150–250 元/天", "junior": "10–18K/月" },
-      "certs": ["软考软件设计师（加分）", "Oracle Java 认证（加分）"],
+      "salary": {
+        "intern": "150–250 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "软考软件设计师（加分）",
+        "Oracle Java 认证（加分）"
+      ],
       "growth": "后端 → 架构师 / 技术专家"
     },
     {
-      "id": "be-go", "title": "Go 后端开发工程师", "track": "backend",
+      "id": "be-go",
+      "title": "Go 后端开发工程师",
+      "track": "backend",
       "summary": "用 Go 写高并发服务与中间件，云原生与基础设施方向偏好。",
       "core": [
-        { "s": "golang", "w": 3 }, { "s": "db-design", "w": 3 }, { "s": "api-design", "w": 2 },
-        { "s": "linux", "w": 2 }, { "s": "redis", "w": 2 }, { "s": "git", "w": 2 }, { "s": "microservices", "w": 2 }
+        {
+          "s": "golang",
+          "w": 3
+        },
+        {
+          "s": "db-design",
+          "w": 3
+        },
+        {
+          "s": "api-design",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "redis",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        },
+        {
+          "s": "microservices",
+          "w": 2
+        }
       ],
-      "plus": ["docker", "mq", "testing"],
+      "plus": [
+        "docker",
+        "mq",
+        "testing"
+      ],
       "threshold": "岗位数少于 Java 但竞争者更少，通常要求先有一门服务端语言的底子。",
-      "salary": { "intern": "160–260 元/天", "junior": "12–20K/月" },
-      "certs": ["云原生相关认证（加分）"],
+      "salary": {
+        "intern": "160–260 元/天",
+        "junior": "12–20K/月"
+      },
+      "certs": [
+        "云原生相关认证（加分）"
+      ],
       "growth": "Go 后端 → 基础架构 / 云原生工程师"
     },
     {
-      "id": "be-python", "title": "Python 后端开发工程师", "track": "backend",
+      "id": "be-python",
+      "title": "Python 后端开发工程师",
+      "track": "backend",
       "summary": "用 Python 写业务服务与数据处理链路，AI 公司里需求增长明显。",
       "core": [
-        { "s": "python", "w": 3 }, { "s": "api-design", "w": 3 }, { "s": "db-design", "w": 2 },
-        { "s": "linux", "w": 2 }, { "s": "git", "w": 2 }, { "s": "docker", "w": 2 }, { "s": "testing", "w": 2 }
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "api-design",
+          "w": 3
+        },
+        {
+          "s": "db-design",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        },
+        {
+          "s": "docker",
+          "w": 2
+        },
+        {
+          "s": "testing",
+          "w": 2
+        }
       ],
-      "plus": ["redis", "mq", "sql", "llm-api"],
+      "plus": [
+        "redis",
+        "mq",
+        "sql",
+        "llm-api"
+      ],
       "threshold": "框架熟练之外，常考数据处理与并发模型，AI 公司会额外看大模型集成经验。",
-      "salary": { "intern": "150–250 元/天", "junior": "10–18K/月" },
-      "certs": ["无硬性要求"],
+      "salary": {
+        "intern": "150–250 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
       "growth": "Python 后端 → 服务端架构 / AI 平台工程"
     },
-
     {
-      "id": "qa-auto", "title": "测试开发工程师", "track": "qa",
+      "id": "qa-auto",
+      "title": "测试开发工程师",
+      "track": "qa",
       "summary": "写自动化用例与测试平台，把质量保障做成工程能力。",
       "core": [
-        { "s": "python", "w": 3 }, { "s": "testing", "w": 3 }, { "s": "sql", "w": 2 },
-        { "s": "linux", "w": 2 }, { "s": "api-design", "w": 2 }, { "s": "git", "w": 2 }
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "testing",
+          "w": 3
+        },
+        {
+          "s": "sql",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "api-design",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
       ],
-      "plus": ["docker", "java", "doc-writing"],
+      "plus": [
+        "docker",
+        "java",
+        "doc-writing"
+      ],
       "threshold": "编码要求低于开发岗，但必须能独立搭一套自动化框架，是转开发的常见跳板。",
-      "salary": { "intern": "120–180 元/天", "junior": "8–14K/月" },
-      "certs": ["ISTQB（加分）", "软考软件评测师（加分）"],
+      "salary": {
+        "intern": "120–180 元/天",
+        "junior": "8–14K/月"
+      },
+      "certs": [
+        "ISTQB（加分）",
+        "软考软件评测师（加分）"
+      ],
       "growth": "测试开发 → 质量架构 / 转后端开发"
     },
-
     {
-      "id": "pm-b", "title": "产品经理（B 端 / SaaS）", "track": "product",
+      "id": "pm-b",
+      "title": "产品经理（B 端 / SaaS）",
+      "track": "product",
       "summary": "梳理业务流程、定义系统功能，把行业 know-how 变成可用的产品。",
       "core": [
-        { "s": "prd", "w": 3 }, { "s": "user-research", "w": 3 }, { "s": "project-mgmt", "w": 3 },
-        { "s": "prototype", "w": 2 }, { "s": "data-driven", "w": 2 }, { "s": "business-sense", "w": 2 }
+        {
+          "s": "prd",
+          "w": 3
+        },
+        {
+          "s": "user-research",
+          "w": 3
+        },
+        {
+          "s": "project-mgmt",
+          "w": 3
+        },
+        {
+          "s": "prototype",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "business-sense",
+          "w": 2
+        }
       ],
-      "plus": ["sql", "structured-expression", "api-design"],
+      "plus": [
+        "sql",
+        "structured-expression",
+        "api-design"
+      ],
       "threshold": "校招竞争极大，需要实习经历或完整的产品分析作品来证明判断力。",
-      "salary": { "intern": "120–200 元/天", "junior": "8–15K/月" },
-      "certs": ["NPDP / PMP（工作后更常见，校招加分有限）"],
+      "salary": {
+        "intern": "120–200 元/天",
+        "junior": "8–15K/月"
+      },
+      "certs": [
+        "NPDP / PMP（工作后更常见，校招加分有限）"
+      ],
       "growth": "B 端产品 → 产品负责人 / 行业解决方案"
     },
     {
-      "id": "pm-c", "title": "产品经理（C 端 / 增长）", "track": "product",
+      "id": "pm-c",
+      "title": "产品经理（C 端 / 增长）",
+      "track": "product",
       "summary": "围绕增长指标做功能迭代，靠数据与实验驱动决策。",
       "core": [
-        { "s": "prd", "w": 3 }, { "s": "data-driven", "w": 3 }, { "s": "user-research", "w": 2 },
-        { "s": "ab-test", "w": 2 }, { "s": "prototype", "w": 2 }, { "s": "growth", "w": 2 }
+        {
+          "s": "prd",
+          "w": 3
+        },
+        {
+          "s": "data-driven",
+          "w": 3
+        },
+        {
+          "s": "user-research",
+          "w": 2
+        },
+        {
+          "s": "ab-test",
+          "w": 2
+        },
+        {
+          "s": "prototype",
+          "w": 2
+        },
+        {
+          "s": "growth",
+          "w": 2
+        }
       ],
-      "plus": ["sql", "structured-expression", "content-plan"],
+      "plus": [
+        "sql",
+        "structured-expression",
+        "content-plan"
+      ],
       "threshold": "看数据与实验思维，面试常问「你怎么判断这个功能该不该做」。",
-      "salary": { "intern": "120–200 元/天", "junior": "9–16K/月" },
-      "certs": ["无硬性要求"],
+      "salary": {
+        "intern": "120–200 元/天",
+        "junior": "9–16K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
       "growth": "C 端产品 → 增长负责人 / 独立业务负责人"
     },
-
     {
-      "id": "ops-content", "title": "内容运营", "track": "operation",
+      "id": "ops-content",
+      "title": "内容运营",
+      "track": "operation",
       "summary": "选题、生产、分发、复盘，用内容把用户拉进来并留下来。",
       "core": [
-        { "s": "content-plan", "w": 3 }, { "s": "doc-writing", "w": 2 }, { "s": "data-driven", "w": 2 },
-        { "s": "short-video", "w": 2 }, { "s": "community", "w": 1 }
+        {
+          "s": "content-plan",
+          "w": 3
+        },
+        {
+          "s": "doc-writing",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "short-video",
+          "w": 2
+        },
+        {
+          "s": "community",
+          "w": 1
+        }
       ],
-      "plus": ["growth", "prototype", "business-sense"],
+      "plus": [
+        "growth",
+        "prototype",
+        "business-sense"
+      ],
       "threshold": "作品与数据说话：一个你自己做起来的账号，比任何证书都有说服力。",
-      "salary": { "intern": "100–160 元/天", "junior": "6–11K/月" },
-      "certs": ["无硬性要求"],
+      "salary": {
+        "intern": "100–160 元/天",
+        "junior": "6–11K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
       "growth": "内容运营 → 内容负责人 → 品牌负责人"
     },
     {
-      "id": "ops-user", "title": "用户 / 社群运营", "track": "operation",
+      "id": "ops-user",
+      "title": "用户 / 社群运营",
+      "track": "operation",
       "summary": "维护用户关系与社群活跃，把用户反馈转成产品与内容输入。",
       "core": [
-        { "s": "community", "w": 3 }, { "s": "content-plan", "w": 2 }, { "s": "data-driven", "w": 2 },
-        { "s": "structured-expression", "w": 2 }, { "s": "project-mgmt", "w": 1 }
+        {
+          "s": "community",
+          "w": 3
+        },
+        {
+          "s": "content-plan",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "structured-expression",
+          "w": 2
+        },
+        {
+          "s": "project-mgmt",
+          "w": 1
+        }
       ],
-      "plus": ["growth", "user-research"],
+      "plus": [
+        "growth",
+        "user-research"
+      ],
       "threshold": "看重实际沟通与执行，实习转化率高，是进入互联网相对容易的入口。",
-      "salary": { "intern": "100–160 元/天", "junior": "6–11K/月" },
-      "certs": ["无硬性要求"],
+      "salary": {
+        "intern": "100–160 元/天",
+        "junior": "6–11K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
       "growth": "用户运营 → 运营负责人 / 转产品"
     },
     {
-      "id": "ops-growth", "title": "增长运营", "track": "operation",
+      "id": "ops-growth",
+      "title": "增长运营",
+      "track": "operation",
       "summary": "围绕获客与转化做实验和投放，用 ROI 说话。",
       "core": [
-        { "s": "growth", "w": 3 }, { "s": "data-driven", "w": 3 }, { "s": "ab-test", "w": 2 },
-        { "s": "content-plan", "w": 2 }, { "s": "sql", "w": 2 }
+        {
+          "s": "growth",
+          "w": 3
+        },
+        {
+          "s": "data-driven",
+          "w": 3
+        },
+        {
+          "s": "ab-test",
+          "w": 2
+        },
+        {
+          "s": "content-plan",
+          "w": 2
+        },
+        {
+          "s": "sql",
+          "w": 2
+        }
       ],
-      "plus": ["business-sense", "project-mgmt"],
+      "plus": [
+        "business-sense",
+        "project-mgmt"
+      ],
       "threshold": "数据能力是分水岭，会 SQL 和实验设计的运营明显更吃香。",
-      "salary": { "intern": "120–180 元/天", "junior": "8–14K/月" },
-      "certs": ["无硬性要求"],
+      "salary": {
+        "intern": "120–180 元/天",
+        "junior": "8–14K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
       "growth": "增长运营 → 增长负责人 / 转产品经理"
+    },
+    {
+      "id": "ai-agent-dev",
+      "title": "AI Agent 开发工程师",
+      "track": "ai",
+      "summary": "构建能调用工具、自主规划的多步 Agent 系统，不是训练模型。",
+      "core": [
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "agent-dev",
+          "w": 3
+        },
+        {
+          "s": "llm-api",
+          "w": 3
+        },
+        {
+          "s": "rag",
+          "w": 2
+        },
+        {
+          "s": "prompt-eng",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "mq",
+        "docker",
+        "llm-theory",
+        "system-design"
+      ],
+      "threshold": "要求能独立交付一个可演示的多步 Agent，讲清规划与工具调用设计。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求，开源作品加分"
+      ],
+      "growth": "Agent 开发 → AI 平台工程 / 智能体架构"
+    },
+    {
+      "id": "ai-eval",
+      "title": "大模型评测/对齐工程师",
+      "track": "ai",
+      "summary": "设计评测集、对齐标准与自动化打分，衡量模型能力边界。",
+      "core": [
+        {
+          "s": "llm-theory",
+          "w": 3
+        },
+        {
+          "s": "prompt-eng",
+          "w": 3
+        },
+        {
+          "s": "model-eval",
+          "w": 3
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "stats",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "agent-eval",
+        "rag",
+        "tech-english"
+      ],
+      "threshold": "需要严谨的实验设计与数据敏感度，能区分模型真实能力与方法作弊。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "评测工程师 → 对齐负责人 / 研究岗"
+    },
+    {
+      "id": "mlops-eng",
+      "title": "MLOps 工程师",
+      "track": "ai",
+      "summary": "把模型训练与推理做成稳定可观测的流水线。",
+      "core": [
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "docker",
+          "w": 3
+        },
+        {
+          "s": "k8s",
+          "w": 2
+        },
+        {
+          "s": "cicd",
+          "w": 2
+        },
+        {
+          "s": "ml-basics",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "terraform",
+        "monitoring",
+        "dl-framework"
+      ],
+      "threshold": "工程能力重于算法，要把训练推理做成稳定可观测的流水线。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "CKA / 云原生认证（加分）"
+      ],
+      "growth": "MLOps → 机器学习平台 / 基础架构"
+    },
+    {
+      "id": "ai-search",
+      "title": "AI 搜索/RAG 工程师",
+      "track": "ai",
+      "summary": "做检索增强的生成式搜索与问答系统。",
+      "core": [
+        {
+          "s": "rag",
+          "w": 3
+        },
+        {
+          "s": "llm-api",
+          "w": 3
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "elasticsearch",
+          "w": 2
+        },
+        {
+          "s": "prompt-eng",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "agent-dev",
+        "system-design"
+      ],
+      "threshold": "既要懂检索召回，也要懂生成式问答的排序与可信度。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "AI 搜索 → 搜索架构 / RAG 平台"
+    },
+    {
+      "id": "ai-solution",
+      "title": "AI 解决方案架构师",
+      "track": "ai",
+      "summary": "面向客户场景设计可落地的 AI 方案并推动交付。",
+      "core": [
+        {
+          "s": "llm-theory",
+          "w": 3
+        },
+        {
+          "s": "llm-api",
+          "w": 3
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        },
+        {
+          "s": "prompt-eng",
+          "w": 2
+        },
+        {
+          "s": "business-sense",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "agent-dev",
+        "rag",
+        "project-mgmt"
+      ],
+      "threshold": "偏向客户与方案，需要把业务问题翻译成可落地的 AI 架构。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "云厂商 AI 认证（加分）"
+      ],
+      "growth": "解决方案架构 → AI 业务负责人"
+    },
+    {
+      "id": "training-data",
+      "title": "训练数据/标注工程师",
+      "track": "ai",
+      "summary": "构建与清洗训练/微调语料，制定标注规范。",
+      "core": [
+        {
+          "s": "llm-theory",
+          "w": 2
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "data-clean",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 2
+        },
+        {
+          "s": "structured-expression",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "training-data",
+        "stats",
+        "rag"
+      ],
+      "threshold": "细致与规范意识是关键，能制定可复现的标注标准。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "数据工程师 → 数据负责人 / 转算法"
+    },
+    {
+      "id": "data-governance",
+      "title": "数据治理工程师",
+      "track": "data",
+      "summary": "建数据标准、血缘与资产目录，保证数据可信。",
+      "core": [
+        {
+          "s": "warehouse",
+          "w": 2
+        },
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "data-quality",
+          "w": 3
+        },
+        {
+          "s": "data-governance",
+          "w": 3
+        },
+        {
+          "s": "python",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "etl",
+        "db-design",
+        "analytics-eng"
+      ],
+      "threshold": "需要既懂技术又懂业务规范，能把数据管得可信可用。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "DAMA CDMP（加分）"
+      ],
+      "growth": "数据治理 → 数据架构 / 数据负责人"
+    },
+    {
+      "id": "etl-dev",
+      "title": "ETL 开发工程师",
+      "track": "data",
+      "summary": "写数据抽取转换任务，保障链路稳定。",
+      "core": [
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "etl",
+          "w": 3
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "warehouse",
+          "w": 2
+        },
+        {
+          "s": "spark",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "java",
+        "flink",
+        "linux"
+      ],
+      "threshold": "工程属性强，看重任务规模与调度稳定性经验。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "软考（加分）"
+      ],
+      "growth": "ETL 开发 → 数据开发 / 平台"
+    },
+    {
+      "id": "analytics-eng",
+      "title": "分析工程师",
+      "track": "data",
+      "summary": "用 dbt 等搭建语义层，让指标可复用。",
+      "core": [
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "analytics-eng",
+          "w": 3
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "data-viz",
+          "w": 2
+        },
+        {
+          "s": "warehouse",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "bi-tools",
+        "metric-system",
+        "pandas"
+      ],
+      "threshold": "用 dbt 等把指标做成可复用资产，比写一次性 SQL 更值钱。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "分析工程 → 数据平台 / 分析负责人"
+    },
+    {
+      "id": "data-quality",
+      "title": "数据质量工程师",
+      "track": "data",
+      "summary": "做数据校验、监控与异常告警。",
+      "core": [
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "data-quality",
+          "w": 3
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "testing",
+          "w": 2
+        },
+        {
+          "s": "data-clean",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "etl",
+        "warehouse",
+        "spark"
+      ],
+      "threshold": "细心与工程化并重，要做校验、监控与告警闭环。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "数据质量 → 数据治理 / 平台"
+    },
+    {
+      "id": "growth-data",
+      "title": "增长数据分析师",
+      "track": "data",
+      "summary": "围绕拉新留存做实验与归因。",
+      "core": [
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "ab-test",
+          "w": 3
+        },
+        {
+          "s": "data-driven",
+          "w": 3
+        },
+        {
+          "s": "growth",
+          "w": 2
+        },
+        {
+          "s": "metric-system",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "python",
+        "pandas",
+        "stats"
+      ],
+      "threshold": "实验思维是分水岭，要能设计可信的归因与放量判断。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "增长分析 → 增长负责人 / 转产品"
+    },
+    {
+      "id": "user-analytics",
+      "title": "用户行为分析师",
+      "track": "data",
+      "summary": "用行为数据刻画用户旅程与生命周期。",
+      "core": [
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "data-viz",
+          "w": 2
+        },
+        {
+          "s": "user-research",
+          "w": 2
+        },
+        {
+          "s": "metric-system",
+          "w": 2
+        },
+        {
+          "s": "stats",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "python",
+        "ab-test",
+        "ux-research"
+      ],
+      "threshold": "能从行为数据里讲出用户旅程与流失原因。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "用户分析 → 分析负责人 / 用户研究"
+    },
+    {
+      "id": "data-product",
+      "title": "数据产品经理",
+      "track": "data",
+      "summary": "定义数据产品与指标体系。",
+      "core": [
+        {
+          "s": "prd",
+          "w": 3
+        },
+        {
+          "s": "sql",
+          "w": 2
+        },
+        {
+          "s": "metric-system",
+          "w": 3
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "warehouse",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "bi-tools",
+        "business-sense",
+        "ab-test"
+      ],
+      "threshold": "要懂指标口径与数据链路，否则需求容易被开发挑战。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "数据产品 → 数据负责人 / 业务负责人"
+    },
+    {
+      "id": "bi-consultant",
+      "title": "BI 实施顾问",
+      "track": "data",
+      "summary": "帮客户落地看板与数据体系。",
+      "core": [
+        {
+          "s": "bi-tools",
+          "w": 3
+        },
+        {
+          "s": "sql",
+          "w": 2
+        },
+        {
+          "s": "warehouse",
+          "w": 2
+        },
+        {
+          "s": "data-viz",
+          "w": 2
+        },
+        {
+          "s": "project-mgmt",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "python",
+        "business-sense",
+        "metric-system"
+      ],
+      "threshold": "强沟通与落地能力，能帮客户把看板真正用起来。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "帆软/Tableau 认证（加分）"
+      ],
+      "growth": "BI 顾问 → 数据咨询 / 实施负责人"
+    },
+    {
+      "id": "algo-recsys",
+      "title": "推荐算法工程师",
+      "track": "algorithm",
+      "summary": "做召回排序，优化点击与转化。",
+      "core": [
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "ml-basics",
+          "w": 3
+        },
+        {
+          "s": "feature-eng",
+          "w": 3
+        },
+        {
+          "s": "stats",
+          "w": 2
+        },
+        {
+          "s": "spark",
+          "w": 2
+        },
+        {
+          "s": "sql",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "dl-framework",
+        "algo-basic",
+        "elasticsearch"
+      ],
+      "threshold": "学历与竞赛权重高，双非靠项目或比赛名次补位。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "推荐算法 → 资深算法 → 算法负责人"
+    },
+    {
+      "id": "algo-cv",
+      "title": "计算机视觉算法工程师",
+      "track": "algorithm",
+      "summary": "做检测、分割、识别等视觉任务。",
+      "core": [
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "dl-framework",
+          "w": 3
+        },
+        {
+          "s": "ml-basics",
+          "w": 3
+        },
+        {
+          "s": "cv-basics",
+          "w": 3
+        },
+        {
+          "s": "algo-basic",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "feature-eng",
+        "shader"
+      ],
+      "threshold": "落地场景多但门槛高，需要扎实的深度学习与工程能力。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求，论文/竞赛加分"
+      ],
+      "growth": "CV 算法 → 研究员 / 视觉负责人"
+    },
+    {
+      "id": "algo-nlp",
+      "title": "NLP 算法工程师",
+      "track": "algorithm",
+      "summary": "做文本理解与生成。",
+      "core": [
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "ml-basics",
+          "w": 3
+        },
+        {
+          "s": "llm-theory",
+          "w": 2
+        },
+        {
+          "s": "dl-framework",
+          "w": 2
+        },
+        {
+          "s": "stats",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "rag",
+        "algo-basic",
+        "agent-dev"
+      ],
+      "threshold": "大模型时代 NLP 与 LLM 高度重合，要懂微调与对齐。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "NLP 算法 → LLM 算法 / 研究员"
+    },
+    {
+      "id": "algo-search",
+      "title": "搜索算法工程师",
+      "track": "algorithm",
+      "summary": "做召回排序与相关性。",
+      "core": [
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "ml-basics",
+          "w": 3
+        },
+        {
+          "s": "elasticsearch",
+          "w": 2
+        },
+        {
+          "s": "stats",
+          "w": 2
+        },
+        {
+          "s": "feature-eng",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "algo-basic",
+        "dl-framework",
+        "rag"
+      ],
+      "threshold": "召回排序与相关性并重，常考检索与机器学习结合。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "搜索算法 → 搜索架构 / 负责人"
+    },
+    {
+      "id": "algo-ads",
+      "title": "广告算法工程师",
+      "track": "algorithm",
+      "summary": "做竞价与出价预估。",
+      "core": [
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "ml-basics",
+          "w": 3
+        },
+        {
+          "s": "stats",
+          "w": 3
+        },
+        {
+          "s": "feature-eng",
+          "w": 3
+        },
+        {
+          "s": "algo-basic",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "spark",
+        "dl-framework",
+        "data-driven"
+      ],
+      "threshold": "直接对接收入，对预估精度与线上效果要求极高。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "广告算法 → 资深算法 → 算法负责人"
+    },
+    {
+      "id": "quant-research",
+      "title": "量化研究员",
+      "track": "algorithm",
+      "summary": "用统计与模型做策略研究。",
+      "core": [
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "stats",
+          "w": 3
+        },
+        {
+          "s": "algo-basic",
+          "w": 3
+        },
+        {
+          "s": "ml-basics",
+          "w": 2
+        },
+        {
+          "s": "finance-basics",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "dl-framework",
+        "sql",
+        "cv-basics"
+      ],
+      "threshold": "数理与编程双重门槛，学历与竞赛权重极高。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求，竞赛/学历是关键"
+      ],
+      "growth": "量化研究 → 基金经理 / 投资负责人"
+    },
+    {
+      "id": "ml-platform",
+      "title": "机器学习平台工程师",
+      "track": "algorithm",
+      "summary": "搭训练推理平台。",
+      "core": [
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "docker",
+          "w": 3
+        },
+        {
+          "s": "k8s",
+          "w": 2
+        },
+        {
+          "s": "cicd",
+          "w": 2
+        },
+        {
+          "s": "ml-basics",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "terraform",
+        "monitoring",
+        "mlops"
+      ],
+      "threshold": "工程重于算法，要能把训练推理做成自助平台。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "CKA（加分）"
+      ],
+      "growth": "ML 平台 → 基础架构 / 平台负责人"
+    },
+    {
+      "id": "research-intern",
+      "title": "算法研究实习生",
+      "track": "algorithm",
+      "summary": "跟导师做前沿算法研究与实验。",
+      "core": [
+        {
+          "s": "python",
+          "w": 3
+        },
+        {
+          "s": "ml-basics",
+          "w": 3
+        },
+        {
+          "s": "algo-basic",
+          "w": 3
+        },
+        {
+          "s": "stats",
+          "w": 2
+        },
+        {
+          "s": "dl-framework",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "llm-theory",
+        "model-eval"
+      ],
+      "threshold": "看论文复现与实验能力，导师与学校背景权重高。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "研究实习 → 算法工程师 / 读博"
+    },
+    {
+      "id": "react-dev",
+      "title": "React 开发工程师",
+      "track": "frontend",
+      "summary": "专做 React 业务与组件。",
+      "core": [
+        {
+          "s": "html-css",
+          "w": 3
+        },
+        {
+          "s": "js",
+          "w": 3
+        },
+        {
+          "s": "spa-framework",
+          "w": 3
+        },
+        {
+          "s": "ts",
+          "w": 2
+        },
+        {
+          "s": "fe-build",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "node",
+        "data-viz"
+      ],
+      "threshold": "作品集重于证书，能讲清实现细节的项目最加分。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "React 开发 → 前端架构 / 全栈"
+    },
+    {
+      "id": "vue-dev",
+      "title": "Vue 开发工程师",
+      "track": "frontend",
+      "summary": "专做 Vue 业务。",
+      "core": [
+        {
+          "s": "html-css",
+          "w": 3
+        },
+        {
+          "s": "js",
+          "w": 3
+        },
+        {
+          "s": "spa-framework",
+          "w": 3
+        },
+        {
+          "s": "ts",
+          "w": 2
+        },
+        {
+          "s": "fe-build",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "node",
+        "doc-writing"
+      ],
+      "threshold": "国内政企项目多，熟练 Vue 生态更容易上手业务。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "Vue 开发 → 前端架构 / 全栈"
+    },
+    {
+      "id": "fe-architect",
+      "title": "前端架构师",
+      "track": "frontend",
+      "summary": "定规范、做工程化与性能。",
+      "core": [
+        {
+          "s": "spa-framework",
+          "w": 3
+        },
+        {
+          "s": "ts",
+          "w": 3
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        },
+        {
+          "s": "fe-build",
+          "w": 3
+        },
+        {
+          "s": "node",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "docker",
+        "microservices",
+        "monitoring"
+      ],
+      "threshold": "要定规范、做工程化与性能，对底层原理要求深。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "前端架构 → 技术专家 / CTO 路线"
+    },
+    {
+      "id": "fe-perf",
+      "title": "前端性能/体验工程师",
+      "track": "frontend",
+      "summary": "做加载与渲染性能优化。",
+      "core": [
+        {
+          "s": "html-css",
+          "w": 2
+        },
+        {
+          "s": "js",
+          "w": 3
+        },
+        {
+          "s": "ts",
+          "w": 2
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        },
+        {
+          "s": "data-viz",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "fe-build",
+        "monitoring"
+      ],
+      "threshold": "用数据说话，能定位并消除加载与渲染瓶颈。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "性能工程师 → 前端架构 / 体验负责人"
+    },
+    {
+      "id": "ui-engineer",
+      "title": "UI 开发工程师",
+      "track": "frontend",
+      "summary": "把高保真设计还原成流畅界面。",
+      "core": [
+        {
+          "s": "html-css",
+          "w": 3
+        },
+        {
+          "s": "js",
+          "w": 2
+        },
+        {
+          "s": "spa-framework",
+          "w": 2
+        },
+        {
+          "s": "ts",
+          "w": 2
+        },
+        {
+          "s": "visual-design",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "motion-design",
+        "design-system",
+        "prototype"
+      ],
+      "threshold": "还原度与细节把控是关键，能把设计稿做顺畅。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "UI 开发 → 前端 / 设计工程"
+    },
+    {
+      "id": "mini-program-fe",
+      "title": "小程序前端",
+      "track": "frontend",
+      "summary": "做微信/支付宝小程序。",
+      "core": [
+        {
+          "s": "mini-program",
+          "w": 3
+        },
+        {
+          "s": "html-css",
+          "w": 2
+        },
+        {
+          "s": "js",
+          "w": 2
+        },
+        {
+          "s": "spa-framework",
+          "w": 2
+        },
+        {
+          "s": "ts",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "node",
+        "react-native"
+      ],
+      "threshold": "微信生态需求大，熟小程序生命周期与审核规则很重要。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "小程序开发 → 前端 / 全栈"
+    },
+    {
+      "id": "desktop-fe",
+      "title": "桌面端开发(Electron)",
+      "track": "frontend",
+      "summary": "用 Electron 做跨平台桌面应用。",
+      "core": [
+        {
+          "s": "js",
+          "w": 3
+        },
+        {
+          "s": "spa-framework",
+          "w": 2
+        },
+        {
+          "s": "node",
+          "w": 3
+        },
+        {
+          "s": "html-css",
+          "w": 2
+        },
+        {
+          "s": "ts",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "fe-build",
+        "git"
+      ],
+      "threshold": "跨平台桌面场景，要懂主进程与渲染进程通信。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "桌面开发 → 客户端架构 / 全栈"
+    },
+    {
+      "id": "webgl-dev",
+      "title": "WebGL/可视化开发",
+      "track": "frontend",
+      "summary": "做 3D/数据可视化与互动效果。",
+      "core": [
+        {
+          "s": "js",
+          "w": 3
+        },
+        {
+          "s": "html-css",
+          "w": 2
+        },
+        {
+          "s": "data-viz",
+          "w": 3
+        },
+        {
+          "s": "ts",
+          "w": 2
+        },
+        {
+          "s": "visual-design",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "shader",
+        "motion-design",
+        "unity"
+      ],
+      "threshold": "偏图形与数学，能做炫酷且流畅的可视化。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "可视化开发 → 图形/前端专家"
+    },
+    {
+      "id": "fe-test",
+      "title": "前端测试开发",
+      "track": "frontend",
+      "summary": "做前端自动化与端到端测试。",
+      "core": [
+        {
+          "s": "testing",
+          "w": 3
+        },
+        {
+          "s": "js",
+          "w": 3
+        },
+        {
+          "s": "spa-framework",
+          "w": 2
+        },
+        {
+          "s": "ts",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "node",
+        "docker",
+        "doc-writing"
+      ],
+      "threshold": "能搭端到端自动化，是质量保障的重要一环。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "前端测试 → 质量架构 / 转开发"
+    },
+    {
+      "id": "design-system-fe",
+      "title": "设计系统工程师",
+      "track": "frontend",
+      "summary": "维护组件库与设计规范。",
+      "core": [
+        {
+          "s": "spa-framework",
+          "w": 3
+        },
+        {
+          "s": "ts",
+          "w": 3
+        },
+        {
+          "s": "design-system",
+          "w": 3
+        },
+        {
+          "s": "html-css",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "visual-design",
+        "fe-build",
+        "ui-design"
+      ],
+      "threshold": "衔接设计与开发，维护组件库与设计规范。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "设计系统 → 前端架构 / 设计工程"
+    },
+    {
+      "id": "accessibility-fe",
+      "title": "无障碍前端工程师",
+      "track": "frontend",
+      "summary": "做可访问性与合规。",
+      "core": [
+        {
+          "s": "html-css",
+          "w": 3
+        },
+        {
+          "s": "js",
+          "w": 2
+        },
+        {
+          "s": "ts",
+          "w": 2
+        },
+        {
+          "s": "spa-framework",
+          "w": 2
+        },
+        {
+          "s": "accessibility-design",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "doc-writing",
+        "ux-research"
+      ],
+      "threshold": "合规与包容性需求上升，懂标准（WCAG）很加分。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "无障碍开发 → 前端 / 体验"
+    },
+    {
+      "id": "lowcode-fe",
+      "title": "低代码/搭建开发",
+      "track": "frontend",
+      "summary": "做内部搭建能力与表单引擎。",
+      "core": [
+        {
+          "s": "spa-framework",
+          "w": 3
+        },
+        {
+          "s": "ts",
+          "w": 2
+        },
+        {
+          "s": "node",
+          "w": 2
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        },
+        {
+          "s": "html-css",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "fe-build",
+        "design-system"
+      ],
+      "threshold": "做内部搭建能力与表单引擎，提升交付效率。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "低代码开发 → 平台工程 / 架构"
+    },
+    {
+      "id": "be-node",
+      "title": "Node 后端开发工程师",
+      "track": "backend",
+      "summary": "用 Node 写轻量服务与 BFF。",
+      "core": [
+        {
+          "s": "node",
+          "w": 3
+        },
+        {
+          "s": "api-design",
+          "w": 3
+        },
+        {
+          "s": "db-design",
+          "w": 2
+        },
+        {
+          "s": "js",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "redis",
+        "docker",
+        "ts"
+      ],
+      "threshold": "轻量服务与 BFF 场景多，异步与事件循环要清楚。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "Node 后端 → 全栈 / 架构"
+    },
+    {
+      "id": "be-cpp",
+      "title": "C++ 后端开发工程师",
+      "track": "backend",
+      "summary": "做高性能底层服务。",
+      "core": [
+        {
+          "s": "cpp",
+          "w": 3
+        },
+        {
+          "s": "linux",
+          "w": 3
+        },
+        {
+          "s": "db-design",
+          "w": 2
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        },
+        {
+          "s": "algo-basic",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "redis",
+        "microservices",
+        "network-basics"
+      ],
+      "threshold": "高性能底层服务，内存与并发要求高，门槛也高。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "C++ 后端 → 底层架构 / 基础架构"
+    },
+    {
+      "id": "be-architect",
+      "title": "后端架构师",
+      "track": "backend",
+      "summary": "设计高并发分布式系统。",
+      "core": [
+        {
+          "s": "microservices",
+          "w": 3
+        },
+        {
+          "s": "system-design",
+          "w": 3
+        },
+        {
+          "s": "spring",
+          "w": 3
+        },
+        {
+          "s": "db-design",
+          "w": 3
+        },
+        {
+          "s": "redis",
+          "w": 2
+        },
+        {
+          "s": "mq",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "k8s",
+        "docker",
+        "testing",
+        "linux"
+      ],
+      "threshold": "设计高并发分布式系统，做方案权衡与落地。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "后端架构 → 技术专家 / CTO"
+    },
+    {
+      "id": "dba",
+      "title": "数据库管理员(DBA)",
+      "track": "backend",
+      "summary": "管备份、性能与高可用。",
+      "core": [
+        {
+          "s": "db-design",
+          "w": 3
+        },
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "redis",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "warehouse",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "docker",
+        "monitoring",
+        "etl"
+      ],
+      "threshold": "重备份、性能与高可用，线上事故处理经验值钱。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "Oracle/MySQL OCP（加分）"
+      ],
+      "growth": "DBA → 数据库平台 / 架构"
+    },
+    {
+      "id": "search-be",
+      "title": "搜索后端工程师",
+      "track": "backend",
+      "summary": "做召回与索引服务。",
+      "core": [
+        {
+          "s": "elasticsearch",
+          "w": 3
+        },
+        {
+          "s": "golang",
+          "w": 2
+        },
+        {
+          "s": "api-design",
+          "w": 2
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "redis",
+        "mq",
+        "grpc"
+      ],
+      "threshold": "做召回与索引服务，理解检索与性能调优。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "搜索后端 → 搜索架构 / 基础架构"
+    },
+    {
+      "id": "gateway-be",
+      "title": "API 网关开发",
+      "track": "backend",
+      "summary": "做网关与中间件。",
+      "core": [
+        {
+          "s": "golang",
+          "w": 3
+        },
+        {
+          "s": "microservices",
+          "w": 3
+        },
+        {
+          "s": "api-design",
+          "w": 2
+        },
+        {
+          "s": "redis",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "k8s",
+        "mq",
+        "grpc"
+      ],
+      "threshold": "做网关与中间件，重高并发与稳定性。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "网关开发 → 基础架构 / 中间件专家"
+    },
+    {
+      "id": "payment-be",
+      "title": "支付/交易后端",
+      "track": "backend",
+      "summary": "做交易链路，重一致性与资金安全。",
+      "core": [
+        {
+          "s": "java",
+          "w": 3
+        },
+        {
+          "s": "spring",
+          "w": 3
+        },
+        {
+          "s": "db-design",
+          "w": 3
+        },
+        {
+          "s": "redis",
+          "w": 2
+        },
+        {
+          "s": "mq",
+          "w": 2
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "microservices",
+        "testing",
+        "grpc"
+      ],
+      "threshold": "资金安全与一致性是底线，对账与幂等必须扎实。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "支付后端 → 交易架构 / 金融技术"
+    },
+    {
+      "id": "im-be",
+      "title": "即时通讯后端",
+      "track": "backend",
+      "summary": "做长连接与消息推送。",
+      "core": [
+        {
+          "s": "golang",
+          "w": 3
+        },
+        {
+          "s": "websocket",
+          "w": 3
+        },
+        {
+          "s": "redis",
+          "w": 2
+        },
+        {
+          "s": "mq",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "k8s",
+        "docker",
+        "grpc"
+      ],
+      "threshold": "长连接与消息推送，重连接管理与海量并发。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "IM 后端 → 基础架构 / 消息平台"
+    },
+    {
+      "id": "game-server-be",
+      "title": "游戏服务端",
+      "track": "backend",
+      "summary": "做帧同步/状态同步与逻辑服。",
+      "core": [
+        {
+          "s": "game-network",
+          "w": 3
+        },
+        {
+          "s": "cpp",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 3
+        },
+        {
+          "s": "redis",
+          "w": 2
+        },
+        {
+          "s": "db-design",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "docker",
+        "mq",
+        "network-basics"
+      ],
+      "threshold": "帧同步/状态同步与逻辑服，重实时与稳定。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "游戏服务端 → 游戏技术负责人"
+    },
+    {
+      "id": "backend-lead",
+      "title": "后端技术负责人",
+      "track": "backend",
+      "summary": "带团队定技术方案。",
+      "core": [
+        {
+          "s": "microservices",
+          "w": 3
+        },
+        {
+          "s": "system-design",
+          "w": 3
+        },
+        {
+          "s": "java",
+          "w": 3
+        },
+        {
+          "s": "db-design",
+          "w": 2
+        },
+        {
+          "s": "redis",
+          "w": 2
+        },
+        {
+          "s": "mq",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "k8s",
+        "testing",
+        "spring"
+      ],
+      "threshold": "带团队定方案，技术判断与推动力并重。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "后端负责人 → 技术总监"
+    },
+    {
+      "id": "blockchain-be",
+      "title": "区块链开发",
+      "track": "backend",
+      "summary": "做合约与链上应用。",
+      "core": [
+        {
+          "s": "blockchain-basics",
+          "w": 3
+        },
+        {
+          "s": "golang",
+          "w": 2
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "api-design",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "crypto-basics",
+        "testing",
+        "grpc"
+      ],
+      "threshold": "合约安全与链上逻辑是核心，安全素养要求高。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "区块链开发 → 链上架构 / Web3"
+    },
+    {
+      "id": "be-intern",
+      "title": "后端开发实习生",
+      "track": "backend",
+      "summary": "打杂+学习，重基础与态度。",
+      "core": [
+        {
+          "s": "spring",
+          "w": 2
+        },
+        {
+          "s": "db-design",
+          "w": 2
+        },
+        {
+          "s": "sql",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "redis",
+        "api-design",
+        "testing"
+      ],
+      "threshold": "打杂+学习，基础扎实与态度好是主要考察点。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "后端实习 → 后端工程师"
+    },
+    {
+      "id": "qa-perf",
+      "title": "性能测试工程师",
+      "track": "qa",
+      "summary": "做压测与容量评估。",
+      "core": [
+        {
+          "s": "testing",
+          "w": 3
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "monitoring",
+          "w": 2
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "system-design",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "docker",
+        "k8s",
+        "network-basics"
+      ],
+      "threshold": "做压测与容量评估，能定位瓶颈与给优化建议。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "性能测试 → 质量架构 / SRE"
+    },
+    {
+      "id": "qa-security",
+      "title": "安全测试工程师",
+      "track": "qa",
+      "summary": "做漏洞扫描与渗透验证。",
+      "core": [
+        {
+          "s": "testing",
+          "w": 3
+        },
+        {
+          "s": "app-sec",
+          "w": 3
+        },
+        {
+          "s": "pentest",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "python",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "network-sec",
+        "crypto-basics",
+        "doc-writing"
+      ],
+      "threshold": "懂攻击才能更好测，要会扫漏洞与验证修复。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "安全测试 → 安全工程 / 渗透"
+    },
+    {
+      "id": "qa-game",
+      "title": "游戏测试",
+      "track": "qa",
+      "summary": "做功能与数值平衡测试。",
+      "core": [
+        {
+          "s": "testing",
+          "w": 3
+        },
+        {
+          "s": "game-design",
+          "w": 2
+        },
+        {
+          "s": "structured-expression",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "linux",
+        "community",
+        "level-design"
+      ],
+      "threshold": "功能与数值平衡并重，热爱游戏是加分项。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "游戏测试 → 测试负责人 / 策划"
+    },
+    {
+      "id": "qa-data",
+      "title": "数据测试工程师",
+      "track": "qa",
+      "summary": "校验数据链路正确性。",
+      "core": [
+        {
+          "s": "testing",
+          "w": 3
+        },
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "data-quality",
+          "w": 2
+        },
+        {
+          "s": "etl",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "warehouse",
+        "spark",
+        "pandas"
+      ],
+      "threshold": "校验数据链路正确性，懂数据比普通测试更稀缺。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "数据测试 → 数据质量 / 平台"
+    },
+    {
+      "id": "qa-mobile",
+      "title": "移动端测试",
+      "track": "qa",
+      "summary": "做 App 兼容与自动化。",
+      "core": [
+        {
+          "s": "testing",
+          "w": 3
+        },
+        {
+          "s": "kotlin",
+          "w": 1
+        },
+        {
+          "s": "swift",
+          "w": 1
+        },
+        {
+          "s": "doc-writing",
+          "w": 2
+        },
+        {
+          "s": "structured-expression",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "git",
+        "react-native",
+        "node"
+      ],
+      "threshold": "做 App 兼容与自动化，设备矩阵与稳定性是重点。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "移动测试 → 测试架构 / 转开发"
+    },
+    {
+      "id": "qa-lead",
+      "title": "测试架构/负责人",
+      "track": "qa",
+      "summary": "定测试体系与质量门禁。",
+      "core": [
+        {
+          "s": "testing",
+          "w": 3
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "project-mgmt",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "docker",
+        "k8s",
+        "monitoring"
+      ],
+      "threshold": "定测试体系与质量门禁，推动左移。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "测试负责人 → 质量总监"
+    },
+    {
+      "id": "qa-iot",
+      "title": "硬件/嵌入式测试",
+      "track": "qa",
+      "summary": "做固件与设备测试。",
+      "core": [
+        {
+          "s": "testing",
+          "w": 3
+        },
+        {
+          "s": "embedded",
+          "w": 1
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 2
+        },
+        {
+          "s": "structured-expression",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "network-basics",
+        "cpp"
+      ],
+      "threshold": "做固件与设备测试，细心与流程意识关键。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "硬件测试 → 测试负责人 / 转嵌入式"
+    },
+    {
+      "id": "qa-auto-ui",
+      "title": "UI 自动化测试",
+      "track": "qa",
+      "summary": "做 Web/UI 自动化。",
+      "core": [
+        {
+          "s": "testing",
+          "w": 3
+        },
+        {
+          "s": "spa-framework",
+          "w": 2
+        },
+        {
+          "s": "js",
+          "w": 2
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "node",
+        "docker",
+        "doc-writing"
+      ],
+      "threshold": "做 Web/UI 自动化，框架选型和稳定性是难点。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "UI 自动化 → 质量架构 / 转开发"
+    },
+    {
+      "id": "pm-data",
+      "title": "数据产品经理",
+      "track": "product",
+      "summary": "做数据平台与指标体系。",
+      "core": [
+        {
+          "s": "prd",
+          "w": 3
+        },
+        {
+          "s": "sql",
+          "w": 2
+        },
+        {
+          "s": "metric-system",
+          "w": 3
+        },
+        {
+          "s": "data-driven",
+          "w": 3
+        },
+        {
+          "s": "warehouse",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "bi-tools",
+        "business-sense",
+        "ab-test"
+      ],
+      "threshold": "要懂指标口径，否则容易被开发挑战需求合理性。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "数据产品 → 数据负责人 / 业务"
+    },
+    {
+      "id": "pm-growth",
+      "title": "增长产品经理",
+      "track": "product",
+      "summary": "围绕转化做实验。",
+      "core": [
+        {
+          "s": "prd",
+          "w": 3
+        },
+        {
+          "s": "growth",
+          "w": 3
+        },
+        {
+          "s": "ab-test",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 3
+        },
+        {
+          "s": "user-research",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "sql",
+        "content-plan",
+        "metric-system"
+      ],
+      "threshold": "围绕转化做实验，数据驱动决策是基本功。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "增长产品 → 增长负责人 / 业务"
+    },
+    {
+      "id": "pm-strategy",
+      "title": "策略/商业分析师",
+      "track": "product",
+      "summary": "做行业与经营分析。",
+      "core": [
+        {
+          "s": "prd",
+          "w": 2
+        },
+        {
+          "s": "business-sense",
+          "w": 3
+        },
+        {
+          "s": "data-driven",
+          "w": 3
+        },
+        {
+          "s": "structured-expression",
+          "w": 3
+        },
+        {
+          "s": "stats",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "sql",
+        "project-mgmt"
+      ],
+      "threshold": "行业与经营分析能力强，能影响经营决策。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "商业分析 → 战略 / 业务负责人"
+    },
+    {
+      "id": "pm-hardware",
+      "title": "硬件产品经理",
+      "track": "product",
+      "summary": "做软硬件结合产品。",
+      "core": [
+        {
+          "s": "prd",
+          "w": 3
+        },
+        {
+          "s": "user-research",
+          "w": 3
+        },
+        {
+          "s": "business-sense",
+          "w": 2
+        },
+        {
+          "s": "prototype",
+          "w": 2
+        },
+        {
+          "s": "project-mgmt",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "tech-english",
+        "structured-expression",
+        "doc-writing"
+      ],
+      "threshold": "软硬件结合，要懂供应链与量产约束。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "硬件产品 → 产品负责人"
+    },
+    {
+      "id": "pm-game",
+      "title": "游戏策划/制作人",
+      "track": "product",
+      "summary": "设计玩法数值。",
+      "core": [
+        {
+          "s": "game-design",
+          "w": 3
+        },
+        {
+          "s": "prd",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "business-sense",
+          "w": 2
+        },
+        {
+          "s": "user-research",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "level-design",
+        "stats",
+        "community"
+      ],
+      "threshold": "设计玩法数值，懂玩家与数据才能做长线。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "游戏策划 → 制作人 / 主策"
+    },
+    {
+      "id": "pm-social",
+      "title": "社交产品经理",
+      "track": "product",
+      "summary": "做关系链与互动。",
+      "core": [
+        {
+          "s": "prd",
+          "w": 3
+        },
+        {
+          "s": "user-research",
+          "w": 3
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "community",
+          "w": 2
+        },
+        {
+          "s": "growth",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "sql",
+        "ab-test",
+        "content-plan"
+      ],
+      "threshold": "做关系链与互动，懂人性与网络效应。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "社交产品 → 产品负责人"
+    },
+    {
+      "id": "pm-intern",
+      "title": "产品实习生",
+      "track": "product",
+      "summary": "打杂+学判断。",
+      "core": [
+        {
+          "s": "prd",
+          "w": 2
+        },
+        {
+          "s": "user-research",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 2
+        },
+        {
+          "s": "structured-expression",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "prototype",
+        "sql",
+        "project-mgmt"
+      ],
+      "threshold": "打杂+学判断，实习与作品集是主要门槛。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "产品实习 → 产品经理"
+    },
+    {
+      "id": "pm-international",
+      "title": "海外/国际化产品经理",
+      "track": "product",
+      "summary": "做出海产品设计。",
+      "core": [
+        {
+          "s": "prd",
+          "w": 3
+        },
+        {
+          "s": "tech-english",
+          "w": 3
+        },
+        {
+          "s": "business-sense",
+          "w": 2
+        },
+        {
+          "s": "user-research",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "growth",
+        "content-plan",
+        "project-mgmt"
+      ],
+      "threshold": "做出海产品，语言与文化适配能力关键。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "国际化产品 → 海外业务负责人"
+    },
+    {
+      "id": "ops-ecom",
+      "title": "电商运营",
+      "track": "operation",
+      "summary": "做店铺与货品运营。",
+      "core": [
+        {
+          "s": "content-plan",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 3
+        },
+        {
+          "s": "growth",
+          "w": 2
+        },
+        {
+          "s": "business-sense",
+          "w": 2
+        },
+        {
+          "s": "community",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "short-video",
+        "seo-basics",
+        "doc-writing"
+      ],
+      "threshold": "懂货品与流量，能扛 GMV 与转化指标。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "电商运营 → 运营负责人"
+    },
+    {
+      "id": "ops-shortvideo",
+      "title": "短视频运营",
+      "track": "operation",
+      "summary": "做账号与流量。",
+      "core": [
+        {
+          "s": "short-video",
+          "w": 3
+        },
+        {
+          "s": "content-plan",
+          "w": 3
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "growth",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "community",
+        "seo-basics",
+        "brand-design"
+      ],
+      "threshold": "账号与流量说话，能持续产出爆款内容。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "短视频运营 → 内容负责人"
+    },
+    {
+      "id": "ops-seo",
+      "title": "SEO 优化",
+      "track": "operation",
+      "summary": "做搜索流量。",
+      "core": [
+        {
+          "s": "seo-basics",
+          "w": 3
+        },
+        {
+          "s": "content-plan",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 2
+        },
+        {
+          "s": "business-sense",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "growth",
+        "structured-expression",
+        "short-video"
+      ],
+      "threshold": "做搜索流量，懂抓取与内容结构。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "SEO → 流量负责人 / 转增长"
+    },
+    {
+      "id": "ops-sem",
+      "title": "投放/SEM 运营",
+      "track": "operation",
+      "summary": "管预算与 ROI。",
+      "core": [
+        {
+          "s": "growth",
+          "w": 3
+        },
+        {
+          "s": "data-driven",
+          "w": 3
+        },
+        {
+          "s": "ab-test",
+          "w": 2
+        },
+        {
+          "s": "business-sense",
+          "w": 2
+        },
+        {
+          "s": "content-plan",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "sql",
+        "seo-basics",
+        "project-mgmt"
+      ],
+      "threshold": "管预算与 ROI，能把投放跑正。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "投放运营 → 增长负责人"
+    },
+    {
+      "id": "ops-pr",
+      "title": "品牌/公关",
+      "track": "operation",
+      "summary": "做品牌内容对外沟通。",
+      "core": [
+        {
+          "s": "doc-writing",
+          "w": 3
+        },
+        {
+          "s": "content-plan",
+          "w": 2
+        },
+        {
+          "s": "structured-expression",
+          "w": 3
+        },
+        {
+          "s": "business-sense",
+          "w": 2
+        },
+        {
+          "s": "community",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "brand-design",
+        "prototype",
+        "short-video"
+      ],
+      "threshold": "对外沟通与危机处理，文字与分寸感关键。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "品牌公关 → 品牌负责人"
+    },
+    {
+      "id": "ops-event",
+      "title": "活动运营",
+      "track": "operation",
+      "summary": "策划落地活动。",
+      "core": [
+        {
+          "s": "project-mgmt",
+          "w": 3
+        },
+        {
+          "s": "content-plan",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "community",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "growth",
+        "short-video",
+        "seo-basics"
+      ],
+      "threshold": "策划落地活动，执行力与细节把控重要。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "活动运营 → 运营负责人"
+    },
+    {
+      "id": "ops-cx",
+      "title": "用户成功/客服运营",
+      "track": "operation",
+      "summary": "做客户成功与续费。",
+      "core": [
+        {
+          "s": "community",
+          "w": 3
+        },
+        {
+          "s": "structured-expression",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 1
+        },
+        {
+          "s": "project-mgmt",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "business-sense",
+        "growth"
+      ],
+      "threshold": "做客户成功与续费，沟通与耐心是核心。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "用户成功 → 客户成功负责人"
+    },
+    {
+      "id": "ops-bizdev",
+      "title": "商务拓展(BD)",
+      "track": "operation",
+      "summary": "谈合作拉资源。",
+      "core": [
+        {
+          "s": "business-sense",
+          "w": 3
+        },
+        {
+          "s": "structured-expression",
+          "w": 3
+        },
+        {
+          "s": "project-mgmt",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 1
+        },
+        {
+          "s": "community",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "growth",
+        "data-driven"
+      ],
+      "threshold": "谈合作拉资源，人脉与谈判能力关键。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "BD → 商务负责人 / 创业"
+    },
+    {
+      "id": "ops-lead",
+      "title": "运营负责人",
+      "track": "operation",
+      "summary": "定运营策略带团队。",
+      "core": [
+        {
+          "s": "data-driven",
+          "w": 3
+        },
+        {
+          "s": "growth",
+          "w": 2
+        },
+        {
+          "s": "project-mgmt",
+          "w": 3
+        },
+        {
+          "s": "content-plan",
+          "w": 2
+        },
+        {
+          "s": "business-sense",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "sql",
+        "seo-basics",
+        "community"
+      ],
+      "threshold": "定运营策略带团队，对整体指标负责。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "运营负责人 → 业务负责人"
+    },
+    {
+      "id": "ui-designer",
+      "title": "UI 设计师",
+      "track": "design",
+      "summary": "做界面视觉与规范。",
+      "core": [
+        {
+          "s": "ui-design",
+          "w": 3
+        },
+        {
+          "s": "visual-design",
+          "w": 3
+        },
+        {
+          "s": "prototype",
+          "w": 2
+        },
+        {
+          "s": "design-system",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "motion-design",
+        "illustration",
+        "brand-design"
+      ],
+      "threshold": "作品集决定一切，还原度与审美是门槛。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "UI 设计 → 资深设计 / 设计负责人"
+    },
+    {
+      "id": "ux-designer",
+      "title": "UX 设计师",
+      "track": "design",
+      "summary": "做体验研究与交互。",
+      "core": [
+        {
+          "s": "ux-research",
+          "w": 3
+        },
+        {
+          "s": "interaction-design",
+          "w": 3
+        },
+        {
+          "s": "prototype",
+          "w": 2
+        },
+        {
+          "s": "user-research",
+          "w": 2
+        },
+        {
+          "s": "ui-design",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "data-driven",
+        "doc-writing",
+        "stats"
+      ],
+      "threshold": "用研究驱动体验，能讲清决策依据。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "UX 设计 → 体验负责人"
+    },
+    {
+      "id": "product-designer",
+      "title": "产品设计师",
+      "track": "design",
+      "summary": "兼顾体验与视觉。",
+      "core": [
+        {
+          "s": "ux-research",
+          "w": 3
+        },
+        {
+          "s": "ui-design",
+          "w": 3
+        },
+        {
+          "s": "prototype",
+          "w": 3
+        },
+        {
+          "s": "interaction-design",
+          "w": 2
+        },
+        {
+          "s": "design-system",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "user-research",
+        "doc-writing",
+        "data-driven"
+      ],
+      "threshold": "兼顾体验与视觉，端到端负责设计。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "产品设计师 → 设计负责人"
+    },
+    {
+      "id": "visual-designer",
+      "title": "视觉设计师",
+      "track": "design",
+      "summary": "做品牌与营销视觉。",
+      "core": [
+        {
+          "s": "visual-design",
+          "w": 3
+        },
+        {
+          "s": "illustration",
+          "w": 2
+        },
+        {
+          "s": "motion-design",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 1
+        },
+        {
+          "s": "brand-design",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "ui-design",
+        "brand-design"
+      ],
+      "threshold": "做品牌与营销视觉，审美与执行力关键。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "视觉设计 → 资深视觉 / 艺术指导"
+    },
+    {
+      "id": "interaction-designer",
+      "title": "交互设计师",
+      "track": "design",
+      "summary": "设计信息架构与流程。",
+      "core": [
+        {
+          "s": "interaction-design",
+          "w": 3
+        },
+        {
+          "s": "ux-research",
+          "w": 2
+        },
+        {
+          "s": "prototype",
+          "w": 3
+        },
+        {
+          "s": "ui-design",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "design-system",
+        "data-driven"
+      ],
+      "threshold": "设计信息架构与流程，逻辑清晰是核心。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "交互设计 → 体验负责人"
+    },
+    {
+      "id": "motion-designer",
+      "title": "动效设计师",
+      "track": "design",
+      "summary": "做微交互与动效。",
+      "core": [
+        {
+          "s": "motion-design",
+          "w": 3
+        },
+        {
+          "s": "visual-design",
+          "w": 2
+        },
+        {
+          "s": "ui-design",
+          "w": 2
+        },
+        {
+          "s": "prototype",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "illustration",
+        "brand-design"
+      ],
+      "threshold": "做微交互与动效，细腻与节奏感关键。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "动效设计 → 资深动效 / 视觉"
+    },
+    {
+      "id": "design-system-designer",
+      "title": "设计系统设计师",
+      "track": "design",
+      "summary": "维护组件库与规范。",
+      "core": [
+        {
+          "s": "design-system",
+          "w": 3
+        },
+        {
+          "s": "ui-design",
+          "w": 3
+        },
+        {
+          "s": "prototype",
+          "w": 2
+        },
+        {
+          "s": "visual-design",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "interaction-design",
+        "doc-writing"
+      ],
+      "threshold": "维护组件库与规范，设计与开发都懂更吃香。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "设计系统 → 设计负责人"
+    },
+    {
+      "id": "game-ui-designer",
+      "title": "游戏 UI 设计师",
+      "track": "design",
+      "summary": "做游戏界面与 HUD。",
+      "core": [
+        {
+          "s": "game-ui",
+          "w": 3
+        },
+        {
+          "s": "ui-design",
+          "w": 3
+        },
+        {
+          "s": "visual-design",
+          "w": 2
+        },
+        {
+          "s": "illustration",
+          "w": 2
+        },
+        {
+          "s": "motion-design",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "level-design",
+        "brand-design"
+      ],
+      "threshold": "做游戏界面与 HUD，懂游戏语境更顺手。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "游戏 UI → 游戏美术负责人"
+    },
+    {
+      "id": "brand-designer",
+      "title": "品牌设计师",
+      "track": "design",
+      "summary": "做 VI 与品牌物料。",
+      "core": [
+        {
+          "s": "brand-design",
+          "w": 3
+        },
+        {
+          "s": "visual-design",
+          "w": 3
+        },
+        {
+          "s": "illustration",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "motion-design",
+        "ui-design"
+      ],
+      "threshold": "做 VI 与品牌物料，概念与一致性关键。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "品牌设计 → 创意总监"
+    },
+    {
+      "id": "illustrator",
+      "title": "插画师",
+      "track": "design",
+      "summary": "画插画与配图。",
+      "core": [
+        {
+          "s": "illustration",
+          "w": 3
+        },
+        {
+          "s": "visual-design",
+          "w": 2
+        },
+        {
+          "s": "motion-design",
+          "w": 1
+        },
+        {
+          "s": "doc-writing",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "ui-design",
+        "brand-design"
+      ],
+      "threshold": "画插画与配图，风格与产出稳定是门槛。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "插画师 → 资深插画 / 美术指导"
+    },
+    {
+      "id": "security-engineer",
+      "title": "安全工程师",
+      "track": "security",
+      "summary": "做安全设计与代码审计。",
+      "core": [
+        {
+          "s": "app-sec",
+          "w": 3
+        },
+        {
+          "s": "linux",
+          "w": 3
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "network-sec",
+          "w": 2
+        },
+        {
+          "s": "crypto-basics",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "pentest",
+        "cloud-sec",
+        "system-design"
+      ],
+      "threshold": "做安全设计与代码审计，懂攻防才能更好防。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "CISSP/CISP（加分）"
+      ],
+      "growth": "安全工程 → 安全负责人 / 架构"
+    },
+    {
+      "id": "pentester",
+      "title": "渗透测试工程师",
+      "track": "security",
+      "summary": "模拟攻击找漏洞。",
+      "core": [
+        {
+          "s": "pentest",
+          "w": 3
+        },
+        {
+          "s": "network-sec",
+          "w": 3
+        },
+        {
+          "s": "linux",
+          "w": 3
+        },
+        {
+          "s": "app-sec",
+          "w": 2
+        },
+        {
+          "s": "crypto-basics",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "security-ops",
+        "cloud-sec",
+        "python"
+      ],
+      "threshold": "模拟攻击找漏洞，实战与思路并重。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "OSCP（加分）"
+      ],
+      "growth": "渗透测试 → 红队 / 安全专家"
+    },
+    {
+      "id": "security-ops",
+      "title": "安全运营工程师(SOC)",
+      "track": "security",
+      "summary": "监测与响应安全事件。",
+      "core": [
+        {
+          "s": "security-ops",
+          "w": 3
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "network-sec",
+          "w": 2
+        },
+        {
+          "s": "app-sec",
+          "w": 2
+        },
+        {
+          "s": "monitoring",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "cloud-sec",
+        "crypto-basics",
+        "k8s"
+      ],
+      "threshold": "监测与响应安全事件，冷静与流程意识关键。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "安全运营 → 安全负责人"
+    },
+    {
+      "id": "data-security",
+      "title": "数据安全工程师",
+      "track": "security",
+      "summary": "做数据防泄漏与合规。",
+      "core": [
+        {
+          "s": "data-security",
+          "w": 3
+        },
+        {
+          "s": "sql",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "app-sec",
+          "w": 2
+        },
+        {
+          "s": "crypto-basics",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "db-design",
+        "cloud-sec",
+        "data-governance"
+      ],
+      "threshold": "做数据防泄漏与合规，监管趋严需求上升。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "数据安全 → 安全架构 / 合规"
+    },
+    {
+      "id": "cloud-security",
+      "title": "云安全工程师",
+      "track": "security",
+      "summary": "做云上安全防护。",
+      "core": [
+        {
+          "s": "cloud-sec",
+          "w": 3
+        },
+        {
+          "s": "k8s",
+          "w": 2
+        },
+        {
+          "s": "docker",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "network-sec",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "terraform",
+        "monitoring",
+        "cicd"
+      ],
+      "threshold": "做云上安全防护，熟悉主流云与容器安全。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "CCSP（加分）"
+      ],
+      "growth": "云安全 → 安全架构"
+    },
+    {
+      "id": "security-analyst",
+      "title": "安全分析/合规",
+      "track": "security",
+      "summary": "做合规与风险评估。",
+      "core": [
+        {
+          "s": "app-sec",
+          "w": 2
+        },
+        {
+          "s": "data-security",
+          "w": 2
+        },
+        {
+          "s": "crypto-basics",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 2
+        },
+        {
+          "s": "business-sense",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "network-sec",
+        "security-ops",
+        "project-mgmt"
+      ],
+      "threshold": "做合规与风险评估，文档与沟通能力强。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "安全分析 → 安全负责人 / 合规"
+    },
+    {
+      "id": "crypto-engineer",
+      "title": "密码/区块链安全",
+      "track": "security",
+      "summary": "做密码实现与链上安全。",
+      "core": [
+        {
+          "s": "crypto-basics",
+          "w": 3
+        },
+        {
+          "s": "blockchain-basics",
+          "w": 2
+        },
+        {
+          "s": "app-sec",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "python",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "pentest",
+        "network-sec",
+        "cpp"
+      ],
+      "threshold": "做密码实现与链上安全，数学与安全意识并重。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "密码安全 → 安全专家 / 研究"
+    },
+    {
+      "id": "security-intern",
+      "title": "安全实习生",
+      "track": "security",
+      "summary": "打杂+学攻防基础。",
+      "core": [
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "app-sec",
+          "w": 2
+        },
+        {
+          "s": "network-sec",
+          "w": 2
+        },
+        {
+          "s": "doc-writing",
+          "w": 1
+        },
+        {
+          "s": "python",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "pentest",
+        "crypto-basics",
+        "security-ops"
+      ],
+      "threshold": "打杂+学攻防基础，兴趣与动手欲关键。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "安全实习 → 安全工程师"
+    },
+    {
+      "id": "game-client-unity",
+      "title": "Unity 客户端开发",
+      "track": "game",
+      "summary": "做 Unity 游戏功能与渲染。",
+      "core": [
+        {
+          "s": "unity",
+          "w": 3
+        },
+        {
+          "s": "game-network",
+          "w": 2
+        },
+        {
+          "s": "shader",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        },
+        {
+          "s": "ui-design",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "game-ui",
+        "level-design",
+        "cpp"
+      ],
+      "threshold": "做 Unity 游戏功能与渲染，引擎熟练是门槛。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "Unity 开发 → 客户端主程"
+    },
+    {
+      "id": "game-client-unreal",
+      "title": "Unreal 客户端开发",
+      "track": "game",
+      "summary": "做 UE 游戏与画质。",
+      "core": [
+        {
+          "s": "unreal",
+          "w": 3
+        },
+        {
+          "s": "shader",
+          "w": 3
+        },
+        {
+          "s": "game-network",
+          "w": 2
+        },
+        {
+          "s": "cpp",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "game-ui",
+        "level-design"
+      ],
+      "threshold": "做 UE 游戏与画质，图形与 C++ 功底要求高。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "UE 开发 → 客户端主程 / 技术美术"
+    },
+    {
+      "id": "game-designer",
+      "title": "游戏策划",
+      "track": "game",
+      "summary": "设计玩法数值。",
+      "core": [
+        {
+          "s": "game-design",
+          "w": 3
+        },
+        {
+          "s": "level-design",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "stats",
+          "w": 2
+        },
+        {
+          "s": "business-sense",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "user-research",
+        "doc-writing",
+        "community"
+      ],
+      "threshold": "设计玩法数值，热爱游戏且懂数据。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "游戏策划 → 主策 / 制作人"
+    },
+    {
+      "id": "level-designer",
+      "title": "关卡设计师",
+      "track": "game",
+      "summary": "做关卡与玩法空间。",
+      "core": [
+        {
+          "s": "level-design",
+          "w": 3
+        },
+        {
+          "s": "game-design",
+          "w": 2
+        },
+        {
+          "s": "visual-design",
+          "w": 1
+        },
+        {
+          "s": "doc-writing",
+          "w": 2
+        },
+        {
+          "s": "ux-research",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "unity",
+        "prototype",
+        "interaction-design"
+      ],
+      "threshold": "做关卡与玩法空间，空间感与创意关键。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "关卡设计 → 主策 / 设计负责人"
+    },
+    {
+      "id": "game-art",
+      "title": "游戏美术",
+      "track": "game",
+      "summary": "做原画与美术资源。",
+      "core": [
+        {
+          "s": "illustration",
+          "w": 3
+        },
+        {
+          "s": "visual-design",
+          "w": 2
+        },
+        {
+          "s": "game-ui",
+          "w": 2
+        },
+        {
+          "s": "motion-design",
+          "w": 1
+        },
+        {
+          "s": "brand-design",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "shader",
+        "unity"
+      ],
+      "threshold": "做原画与美术资源，风格与产出稳定是门槛。",
+      "salary": {
+        "intern": "100–180 元/天",
+        "junior": "6–13K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "游戏美术 → 美术指导"
+    },
+    {
+      "id": "game-ta",
+      "title": "技术美术(TA)",
+      "track": "game",
+      "summary": "衔接美术与程序。",
+      "core": [
+        {
+          "s": "shader",
+          "w": 3
+        },
+        {
+          "s": "unity",
+          "w": 2
+        },
+        {
+          "s": "unreal",
+          "w": 2
+        },
+        {
+          "s": "visual-design",
+          "w": 2
+        },
+        {
+          "s": "cpp",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "game-ui",
+        "motion-design",
+        "level-design"
+      ],
+      "threshold": "衔接美术与程序，既懂画面也懂实现。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "技术美术 → 引擎专家 / 美术负责人"
+    },
+    {
+      "id": "game-tools",
+      "title": "游戏工具开发",
+      "track": "game",
+      "summary": "做编辑器与流水线工具。",
+      "core": [
+        {
+          "s": "unity",
+          "w": 2
+        },
+        {
+          "s": "cpp",
+          "w": 2
+        },
+        {
+          "s": "python",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        },
+        {
+          "s": "system-design",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "unreal",
+        "shader",
+        "game-design"
+      ],
+      "threshold": "做编辑器与流水线工具，提升美术程序效率。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "工具开发 → 引擎/工具负责人"
+    },
+    {
+      "id": "game-producer",
+      "title": "游戏制作人",
+      "track": "game",
+      "summary": "把控项目与方向。",
+      "core": [
+        {
+          "s": "game-design",
+          "w": 3
+        },
+        {
+          "s": "project-mgmt",
+          "w": 3
+        },
+        {
+          "s": "business-sense",
+          "w": 2
+        },
+        {
+          "s": "data-driven",
+          "w": 2
+        },
+        {
+          "s": "user-research",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "level-design",
+        "doc-writing",
+        "community"
+      ],
+      "threshold": "把控项目与方向，统筹策划程序美术。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "游戏制作人 → 工作室负责人"
+    },
+    {
+      "id": "ios-dev",
+      "title": "iOS 开发工程师",
+      "track": "mobile",
+      "summary": "做 iPhone/iPad 应用。",
+      "core": [
+        {
+          "s": "swift",
+          "w": 3
+        },
+        {
+          "s": "mobile-arch",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "mini-program",
+        "react-native",
+        "ui-design"
+      ],
+      "threshold": "做 iPhone/iPad 应用，Swift 与生态熟悉是门槛。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "iOS 开发 → 移动架构 / 客户端负责人"
+    },
+    {
+      "id": "android-dev",
+      "title": "Android 开发工程师",
+      "track": "mobile",
+      "summary": "做安卓应用。",
+      "core": [
+        {
+          "s": "kotlin",
+          "w": 3
+        },
+        {
+          "s": "mobile-arch",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        },
+        {
+          "s": "java",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "mini-program",
+        "flutter",
+        "ui-design"
+      ],
+      "threshold": "国内安卓机型多，兼容与性能调优重要。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "Android 开发 → 移动架构"
+    },
+    {
+      "id": "flutter-dev",
+      "title": "Flutter 开发",
+      "track": "mobile",
+      "summary": "跨端一套代码。",
+      "core": [
+        {
+          "s": "flutter",
+          "w": 3
+        },
+        {
+          "s": "mobile-arch",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "swift",
+        "kotlin",
+        "ui-design"
+      ],
+      "threshold": "跨端一套代码，UI 一致性与性能平衡。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "Flutter 开发 → 跨端负责人"
+    },
+    {
+      "id": "rn-dev",
+      "title": "React Native 开发",
+      "track": "mobile",
+      "summary": "用 RN 跨端。",
+      "core": [
+        {
+          "s": "react-native",
+          "w": 3
+        },
+        {
+          "s": "js",
+          "w": 3
+        },
+        {
+          "s": "spa-framework",
+          "w": 2
+        },
+        {
+          "s": "ts",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "swift",
+        "kotlin",
+        "node"
+      ],
+      "threshold": "用 RN 跨端，前端背景转移动很容易上手。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "RN 开发 → 跨端负责人"
+    },
+    {
+      "id": "mobile-arch",
+      "title": "移动端架构师",
+      "track": "mobile",
+      "summary": "定移动端架构与规范。",
+      "core": [
+        {
+          "s": "mobile-arch",
+          "w": 3
+        },
+        {
+          "s": "swift",
+          "w": 2
+        },
+        {
+          "s": "kotlin",
+          "w": 2
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "flutter",
+        "mini-program",
+        "react-native"
+      ],
+      "threshold": "定移动端架构与规范，组件化与性能。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "移动架构 → 客户端负责人 / CTO"
+    },
+    {
+      "id": "mini-program-dev",
+      "title": "小程序开发",
+      "track": "mobile",
+      "summary": "做微信/支付宝小程序。",
+      "core": [
+        {
+          "s": "mini-program",
+          "w": 3
+        },
+        {
+          "s": "js",
+          "w": 2
+        },
+        {
+          "s": "html-css",
+          "w": 2
+        },
+        {
+          "s": "spa-framework",
+          "w": 2
+        },
+        {
+          "s": "ts",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "node",
+        "react-native",
+        "ui-design"
+      ],
+      "threshold": "微信生态需求大，熟生命周期与审核规则。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "小程序开发 → 全栈 / 移动负责人"
+    },
+    {
+      "id": "mobile-test",
+      "title": "移动端测试",
+      "track": "mobile",
+      "summary": "App 兼容与自动化。",
+      "core": [
+        {
+          "s": "testing",
+          "w": 3
+        },
+        {
+          "s": "kotlin",
+          "w": 1
+        },
+        {
+          "s": "swift",
+          "w": 1
+        },
+        {
+          "s": "doc-writing",
+          "w": 2
+        },
+        {
+          "s": "structured-expression",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "git",
+        "react-native",
+        "node"
+      ],
+      "threshold": "App 兼容与自动化，设备矩阵是重点。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "移动测试 → 测试架构"
+    },
+    {
+      "id": "cross-platform-lead",
+      "title": "跨端负责人",
+      "track": "mobile",
+      "summary": "带跨端团队。",
+      "core": [
+        {
+          "s": "mobile-arch",
+          "w": 3
+        },
+        {
+          "s": "flutter",
+          "w": 2
+        },
+        {
+          "s": "react-native",
+          "w": 2
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "swift",
+        "kotlin",
+        "mini-program"
+      ],
+      "threshold": "带跨端团队，统一技术选型与体验。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "跨端负责人 → 客户端总监"
+    },
+    {
+      "id": "devops-eng",
+      "title": "DevOps 工程师",
+      "track": "infra",
+      "summary": "做 CI/CD 与部署。",
+      "core": [
+        {
+          "s": "docker",
+          "w": 3
+        },
+        {
+          "s": "cicd",
+          "w": 3
+        },
+        {
+          "s": "linux",
+          "w": 3
+        },
+        {
+          "s": "k8s",
+          "w": 2
+        },
+        {
+          "s": "git",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "terraform",
+        "monitoring",
+        "cloud-platform"
+      ],
+      "threshold": "做 CI/CD 与部署，把交付效率提上去。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "CKA（加分）"
+      ],
+      "growth": "DevOps → 平台工程 / SRE"
+    },
+    {
+      "id": "sre-eng",
+      "title": "SRE 工程师",
+      "track": "infra",
+      "summary": "保稳定性与容量。",
+      "core": [
+        {
+          "s": "sre-basics",
+          "w": 3
+        },
+        {
+          "s": "k8s",
+          "w": 3
+        },
+        {
+          "s": "linux",
+          "w": 3
+        },
+        {
+          "s": "monitoring",
+          "w": 3
+        },
+        {
+          "s": "docker",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "terraform",
+        "cicd",
+        "network-basics"
+      ],
+      "threshold": "保稳定性与容量，SLO 与事故复盘是日常。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "CKA/SRE 认证（加分）"
+      ],
+      "growth": "SRE → 基础架构 / 稳定性负责人"
+    },
+    {
+      "id": "cloud-eng",
+      "title": "云工程师",
+      "track": "infra",
+      "summary": "管云资源与架构。",
+      "core": [
+        {
+          "s": "cloud-platform",
+          "w": 3
+        },
+        {
+          "s": "terraform",
+          "w": 2
+        },
+        {
+          "s": "k8s",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "docker",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "monitoring",
+        "cicd",
+        "network-basics"
+      ],
+      "threshold": "管云资源与架构，成本与合规也要管。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "云厂商认证（加分）"
+      ],
+      "growth": "云工程 → 云平台负责人"
+    },
+    {
+      "id": "k8s-admin",
+      "title": "Kubernetes 管理员",
+      "track": "infra",
+      "summary": "运维 K8s 集群。",
+      "core": [
+        {
+          "s": "k8s",
+          "w": 3
+        },
+        {
+          "s": "docker",
+          "w": 3
+        },
+        {
+          "s": "linux",
+          "w": 3
+        },
+        {
+          "s": "network-basics",
+          "w": 2
+        },
+        {
+          "s": "monitoring",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "terraform",
+        "cloud-platform",
+        "cicd"
+      ],
+      "threshold": "运维 K8s 集群，排障与升级经验值钱。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "CKA（加分）"
+      ],
+      "growth": "K8s 管理员 → 基础架构"
+    },
+    {
+      "id": "platform-eng",
+      "title": "平台工程工程师",
+      "track": "infra",
+      "summary": "做内部研发平台。",
+      "core": [
+        {
+          "s": "cicd",
+          "w": 3
+        },
+        {
+          "s": "docker",
+          "w": 3
+        },
+        {
+          "s": "k8s",
+          "w": 2
+        },
+        {
+          "s": "system-design",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "terraform",
+        "monitoring",
+        "cloud-platform"
+      ],
+      "threshold": "做内部研发平台，提升团队自助能力。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "平台工程 → 基础架构负责人"
+    },
+    {
+      "id": "network-eng",
+      "title": "网络工程师",
+      "track": "infra",
+      "summary": "管网络与连通。",
+      "core": [
+        {
+          "s": "network-basics",
+          "w": 3
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "cloud-platform",
+          "w": 2
+        },
+        {
+          "s": "docker",
+          "w": 1
+        },
+        {
+          "s": "monitoring",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "k8s",
+        "network-sec"
+      ],
+      "threshold": "管网络与连通，排障与规划能力关键。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "CCNA/CCNP（加分）"
+      ],
+      "growth": "网络工程 → 基础架构"
+    },
+    {
+      "id": "observability-eng",
+      "title": "可观测性工程师",
+      "track": "infra",
+      "summary": "建监控日志追踪体系。",
+      "core": [
+        {
+          "s": "monitoring",
+          "w": 3
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "k8s",
+          "w": 2
+        },
+        {
+          "s": "docker",
+          "w": 2
+        },
+        {
+          "s": "python",
+          "w": 1
+        }
+      ],
+      "plus": [
+        "terraform",
+        "cicd",
+        "network-basics"
+      ],
+      "threshold": "建监控日志追踪体系，让问题可被看见。",
+      "salary": {
+        "intern": "180–320 元/天",
+        "junior": "15–30K/月"
+      },
+      "certs": [
+        "无硬性要求"
+      ],
+      "growth": "可观测性 → 基础架构 / SRE"
+    },
+    {
+      "id": "dba-platform",
+      "title": "数据库平台工程师",
+      "track": "infra",
+      "summary": "管数据库平台与高可用。",
+      "core": [
+        {
+          "s": "db-design",
+          "w": 3
+        },
+        {
+          "s": "sql",
+          "w": 3
+        },
+        {
+          "s": "docker",
+          "w": 2
+        },
+        {
+          "s": "linux",
+          "w": 2
+        },
+        {
+          "s": "redis",
+          "w": 2
+        }
+      ],
+      "plus": [
+        "k8s",
+        "monitoring",
+        "warehouse"
+      ],
+      "threshold": "管数据库平台与高可用，自动化运维是趋势。",
+      "salary": {
+        "intern": "130–220 元/天",
+        "junior": "10–18K/月"
+      },
+      "certs": [
+        "云数据库认证（加分）"
+      ],
+      "growth": "数据库平台 → 数据平台负责人"
     }
   ]
 }

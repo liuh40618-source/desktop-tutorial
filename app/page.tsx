@@ -283,6 +283,7 @@ function ProfileSwitcher({
               {renaming === p.id ? (
                 <input
                   autoFocus
+                  onFocus={(e) => e.currentTarget.select()}
                   value={nameVal}
                   onChange={(e) => setNameVal(e.target.value)}
                   onBlur={() => commitRename(p.id)}
@@ -392,14 +393,28 @@ export default function Home() {
   const [hasDraft, setHasDraft] = useState(false);
   useEffect(() => {
     loadProfilesFromServer().then((list) => {
-      setProfiles(list);
-      let active = "local";
+      const display: ProfileRowFront[] =
+        list.length > 0
+          ? list
+          : [
+              {
+                id: "local",
+                name: "档案 1",
+                step: 0,
+                started: false,
+                profile: emptyProfile,
+                selectedJobId: "",
+                doneSkills: [],
+                updatedAt: new Date().toISOString(),
+              },
+            ];
+      setProfiles(display);
+      let active = display[0].id;
       try {
         const stored = localStorage.getItem(ACTIVE_KEY);
-        if (stored && list.some((p) => p.id === stored)) active = stored;
-        else if (list[0]) active = list[0].id;
+        if (stored && display.some((p) => p.id === stored)) active = stored;
       } catch {
-        if (list[0]) active = list[0].id;
+        /* 忽略 */
       }
       setActiveProfileId(active);
       loadProfileFromServer(active).then((s) => {
@@ -776,7 +791,11 @@ function Footer() {
   return (
     <footer className="mt-10 border-t border-border pt-4 text-xs leading-relaxed text-muted">
       <div>
-        职途 · 数据版本 v{DATA_META.version} · 内置 20 个岗位 / 55 项技能 · 数据来自本地 SQLite
+        职途 · 数据版本 v{DATA_META.version} · 内置 {jobIds().size} 个岗位 / {allSkills().length} 项技能 · 数据来自本地 SQLite
+        {" · "}
+        <a href="/admin" className="underline hover:text-foreground">
+          后台编辑
+        </a>
       </div>
       <div className="mt-1">{DATA_META.salaryNote}</div>
       <div className="mt-1">
@@ -1053,7 +1072,7 @@ function Orientation({
     <section>
       <h2 className="text-xl font-semibold tracking-tight text-foreground">方向定位</h2>
       <p className="mt-1 text-sm text-muted">
-        按你勾选的 {profile.knownSkillIds.length} 项技能，与 20 个岗位的要求逐条对齐后的结果。
+        按你勾选的 {profile.knownSkillIds.length} 项技能，与 {jobIds().size} 个岗位的要求逐条对齐后的结果。
       </p>
 
       <div className="card mt-5 p-5">
@@ -1556,8 +1575,8 @@ function Landing({
   plansCount: number;
 }) {
   const modules = [
-    { n: "01", t: "技能画像", d: "55 项技能勾选，从文字自动预识别" },
-    { n: "02", t: "岗位匹配", d: "20 个岗位按必备技能覆盖率排序，附计算依据" },
+    { n: "01", t: "技能画像", d: `${allSkills().length} 项技能勾选，从文字自动预识别` },
+    { n: "02", t: "岗位匹配", d: `${jobIds().size} 个岗位按必备技能覆盖率排序，附计算依据` },
     { n: "03", t: "差距地图", d: "横向对比五个相近岗位，找出复用率最高的技能" },
     { n: "04", t: "学习路径", d: "按性价比排序 + 打卡追踪，缺口随进度下降" },
   ];

@@ -86,15 +86,25 @@ function migrate(d: DatabaseSync) {
 }
 
 function seedIfEmpty(d: DatabaseSync) {
-  const count = (d.prepare("SELECT COUNT(*) AS n FROM jobs").get() as { n: number }).n;
-  if (count > 0) return;
-
   const jobsJson = JSON.parse(
     fs.readFileSync(path.join(process.cwd(), "data", "jobs.json"), "utf-8")
   );
   const skillsJson = JSON.parse(
     fs.readFileSync(path.join(process.cwd(), "data", "skills.json"), "utf-8")
   );
+
+  const count = (d.prepare("SELECT COUNT(*) AS n FROM jobs").get() as { n: number }).n;
+  const metaRow = d.prepare("SELECT value FROM meta WHERE key = 'jobs_meta'").get() as
+    | { value: string }
+    | undefined;
+  const storedVersion = metaRow ? JSON.parse(metaRow.value).version : "";
+
+  // 首次运行（count===0）或数据版本升级时，清掉岗位/技能/方向并重新种子化。
+  // 注意：绝不触碰 user_profile / user_plans，用户态数据要保留。
+  if (count > 0 && storedVersion === (jobsJson._meta?.version ?? "")) return;
+  if (count > 0) {
+    d.exec("DELETE FROM jobs; DELETE FROM skills; DELETE FROM tracks;");
+  }
 
   const insertTrack = d.prepare("INSERT OR REPLACE INTO tracks (id, name) VALUES (?, ?)");
   for (const t of jobsJson.tracks) insertTrack.run(t.id, t.name);
@@ -299,4 +309,177 @@ export function addPlanRec(rec: PlanRow) {
 export function deletePlanRec(id: string) {
   const d = db();
   d.prepare("DELETE FROM user_plans WHERE id = ?").run(id);
+}
+
+/* ============================================================
+   后台编辑：岗位 / 技能 的写入接口（直接改 SQLite）
+   仅知识库表（jobs/skills/tracks/meta），绝不触碰 user_profile / user_plans。
+   要点：jobs_meta 版本保持与 data/*.json 一致（2.0），
+   所以 seedIfEmpty 在重启时不会覆盖这些手动编辑。
+   ============================================================ */
+
+export interface JobInput {
+  id: string;
+  title: string;
+  track: string;
+  summary?: string;
+  core?: { s: string; w: number }[];
+  plus?: string[];
+  threshold?: string;
+  salary?: { intern?: string; junior?: string };
+  certs?: string[];
+  growth?: string;
+}
+
+export interface SkillInput {
+  id: string;
+  name: string;
+  category?: string;
+  aliases?: string[];
+  estHours?: number;
+  resources?: { title: string; platform: string }[];
+}
+
+export function allSkillIds(): string[] {
+  return (db().prepare("SELECT id FROM skills").all() as { id: string }[]).map((r) => r.id);
+}
+
+export function allTrackIds(): string[] {
+  return (db().prepare("SELECT id FROM tracks").all() as { id: string }[]).map((r) => r.id);
+}
+
+export function getJobById(id: string) {
+  const r = db().prepare("SELECT * FROM jobs WHERE id = ?").get(id) as any;
+  if (!r) return null;
+  return {
+    id: r.id,
+    title: r.title,
+    track: r.track,
+    summary: r.summary,
+    core: JSON.parse(r.core),
+    plus: JSON.parse(r.plus || "[]"),
+    threshold: r.threshold,
+    salary: { intern: r.salary_intern, junior: r.salary_junior },
+    certs: JSON.parse(r.certs || "[]"),
+    growth: r.growth,
+  };
+}
+
+export function upsertJob(job: JobInput) {
+  const d = db();
+  d.prepare(
+    `INSERT OR REPLACE INTO jobs
+       (id, title, track, summary, core, plus, threshold, salary_intern, salary_junior, certs, growth)
+     VALUES (@id, @title, @track, @summary, @core, @plus, @threshold, @salary_intern, @salary_junior, @certs, @growth)`
+  ).run({
+    id: job.id,
+    title: job.title,
+    track: job.track,
+    summary: job.summary ?? "",
+    core: JSON.stringify(job.core ?? []),
+    plus: JSON.stringify(job.plus ?? []),
+    threshold: job.threshold ?? "",
+    salary_intern: job.salary?.intern ?? "",
+    salary_junior: job.salary?.junior ?? "",
+    certs: JSON.stringify(job.certs ?? []),
+    growth: job.growth ?? "",
+  });
+}
+
+export function deleteJob(id: string) {
+  db().prepare("DELETE FROM jobs WHERE id = ?").run(id);
+}
+
+export function getSkillById(id: string) {
+  const r = db().prepare("SELECT * FROM skills WHERE id = ?").get(id) as any;
+  if (!r) return null;
+  return {
+    id: r.id,
+    name: r.name,
+    category: r.category,
+    aliases: JSON.parse(r.aliases),
+    estHours: r.estHours,
+    resources: JSON.parse(r.resources),
+  };
+}
+
+export function upsertSkill(skill: SkillInput) {
+  const d = db();
+  d.prepare(
+    `INSERT OR REPLACE INTO skills (id, name, category, aliases, estHours, resources)
+     VALUES (@id, @name, @category, @aliases, @estHours, @resources)`
+  ).run({
+    id: skill.id,
+    name: skill.name,
+    category: skill.category ?? "",
+    aliases: JSON.stringify(skill.aliases ?? []),
+    estHours: skill.estHours ?? 0,
+    resources: JSON.stringify(skill.resources ?? []),
+  });
+}
+
+export function deleteSkill(id: string) {
+  db().prepare("DELETE FROM skills WHERE id = ?").run(id);
+}
+
+/** 校验岗位提交：id 合法、方向存在、core/plus 引用的技能存在、权重∈{1,2,3} */
+export function validateJobInput(body: any): { ok: true; job: JobInput } | { ok: false; error: string } {
+  if (!body || typeof body !== "object") return { ok: false, error: "请求体必须是对象" };
+  const id = String(body.id ?? "").trim();
+  const title = String(body.title ?? "").trim();
+  const track = String(body.track ?? "").trim();
+  if (!id) return { ok: false, error: "岗位 id 不能为空" };
+  if (!/^[a-z0-9][a-z0-9\-]*$/.test(id)) return { ok: false, error: "id 只能以小写字母/数字开头，仅含小写字母/数字/连字符" };
+  if (!title) return { ok: false, error: "岗位标题不能为空" };
+  const trackIds = new Set(allTrackIds());
+  if (!trackIds.has(track)) return { ok: false, error: `方向不存在: ${track}` };
+  const skillIds = new Set(allSkillIds());
+  const core = Array.isArray(body.core) ? body.core : [];
+  for (const c of core) {
+    const s = String(c?.s ?? "").trim();
+    const w = Number(c?.w);
+    if (!s) return { ok: false, error: "核心技能存在空 id" };
+    if (!skillIds.has(s)) return { ok: false, error: `核心技能不存在: ${s}` };
+    if (![1, 2, 3].includes(w)) return { ok: false, error: `核心技能权重必须为 1/2/3，收到: ${w}` };
+  }
+  const plus = Array.isArray(body.plus) ? body.plus.map(String) : [];
+  for (const p of plus) if (!skillIds.has(p)) return { ok: false, error: `加分技能不存在: ${p}` };
+  const job: JobInput = {
+    id,
+    title,
+    track,
+    summary: String(body.summary ?? ""),
+    core: core.map((c: any) => ({ s: String(c.s).trim(), w: Number(c.w) })),
+    plus,
+    threshold: String(body.threshold ?? ""),
+    salary: { intern: String(body.salary?.intern ?? ""), junior: String(body.salary?.junior ?? "") },
+    certs: Array.isArray(body.certs) ? body.certs.map(String) : [],
+    growth: String(body.growth ?? ""),
+  };
+  return { ok: true, job };
+}
+
+/** 校验技能提交：id/name 非空、estHours 为非负数字、aliases/resources 为数组 */
+export function validateSkillInput(body: any): { ok: true; skill: SkillInput } | { ok: false; error: string } {
+  if (!body || typeof body !== "object") return { ok: false, error: "请求体必须是对象" };
+  const id = String(body.id ?? "").trim();
+  const name = String(body.name ?? "").trim();
+  if (!id) return { ok: false, error: "技能 id 不能为空" };
+  if (!/^[a-z0-9][a-z0-9\-]*$/.test(id)) return { ok: false, error: "id 只能以小写字母/数字开头，仅含小写字母/数字/连字符" };
+  if (!name) return { ok: false, error: "技能名称不能为空" };
+  const estHours = Number(body.estHours ?? 0);
+  if (!Number.isFinite(estHours) || estHours < 0) return { ok: false, error: "estHours 必须为非负数字" };
+  const aliases = Array.isArray(body.aliases) ? body.aliases.map(String) : [];
+  const resources = Array.isArray(body.resources)
+    ? body.resources.map((r: any) => ({ title: String(r?.title ?? ""), platform: String(r?.platform ?? "") }))
+    : [];
+  const skill: SkillInput = {
+    id,
+    name,
+    category: String(body.category ?? ""),
+    aliases,
+    estHours,
+    resources,
+  };
+  return { ok: true, skill };
 }
