@@ -943,7 +943,7 @@ function ProfileForm({
   const [customInput, setCustomInput] = useState("");
 
   // 学习小时数：本地字符串态，允许清空/自由输入，失焦或回车时才落库，
-  // 避免「删不掉、强制回 1」的输入 bug；合法范围 0–80（0 = 暂不投入，按默认 10 估算）
+  // 避免「删不掉、强制回 1」的输入 bug；合法范围 1–80，非法/空回默认 10
   const [hoursRaw, setHoursRaw] = useState(String(profile.hoursPerWeek));
   useEffect(() => {
     setHoursRaw(String(profile.hoursPerWeek));
@@ -953,7 +953,7 @@ function ProfileForm({
   function commitHours() {
     const t = hoursRaw.trim();
     const v = t === "" ? NaN : Number(t);
-    const next = Number.isFinite(v) && v >= 0 && v <= 80 ? v : 10;
+    const next = Number.isFinite(v) && v >= 1 && v <= 80 ? v : 10;
     setHoursRaw(String(next));
     if (next !== profile.hoursPerWeek) set("hoursPerWeek", next);
   }
@@ -1252,7 +1252,7 @@ function ProfileForm({
             <input
               type="number"
               inputMode="numeric"
-              min={0}
+              min={1}
               max={80}
               step={1}
               value={hoursRaw}
@@ -1295,9 +1295,7 @@ function ProfileForm({
             )}
           </div>
           <span className="hint">
-            {profile.hoursPerWeek === 0
-              ? "0 表示暂时没安排——先按默认 10 小时/周估算，之后随时回来改"
-              : "默认 10 小时/周。改这里，后面的「补齐大概 X 周」会跟着变"}
+            最低 1 小时/周，默认 10。改这里，后面的「补齐大概 X 周」会跟着变
           </span>
         </label>
 
