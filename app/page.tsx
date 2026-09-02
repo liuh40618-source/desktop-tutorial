@@ -942,6 +942,22 @@ function ProfileForm({
 
   const [customInput, setCustomInput] = useState("");
 
+  // 学习小时数：本地字符串态，允许清空/自由输入，失焦或回车时才落库，
+  // 避免「删不掉、强制回 1」的输入 bug；合法范围 0–80（0 = 暂不投入，按默认 10 估算）
+  const [hoursRaw, setHoursRaw] = useState(String(profile.hoursPerWeek));
+  useEffect(() => {
+    setHoursRaw(String(profile.hoursPerWeek));
+  }, [profile.hoursPerWeek]);
+  const HOUR_PRESETS = [4, 6, 10, 12, 15, 20, 30];
+
+  function commitHours() {
+    const t = hoursRaw.trim();
+    const v = t === "" ? NaN : Number(t);
+    const next = Number.isFinite(v) && v >= 0 && v <= 80 ? v : 10;
+    setHoursRaw(String(next));
+    if (next !== profile.hoursPerWeek) set("hoursPerWeek", next);
+  }
+
   /** 自动识别：优先用已填资料；命中即预勾选并提示「仅供参考，请核对」 */
   function autoDetect() {
     const text = profileText(profile);
@@ -1236,24 +1252,34 @@ function ProfileForm({
             <input
               type="number"
               inputMode="numeric"
-              min={1}
+              min={0}
               max={80}
-              value={profile.hoursPerWeek}
-              onChange={(e) => {
-                const v = Number(e.target.value);
-                set("hoursPerWeek", v >= 1 && v <= 80 ? v : 1);
+              step={1}
+              value={hoursRaw}
+              onChange={(e) => setHoursRaw(e.target.value)}
+              onBlur={commitHours}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  commitHours();
+                  (e.target as HTMLInputElement).blur();
+                }
               }}
               className="input no-spinner w-24 text-base font-semibold tracking-tight tabular-nums"
               aria-label="每周学习小时数"
+              placeholder="10"
             />
             <span className="text-sm text-muted">小时 / 周</span>
           </div>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {[4, 6, 10, 12, 15, 20, 30].map((h) => (
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            {HOUR_PRESETS.map((h) => (
               <button
                 key={h}
                 type="button"
-                onClick={() => set("hoursPerWeek", h)}
+                onClick={() => {
+                  setHoursRaw(String(h));
+                  set("hoursPerWeek", h);
+                }}
                 className={`chip-btn px-3 py-1 text-xs num ${
                   profile.hoursPerWeek === h ? "on" : ""
                 }`}
@@ -1262,8 +1288,17 @@ function ProfileForm({
                 {h} 小时
               </button>
             ))}
+            {profile.hoursPerWeek > 0 && !HOUR_PRESETS.includes(profile.hoursPerWeek) && (
+              <span className="chip-btn on px-3 py-1 text-xs num" title="你输入的自定义值，已生效">
+                {profile.hoursPerWeek} 小时 · 自定义 ✓
+              </span>
+            )}
           </div>
-          <span className="hint">默认值 10 小时/周；选了常用值后，下面的「补齐大概 X 周」会跟着变</span>
+          <span className="hint">
+            {profile.hoursPerWeek === 0
+              ? "0 表示暂时没安排——先按默认 10 小时/周估算，之后随时回来改"
+              : "默认 10 小时/周。改这里，后面的「补齐大概 X 周」会跟着变"}
+          </span>
         </label>
 
         <label className="mt-3 block">
