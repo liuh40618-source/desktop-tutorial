@@ -235,7 +235,7 @@ function compilePlan(p: Profile, m: JobMatch, path: PathItem[]): string {
 }
 
 /* ============================================================
-   记录导出 / 备份（全量 .md 与 .json）
+   记录导出（全量 .md）
    ============================================================ */
 function downloadBlob(fileName: string, content: string, mime: string) {
   const blob = new Blob([content], { type: mime });
