@@ -3,11 +3,24 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+function safeNextPath(value: string | null): string {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\") || /[\u0000-\u001f]/.test(value)) {
+    return "/admin";
+  }
+  try {
+    const target = new URL(value, "https://career-navigator.invalid");
+    if (target.origin !== "https://career-navigator.invalid" || target.pathname.startsWith("//")) return "/admin";
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return "/admin";
+  }
+}
+
 // useSearchParams 必须在 Suspense 边界内使用，否则 build 期预渲染会失败
 function AdminLoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next") || "/admin";
+  const next = safeNextPath(params.get("next"));
   const [token, setToken] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);

@@ -3,7 +3,7 @@
 /**
  * 简历导入（第 0 步 · 我的画像）
  *
- * 上传简历 → /api/parse-resume 提取纯文本（服务端本地解析：不联网、不落盘）
+ * 上传简历 → /api/parse-resume 在应用服务端提取纯文本（不写入应用数据库或持久文件）
  * → detectSkills 用知识库别名做技能识别 → 只做「预勾选合并」，可逐条取消或一键撤销。
  * 解析进度、命中反馈、文本统计都在组件内完成，父级只需继续用 onDetected 接收并集即可。
  */
@@ -171,8 +171,8 @@ export function ResumeImport({ onDetected, onUndoDetected, onNotice }: ResumeImp
         )}
 
         <span className="w-full text-xs text-muted sm:w-auto sm:flex-1">
-          {phase === "parsing" ? "正在本地解析…" : "可点按钮或直接把文件拖到这里"} · PDF / DOCX / TXT / MD ·
-          5MB 内 · 仅本地提取文字做技能识别，不保存、不调用模型
+          {phase === "parsing" ? "正在发送文件并提取文字…" : "可点按钮或直接把文件拖到这里"} · PDF / DOCX / TXT / MD ·
+          5MB 内 · 文件发送到当前应用服务端提取文字并返回浏览器识别；应用代码不持久保存原文件或全文、不调用模型。远程部署时会发送到部署服务器
         </span>
       </div>
 
