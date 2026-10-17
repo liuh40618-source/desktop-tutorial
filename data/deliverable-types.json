@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "note": "交付物类型 × 必含要素。必含要素按交付物类型定义一次（10 套），而不是按技能定义 109 次。"
+  },
+  "types": {
+    "report": { "label": "分析报告", "requiredElements": ["原始数据来源", "处理前后数量对比", "问题分类与处理理由", "可复现步骤或脚本"] },
+    "script": { "label": "可运行脚本", "requiredElements": ["输入样例", "运行说明", "异常处理", "至少 3 个边界测试"] },
+    "dashboard": { "label": "数据看板", "requiredElements": ["数据来源与口径", "至少 3 个图表", "关键数字核对"] },
+    "doc": { "label": "文档", "requiredElements": ["目标读者与目的", "结构化章节", "口径或术语说明", "版本与日期"] },
+    "design": { "label": "设计稿", "requiredElements": ["设计目标与约束", "至少 2 版方案对比", "设计说明或标注"] },
+    "repo": { "label": "代码仓库", "requiredElements": ["README", "可读的提交历史", "可复现运行步骤"] },
+    "prototype": { "label": "可交互原型", "requiredElements": ["核心流程可走通", "加载/空/错误三种状态", "可访问链接"] },
+    "case-study": { "label": "案例复盘", "requiredElements": ["背景与问题", "个人贡献", "方法与过程", "结果与量化", "反思"] },
+    "dataset": { "label": "数据集", "requiredElements": ["字段说明", "采集或清洗口径", "质量检查项", "许可与隐私说明"] },
+    "other": { "label": "其他作品", "requiredElements": ["任务说明", "个人贡献", "可复现步骤", "结果记录"] }
+  }
+}

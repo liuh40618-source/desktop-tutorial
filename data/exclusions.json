@@ -1,0 +1,119 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "note": "开场排除法选项 → tag 定义。tag 由 data/jobs.json 的 jobs[].workTags 引用；本文件只放 tag 定义与文案，不放一对一手写映射（修正设计说明 9.1 的错误）。",
+    "tierCriteria": {
+      "core": "该活动占该岗位日常工作时间的主要部分（经验口径 ≥30% 工时），或该项做不好直接导致产出不合格 / 被追责。note 必须写明依据来源（summary / core / threshold / growth / 真实 JD 职责描述）。仅 core 触发排除。",
+      "incidental": "岗位会涉及但非主要职责（<30% 工时，且不决定产出成败）。incidental 行永不触发排除，仅用于展示「该方向偶尔涉及，未排除」。"
+    },
+    "contextOptionsNote": "仅作自我清单，不参与排除；知识库暂无工作条件数据",
+    "offlineNote": "high-freq-outbound 复核后仅 ops-bizdev / ops-cx 两岗支撑（<3 岗下限），按 Q6 规则该选项不上线；全部条件 tag（contextOptions）已从 jobs[].workTags 移除：知识库暂无工作条件数据，条件选项仅作自我清单，不参与排除。"
+  },
+  "contentOptions": [
+    {
+      "id": "data-check-heavy",
+      "tag": "data-check-heavy",
+      "label": "一整天盯着表格找异常、核对口径，错了要担责",
+      "reason": "你不想做数据处理与核对类工作"
+    },
+    {
+      "id": "code-debug",
+      "tag": "code-debug",
+      "label": "花大段时间卡在一个 bug 上，反复试错",
+      "reason": "你不想写代码调试"
+    },
+    {
+      "id": "visual-rework",
+      "tag": "visual-rework",
+      "label": "反复改稿，需求方一句话就推翻重做",
+      "reason": "你不想做视觉产出与反复迭代类工作"
+    },
+    {
+      "id": "doc-alignment",
+      "tag": "doc-alignment",
+      "label": "写几万字的文档，还要反复对齐口径",
+      "reason": "你不想做文档撰写与跨方对齐类工作"
+    },
+    {
+      "id": "emotional-labor",
+      "tag": "emotional-labor",
+      "label": "整天被用户的情绪冲着，还要保持礼貌",
+      "reason": "你不想做情绪劳动为主的工作"
+    },
+    {
+      "id": "research-experiment",
+      "tag": "research-experiment",
+      "label": "大量时间读论文、跑实验，多数尝试是失败的",
+      "reason": "你不想做实验与试错为主的工作"
+    },
+    {
+      "id": "detail-audit",
+      "tag": "detail-audit",
+      "label": "逐条核对细节，出了错要担责",
+      "reason": "你不想做质量核查类工作"
+    },
+    {
+      "id": "coordination-chase",
+      "tag": "coordination-chase",
+      "label": "追着多方要进度，天天协调冲突",
+      "reason": "你不想做协调推进类工作"
+    },
+    {
+      "id": "changing-requirements",
+      "tag": "changing-requirements",
+      "label": "需求天天变，做完的东西可能被整个砍掉",
+      "reason": "你不想应对持续变化的需求"
+    }
+  ],
+  "contextOptions": [
+    {
+      "id": "frequent-travel",
+      "tag": "frequent-travel",
+      "label": "频繁出差（每月超过 1 次）",
+      "reason": "你接受不了频繁出差",
+      "note": "仅作自我清单，不参与排除；知识库暂无工作条件数据"
+    },
+    {
+      "id": "overtime-weekend",
+      "tag": "overtime-weekend",
+      "label": "长期加班、周末待命",
+      "reason": "你接受不了长期加班与周末待命",
+      "note": "仅作自我清单，不参与排除；知识库暂无工作条件数据"
+    },
+    {
+      "id": "drinking-social",
+      "tag": "drinking-social",
+      "label": "需要喝酒应酬、维护人情关系",
+      "reason": "你接受不了应酬类社交",
+      "note": "仅作自我清单，不参与排除；知识库暂无工作条件数据"
+    },
+    {
+      "id": "repetitive-process",
+      "tag": "repetitive-process",
+      "label": "高度重复、流程固定的工作",
+      "reason": "你接受不了高度重复的流程化工作",
+      "note": "仅作自我清单，不参与排除；知识库暂无工作条件数据"
+    },
+    {
+      "id": "onsite-only",
+      "tag": "onsite-only",
+      "label": "必须到公司坐班，不能远程",
+      "reason": "你接受不了必须坐班",
+      "note": "仅作自我清单，不参与排除；知识库暂无工作条件数据"
+    },
+    {
+      "id": "commission-income",
+      "tag": "commission-income",
+      "label": "收入波动大、靠业绩提成",
+      "reason": "你接受不了收入靠提成",
+      "note": "仅作自我清单，不参与排除；知识库暂无工作条件数据"
+    },
+    {
+      "id": "changing-goals",
+      "tag": "changing-goals",
+      "label": "目标经常变、长期面对不确定性",
+      "reason": "你接受不了目标频繁变化",
+      "note": "仅作自我清单，不参与排除；知识库暂无工作条件数据"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "_meta": {
-    "version": "3.0",
-    "note": "技能库。estHours = 零基础到能独立完成基本工作的经验估算（小时），非精确值，仅用于排序与周期预估。resources 的链接由代码按 platform + query 拼成平台搜索链接，不写死具体 URL，避免死链。v3：数据为手工维护，改动后请运行 node scripts/validate-data.mjs 做回归校验。",
+    "version": "3.7",
+    "note": "技能库。estHours = 零基础到能独立完成基本工作的经验估算（小时），非精确值，仅用于排序与周期预估。resources 的链接由代码按 platform + query 拼成平台搜索链接，不写死具体 URL，避免死链。v3：数据为手工维护，改动后请运行 node scripts/data/validate-data.mjs 做回归校验。\n2026-09-03：添加 marketFrequency 字段（67 项技能有稀缺度标注，默认 1.0 不触发加分）。\nv3.3：别名清理——把会嵌进无关长词的 ≤2 字中文泛词限定化（如「建模」→「数据库建模」、「实验」→「A/B 实验」、「网络」→「网络安全/计算机网络」）或删除（如「设计」「查询」「文档」「类型」），修复「数学建模→数据库设计」「课程设计→原型设计」「实验室→A/B 测试」等误判。\nv3.5：新增技能 harmonyos（鸿蒙/HarmonyOS 开发，移动端分类），支撑岗位库新增的鸿蒙开发岗位。\nv3.6：与 jobs.json 同步升档（岗位库批量扩充至约 500）。\nv3.7：新增市场/人力/财务/供应链 4 个分类共 24 个技能，与 jobs.json 同步升档（方向扩充至 17）。",
     "platforms": [
       "B站",
       "掘金",
@@ -24,8 +24,7 @@
         "sql",
         "mysql",
         "postgresql",
-        "取数",
-        "查询"
+        "取数"
       ],
       "estHours": 40,
       "resources": [
@@ -37,7 +36,18 @@
           "title": "SQL 从入门到实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.45,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 22,
+      "confidence": "high",
+      "action": {
+        "deliverableType": "report",
+        "deliverable": "一份可复现的业务 SQL 分析报告",
+        "acceptance": "包含关联查询、分组统计和窗口函数；附数据说明、查询脚本与结果核对。"
+      }
     },
     {
       "id": "python",
@@ -58,7 +68,18 @@
           "title": "Python 零基础入门",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.4,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 34,
+      "confidence": "high",
+      "action": {
+        "deliverableType": "script",
+        "deliverable": "一个有测试的 Python 数据处理脚本",
+        "acceptance": "提供输入样例、运行说明和异常处理；至少覆盖 3 个边界测试。"
+      }
     },
     {
       "id": "stats",
@@ -68,7 +89,7 @@
         "统计",
         "概率",
         "假设检验",
-        "回归"
+        "回归分析"
       ],
       "estHours": 50,
       "resources": [
@@ -80,7 +101,13 @@
           "title": "统计学入门",
           "platform": "Coursera"
         }
-      ]
+      ],
+      "marketFrequency": 0.55,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 12,
+      "confidence": "medium"
     },
     {
       "id": "excel",
@@ -102,7 +129,18 @@
           "title": "Excel 数据分析实战",
           "platform": "慕课网"
         }
-      ]
+      ],
+      "marketFrequency": 0.95,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low",
+      "action": {
+        "deliverableType": "report",
+        "deliverable": "一份从原始数据到结论的 Excel 工作簿",
+        "acceptance": "包含清洗记录、数据透视表和可核对的图表结论。"
+      }
     },
     {
       "id": "git",
@@ -123,7 +161,18 @@
           "title": "Git 入门到协作",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.7,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 27,
+      "confidence": "high",
+      "action": {
+        "deliverableType": "repo",
+        "deliverable": "一个提交历史清晰的项目仓库",
+        "acceptance": "包含分支合并记录、README 与一次可复现的回滚演练。"
+      }
     },
     {
       "id": "linux",
@@ -145,7 +194,13 @@
           "title": "鸟哥的 Linux 私房菜",
           "platform": "知乎"
         }
-      ]
+      ],
+      "marketFrequency": 0.65,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 37,
+      "confidence": "high"
     },
     {
       "id": "algo-basic",
@@ -167,7 +222,13 @@
           "title": "代码随想录",
           "platform": "GitHub"
         }
-      ]
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 6,
+      "confidence": "medium"
     },
     {
       "id": "tech-english",
@@ -189,7 +250,13 @@
           "title": "英文技术文档阅读方法",
           "platform": "知乎"
         }
-      ]
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "data-clean",
@@ -211,7 +278,18 @@
           "title": "数据预处理方法综述",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.55,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 3,
+      "confidence": "low",
+      "action": {
+        "deliverableType": "report",
+        "deliverable": "一份数据清洗记录与可复现脚本",
+        "acceptance": "处理缺失、重复与异常值；给出清洗前后对比及至少 3 条质量检查。"
+      }
     },
     {
       "id": "data-viz",
@@ -234,7 +312,18 @@
           "title": "数据可视化实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 7,
+      "confidence": "medium",
+      "action": {
+        "deliverableType": "dashboard",
+        "deliverable": "一页业务数据看板与分析结论",
+        "acceptance": "说明数据来源、指标口径，展示 3 个图表并核对关键数字。"
+      }
     },
     {
       "id": "bi-tools",
@@ -257,7 +346,13 @@
           "title": "Power BI 从入门到实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.55,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "pandas",
@@ -278,7 +373,13 @@
           "title": "pandas 数据分析实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
     },
     {
       "id": "etl",
@@ -300,7 +401,13 @@
           "title": "ETL 调度实战",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.4,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "warehouse",
@@ -322,7 +429,13 @@
           "title": "数据仓库建模实战",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.35,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 10,
+      "confidence": "medium"
     },
     {
       "id": "spark",
@@ -344,7 +457,13 @@
           "title": "Spark 实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.2,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "flink",
@@ -352,7 +471,7 @@
       "category": "数据",
       "aliases": [
         "flink",
-        "实时",
+        "实时计算",
         "流计算",
         "kafka"
       ],
@@ -366,7 +485,13 @@
           "title": "Flink 实时计算入门",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.15,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "ab-test",
@@ -375,7 +500,7 @@
       "aliases": [
         "ab",
         "abtest",
-        "实验",
+        "A/B 实验",
         "假设检验"
       ],
       "estHours": 30,
@@ -388,7 +513,13 @@
           "title": "A/B 实验平台实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.45,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 5,
+      "confidence": "medium"
     },
     {
       "id": "metric-system",
@@ -410,7 +541,13 @@
           "title": "指标设计方法论",
           "platform": "知乎"
         }
-      ]
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 6,
+      "confidence": "medium"
     },
     {
       "id": "ml-basics",
@@ -420,7 +557,6 @@
         "机器学习",
         "sklearn",
         "scikit",
-        "回归",
         "分类",
         "聚类"
       ],
@@ -434,7 +570,13 @@
           "title": "scikit-learn 官方用户指南",
           "platform": "官方文档"
         }
-      ]
+      ],
+      "marketFrequency": 0.4,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 11,
+      "confidence": "medium"
     },
     {
       "id": "dl-framework",
@@ -458,7 +600,13 @@
           "title": "PyTorch 深度学习实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.25,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "llm-theory",
@@ -482,7 +630,13 @@
           "title": "大模型技术原理综述",
           "platform": "知乎"
         }
-      ]
+      ],
+      "marketFrequency": 0.3,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 7,
+      "confidence": "medium"
     },
     {
       "id": "prompt-eng",
@@ -503,7 +657,13 @@
           "title": "Prompt 工程实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.35,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 7,
+      "confidence": "medium"
     },
     {
       "id": "rag",
@@ -526,7 +686,13 @@
           "title": "向量数据库实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.15,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 3,
+      "confidence": "low"
     },
     {
       "id": "agent-dev",
@@ -549,7 +715,13 @@
           "title": "Agent 开发实战",
           "platform": "GitHub"
         }
-      ]
+      ],
+      "marketFrequency": 0.12,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "llm-api",
@@ -573,14 +745,19 @@
           "title": "大模型 API 接入实战",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.3,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 5,
+      "confidence": "medium"
     },
     {
       "id": "feature-eng",
       "name": "特征工程",
       "category": "AI",
       "aliases": [
-        "特征",
         "特征工程",
         "特征选择"
       ],
@@ -594,14 +771,20 @@
           "title": "特征工程方法综述",
           "platform": "知乎"
         }
-      ]
+      ],
+      "marketFrequency": 0.4,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "model-eval",
       "name": "模型评估与调优",
       "category": "AI",
       "aliases": [
-        "评估",
+        "模型评估",
         "调参",
         "auc",
         "过拟合"
@@ -616,7 +799,13 @@
           "title": "超参调优实践",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.35,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "html-css",
@@ -639,7 +828,13 @@
           "title": "HTML/CSS 基础到实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.85,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 13,
+      "confidence": "medium"
     },
     {
       "id": "js",
@@ -661,7 +856,13 @@
           "title": "JavaScript 高级程序设计",
           "platform": "知乎"
         }
-      ]
+      ],
+      "marketFrequency": 0.7,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 15,
+      "confidence": "high"
     },
     {
       "id": "ts",
@@ -669,8 +870,7 @@
       "category": "前端",
       "aliases": [
         "typescript",
-        "ts",
-        "类型"
+        "ts"
       ],
       "estHours": 25,
       "resources": [
@@ -682,7 +882,13 @@
           "title": "TypeScript 入门",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.55,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 15,
+      "confidence": "high"
     },
     {
       "id": "spa-framework",
@@ -705,7 +911,18 @@
           "title": "Vue 官方教程",
           "platform": "官方文档"
         }
-      ]
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 15,
+      "confidence": "high",
+      "action": {
+        "deliverableType": "prototype",
+        "deliverable": "一个可访问的 React / Vue 交互页面",
+        "acceptance": "包含加载、空状态、错误处理和移动端布局，并提供交互测试。"
+      }
     },
     {
       "id": "fe-build",
@@ -728,7 +945,13 @@
           "title": "前端工程化实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.55,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "node",
@@ -750,7 +973,13 @@
           "title": "Node 服务端开发实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.55,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 5,
+      "confidence": "medium"
     },
     {
       "id": "java",
@@ -771,7 +1000,13 @@
           "title": "Java 基础到进阶",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "golang",
@@ -792,7 +1027,13 @@
           "title": "Go 语言从入门到实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.4,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 5,
+      "confidence": "medium"
     },
     {
       "id": "spring",
@@ -814,7 +1055,13 @@
           "title": "Spring Boot 实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "api-design",
@@ -837,7 +1084,13 @@
           "title": "OpenAPI 规范",
           "platform": "官方文档"
         }
-      ]
+      ],
+      "marketFrequency": 0.55,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 10,
+      "confidence": "medium"
     },
     {
       "id": "db-design",
@@ -845,9 +1098,9 @@
       "category": "后端",
       "aliases": [
         "数据库",
-        "建模",
+        "数据库建模",
         "索引",
-        "范式",
+        "数据库范式",
         "事务"
       ],
       "estHours": 35,
@@ -860,7 +1113,13 @@
           "title": "数据库设计与索引优化",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 13,
+      "confidence": "medium"
     },
     {
       "id": "redis",
@@ -881,7 +1140,13 @@
           "title": "Redis 实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.45,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 10,
+      "confidence": "medium"
     },
     {
       "id": "mq",
@@ -904,7 +1169,13 @@
           "title": "消息队列实战",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.35,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "docker",
@@ -926,7 +1197,13 @@
           "title": "Docker 从入门到实践",
           "platform": "GitHub"
         }
-      ]
+      ],
+      "marketFrequency": 0.45,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 12,
+      "confidence": "medium"
     },
     {
       "id": "microservices",
@@ -948,7 +1225,13 @@
           "title": "微服务实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.3,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "testing",
@@ -971,7 +1254,13 @@
           "title": "自动化测试实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.65,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 13,
+      "confidence": "medium"
     },
     {
       "id": "prd",
@@ -979,8 +1268,7 @@
       "category": "产品",
       "aliases": [
         "prd",
-        "需求文档",
-        "文档"
+        "需求文档"
       ],
       "estHours": 25,
       "resources": [
@@ -992,7 +1280,13 @@
           "title": "需求文档模板与实例",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.55,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 12,
+      "confidence": "medium"
     },
     {
       "id": "user-research",
@@ -1014,7 +1308,13 @@
           "title": "用户调研实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.55,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 12,
+      "confidence": "medium"
     },
     {
       "id": "prototype",
@@ -1024,8 +1324,7 @@
         "figma",
         "原型",
         "axure",
-        "墨刀",
-        "设计"
+        "墨刀"
       ],
       "estHours": 25,
       "resources": [
@@ -1037,7 +1336,13 @@
           "title": "Figma 原型设计入门",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 9,
+      "confidence": "medium"
     },
     {
       "id": "project-mgmt",
@@ -1059,7 +1364,13 @@
           "title": "跨部门协作方法",
           "platform": "知乎"
         }
-      ]
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 10,
+      "confidence": "medium"
     },
     {
       "id": "data-driven",
@@ -1082,14 +1393,19 @@
           "title": "增长分析方法",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 25,
+      "confidence": "high"
     },
     {
       "id": "content-plan",
       "name": "内容策划与选题",
       "category": "运营",
       "aliases": [
-        "内容",
         "策划",
         "选题",
         "文案",
@@ -1106,7 +1422,13 @@
           "title": "文案写作实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.65,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 11,
+      "confidence": "medium"
     },
     {
       "id": "short-video",
@@ -1129,7 +1451,13 @@
           "title": "短视频剪辑实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 3,
+      "confidence": "low"
     },
     {
       "id": "community",
@@ -1138,8 +1466,7 @@
       "aliases": [
         "社群",
         "私域",
-        "用户运营",
-        "群"
+        "用户运营"
       ],
       "estHours": 25,
       "resources": [
@@ -1151,7 +1478,13 @@
           "title": "私域运营方法",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 8,
+      "confidence": "medium"
     },
     {
       "id": "growth",
@@ -1175,7 +1508,13 @@
           "title": "投放与 ROI 优化",
           "platform": "慕课网"
         }
-      ]
+      ],
+      "marketFrequency": 0.4,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 9,
+      "confidence": "medium"
     },
     {
       "id": "structured-expression",
@@ -1197,14 +1536,19 @@
           "title": "结构化表达训练",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.7,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 12,
+      "confidence": "medium"
     },
     {
       "id": "business-sense",
       "name": "业务理解",
       "category": "软技能",
       "aliases": [
-        "业务",
         "行业",
         "商业",
         "商业模式"
@@ -1219,7 +1563,13 @@
           "title": "业务分析方法论",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.45,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 15,
+      "confidence": "high"
     },
     {
       "id": "doc-writing",
@@ -1241,7 +1591,13 @@
           "title": "文档写作实践",
           "platform": "知乎"
         }
-      ]
+      ],
+      "marketFrequency": 0.75,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 22,
+      "confidence": "high"
     },
     {
       "id": "ui-design",
@@ -1263,7 +1619,13 @@
           "title": "UI 设计基础",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.55,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 8,
+      "confidence": "medium"
     },
     {
       "id": "ux-research",
@@ -1286,7 +1648,13 @@
           "title": "用户研究方法",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "interaction-design",
@@ -1295,8 +1663,7 @@
       "aliases": [
         "交互",
         "ixd",
-        "信息架构",
-        "流程"
+        "信息架构"
       ],
       "estHours": 40,
       "resources": [
@@ -1308,7 +1675,13 @@
           "title": "交互设计实践",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 3,
+      "confidence": "low"
     },
     {
       "id": "visual-design",
@@ -1331,7 +1704,13 @@
           "title": "视觉设计实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 12,
+      "confidence": "medium"
     },
     {
       "id": "motion-design",
@@ -1354,7 +1733,13 @@
           "title": "动效设计实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.3,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 5,
+      "confidence": "medium"
     },
     {
       "id": "illustration",
@@ -1377,7 +1762,12 @@
           "title": "插画基础",
           "platform": "知乎"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 5,
+      "confidence": "medium"
     },
     {
       "id": "design-system",
@@ -1386,7 +1776,7 @@
       "aliases": [
         "design system",
         "组件库",
-        "规范",
+        "设计规范",
         "tokens"
       ],
       "estHours": 30,
@@ -1399,7 +1789,12 @@
           "title": "设计系统搭建",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "brand-design",
@@ -1421,7 +1816,12 @@
           "title": "Logo 设计实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 3,
+      "confidence": "low"
     },
     {
       "id": "game-ui",
@@ -1443,7 +1843,12 @@
           "title": "UI 设计基础",
           "platform": "官方文档"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "accessibility-design",
@@ -1465,7 +1870,12 @@
           "title": "无障碍设计实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "app-sec",
@@ -1488,7 +1898,12 @@
           "title": "应用安全实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 8,
+      "confidence": "medium"
     },
     {
       "id": "pentest",
@@ -1511,7 +1926,12 @@
           "title": "渗透测试实战",
           "platform": "知乎"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "security-ops",
@@ -1534,7 +1954,12 @@
           "title": "安全事件响应",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "data-security",
@@ -1557,7 +1982,12 @@
           "title": "隐私合规实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "cloud-sec",
@@ -1580,7 +2010,12 @@
           "title": "云安全实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "crypto-basics",
@@ -1603,14 +2038,19 @@
           "title": "密码学基础",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 5,
+      "confidence": "medium"
     },
     {
       "id": "network-sec",
       "name": "网络攻防基础",
       "category": "安全",
       "aliases": [
-        "网络",
+        "网络安全",
         "防火墙",
         "waf",
         "ids",
@@ -1626,7 +2066,12 @@
           "title": "WAF 原理",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 5,
+      "confidence": "medium"
     },
     {
       "id": "unity",
@@ -1649,7 +2094,12 @@
           "title": "Unity 实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 3,
+      "confidence": "low"
     },
     {
       "id": "unreal",
@@ -1672,7 +2122,12 @@
           "title": "UE 实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "game-design",
@@ -1695,7 +2150,13 @@
           "title": "游戏策划入门",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.4,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 5,
+      "confidence": "medium"
     },
     {
       "id": "level-design",
@@ -1717,7 +2178,12 @@
           "title": "游戏关卡设计",
           "platform": "知乎"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "shader",
@@ -1740,7 +2206,13 @@
           "title": "Unity Shader 实战",
           "platform": "知乎"
         }
-      ]
+      ],
+      "marketFrequency": 0.15,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 3,
+      "confidence": "low"
     },
     {
       "id": "game-network",
@@ -1763,7 +2235,12 @@
           "title": "游戏服务端实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 3,
+      "confidence": "low"
     },
     {
       "id": "swift",
@@ -1786,7 +2263,12 @@
           "title": "iOS 开发实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "kotlin",
@@ -1808,7 +2290,12 @@
           "title": "Android 开发实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "flutter",
@@ -1830,7 +2317,13 @@
           "title": "Flutter 实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.3,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "react-native",
@@ -1852,7 +2345,13 @@
           "title": "RN 实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.35,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "mini-program",
@@ -1874,7 +2373,12 @@
           "title": "小程序开发实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "mobile-arch",
@@ -1883,8 +2387,7 @@
       "aliases": [
         "移动架构",
         "组件化",
-        "模块化",
-        "性能"
+        "模块化"
       ],
       "estHours": 45,
       "resources": [
@@ -1896,7 +2399,13 @@
           "title": "组件化实践",
           "platform": "知乎"
         }
-      ]
+      ],
+      "marketFrequency": 0.4,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 5,
+      "confidence": "medium"
     },
     {
       "id": "k8s",
@@ -1918,7 +2427,13 @@
           "title": "K8s 实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "marketFrequency": 0.25,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 9,
+      "confidence": "medium"
     },
     {
       "id": "cicd",
@@ -1941,7 +2456,12 @@
           "title": "Jenkins 实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 4,
+      "confidence": "low"
     },
     {
       "id": "terraform",
@@ -1963,14 +2483,18 @@
           "title": "IaC 实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "cloud-platform",
       "name": "云平台(阿里云/AWS)",
       "category": "基础架构",
       "aliases": [
-        "云",
         "aws",
         "阿里云",
         "腾讯云",
@@ -1987,7 +2511,12 @@
           "title": "云架构实践",
           "platform": "慕课网"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "monitoring",
@@ -2011,7 +2540,13 @@
           "title": "可观测性实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "marketFrequency": 0.35,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 6,
+      "confidence": "medium"
     },
     {
       "id": "sre-basics",
@@ -2034,14 +2569,19 @@
           "title": "SRE 实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "network-basics",
       "name": "网络基础",
       "category": "基础架构",
       "aliases": [
-        "网络",
+        "计算机网络",
         "tcpip",
         "dns",
         "http",
@@ -2057,7 +2597,12 @@
           "title": "TCP/IP 详解",
           "platform": "知乎"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "system-design",
@@ -2080,7 +2625,12 @@
           "title": "高并发系统设计",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 17,
+      "confidence": "high"
     },
     {
       "id": "cpp",
@@ -2089,8 +2639,7 @@
       "aliases": [
         "c++",
         "cpp",
-        "stl",
-        "底层"
+        "stl"
       ],
       "estHours": 90,
       "resources": [
@@ -2102,7 +2651,12 @@
           "title": "C++ 实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 5,
+      "confidence": "medium"
     },
     {
       "id": "embedded",
@@ -2125,14 +2679,19 @@
           "title": "嵌入式开发实战",
           "platform": "知乎"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "data-governance",
       "name": "数据治理",
       "category": "数据",
       "aliases": [
-        "治理",
+        "数据治理",
         "元数据",
         "数据资产",
         "血缘",
@@ -2148,14 +2707,18 @@
           "title": "DAMA 数据管理",
           "platform": "知乎"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "data-quality",
       "name": "数据质量",
       "category": "数据",
       "aliases": [
-        "质量",
         "校验",
         "稽核",
         "数据稽核"
@@ -2170,7 +2733,12 @@
           "title": "数据校验实践",
           "platform": "知乎"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 3,
+      "confidence": "low"
     },
     {
       "id": "analytics-eng",
@@ -2192,7 +2760,12 @@
           "title": "分析工程实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "mlops",
@@ -2215,7 +2788,12 @@
           "title": "模型部署实战",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
     },
     {
       "id": "agent-eval",
@@ -2223,7 +2801,6 @@
       "category": "AI",
       "aliases": [
         "评测",
-        "对齐",
         "评估集",
         "benchmark"
       ],
@@ -2237,7 +2814,12 @@
           "title": "评测集构建",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
     },
     {
       "id": "training-data",
@@ -2260,7 +2842,12 @@
           "title": "训练数据构建",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
     },
     {
       "id": "finance-basics",
@@ -2283,7 +2870,12 @@
           "title": "量化交易入门",
           "platform": "知乎"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "cv-basics",
@@ -2306,7 +2898,12 @@
           "title": "计算机视觉实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "blockchain-basics",
@@ -2329,7 +2926,12 @@
           "title": "区块链开发实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 2,
+      "confidence": "low"
     },
     {
       "id": "seo-basics",
@@ -2351,7 +2953,12 @@
           "title": "搜索引擎优化",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "grpc",
@@ -2373,16 +2980,19 @@
           "title": "gRPC 实战",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
     },
     {
       "id": "graphql",
       "name": "GraphQL",
       "category": "后端",
       "aliases": [
-        "graphql",
-        "接口",
-        "查询"
+        "graphql"
       ],
       "estHours": 20,
       "resources": [
@@ -2394,7 +3004,12 @@
           "title": "GraphQL 实践",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
     },
     {
       "id": "elasticsearch",
@@ -2402,7 +3017,6 @@
       "category": "后端",
       "aliases": [
         "es",
-        "搜索",
         "倒排",
         "索引",
         "elasticsearch"
@@ -2417,7 +3031,12 @@
           "title": "ES 实战",
           "platform": "掘金"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 3,
+      "confidence": "low"
     },
     {
       "id": "websocket",
@@ -2439,7 +3058,12 @@
           "title": "实时通信实战",
           "platform": "B站"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 1,
+      "confidence": "low"
     },
     {
       "id": "code-review",
@@ -2461,7 +3085,713 @@
           "title": "如何做 CR",
           "platform": "知乎"
         }
-      ]
+      ],
+      "source_date": "2026-03",
+      "updated_at": "2026-09-26",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "harmonyos",
+      "name": "鸿蒙(HarmonyOS)开发",
+      "category": "移动端",
+      "aliases": [
+        "鸿蒙",
+        "HarmonyOS",
+        "ArkTS",
+        "鸿蒙开发",
+        "方舟"
+      ],
+      "estHours": 45,
+      "resources": [
+        {
+          "title": "HarmonyOS 开发者文档",
+          "platform": "官方文档"
+        },
+        {
+          "title": "鸿蒙开发入门实战",
+          "platform": "B站"
+        }
+      ],
+      "marketFrequency": 0.2,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "market-research",
+      "name": "市场调研",
+      "category": "市场",
+      "aliases": [
+        "市场调研",
+        "竞品分析",
+        "行业研究",
+        "用户洞察"
+      ],
+      "estHours": 30,
+      "resources": [
+        {
+          "title": "市场调研方法",
+          "platform": "知乎"
+        },
+        {
+          "title": "竞品分析实战",
+          "platform": "B站"
+        }
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "brand-pr",
+      "name": "品牌与公关",
+      "category": "市场",
+      "aliases": [
+        "品牌",
+        "公关",
+        "品牌营销",
+        "pr"
+      ],
+      "estHours": 30,
+      "resources": [
+        {
+          "title": "品牌营销案例",
+          "platform": "知乎"
+        },
+        {
+          "title": "公关实务入门",
+          "platform": "B站"
+        }
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "ad-buying",
+      "name": "广告投放(信息流)",
+      "category": "市场",
+      "aliases": [
+        "信息流广告",
+        "巨量引擎",
+        "千川",
+        "广告投放"
+      ],
+      "estHours": 35,
+      "resources": [
+        {
+          "title": "信息流投放实战",
+          "platform": "B站"
+        },
+        {
+          "title": "巨量引擎优化指南",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.4,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "sales-skills",
+      "name": "销售与客户沟通",
+      "category": "市场",
+      "aliases": [
+        "销售",
+        "成交",
+        "陌拜",
+        "销售话术"
+      ],
+      "estHours": 40,
+      "resources": [
+        {
+          "title": "销售技巧入门",
+          "platform": "B站"
+        },
+        {
+          "title": "大客户销售方法",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.4,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "bd-negotiation",
+      "name": "商务拓展与谈判",
+      "category": "市场",
+      "aliases": [
+        "商务",
+        "BD",
+        "谈判",
+        "渠道合作"
+      ],
+      "estHours": 30,
+      "resources": [
+        {
+          "title": "商务谈判技巧",
+          "platform": "B站"
+        },
+        {
+          "title": "渠道 BD 实战",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "crm-tools",
+      "name": "CRM 与客户管理",
+      "category": "市场",
+      "aliases": [
+        "CRM",
+        "客户管理",
+        "线索管理",
+        "客户跟进"
+      ],
+      "estHours": 20,
+      "resources": [
+        {
+          "title": "CRM 系统使用入门",
+          "platform": "B站"
+        },
+        {
+          "title": "客户生命周期管理",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.7,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "recruiting",
+      "name": "招聘",
+      "category": "人力",
+      "aliases": [
+        "招聘",
+        "猎头",
+        "面试邀约",
+        "简历筛选"
+      ],
+      "estHours": 40,
+      "resources": [
+        {
+          "title": "招聘全流程",
+          "platform": "B站"
+        },
+        {
+          "title": "结构化面试方法",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.4,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "hr-generalist",
+      "name": "员工关系与 HR 综合",
+      "category": "人力",
+      "aliases": [
+        "员工关系",
+        "入离职",
+        "HR",
+        "人事"
+      ],
+      "estHours": 30,
+      "resources": [
+        {
+          "title": "HR 基础实务",
+          "platform": "B站"
+        },
+        {
+          "title": "员工关系管理",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "compensation",
+      "name": "薪酬绩效",
+      "category": "人力",
+      "aliases": [
+        "薪酬",
+        "绩效",
+        "五险一金",
+        "算薪"
+      ],
+      "estHours": 30,
+      "resources": [
+        {
+          "title": "薪酬核算实务",
+          "platform": "B站"
+        },
+        {
+          "title": "绩效管理方法",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "training-dev",
+      "name": "培训与人才发展",
+      "category": "人力",
+      "aliases": [
+        "培训",
+        "人才发展",
+        "内训",
+        "讲师"
+      ],
+      "estHours": 25,
+      "resources": [
+        {
+          "title": "企业培训设计",
+          "platform": "B站"
+        },
+        {
+          "title": "新员工培训方案",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "admin-ops",
+      "name": "行政事务管理",
+      "category": "人力",
+      "aliases": [
+        "行政",
+        "后勤",
+        "资产管理",
+        "办公事务"
+      ],
+      "estHours": 20,
+      "resources": [
+        {
+          "title": "行政实务入门",
+          "platform": "B站"
+        },
+        {
+          "title": "企业行政工作手册",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "customer-service",
+      "name": "客服与用户支持",
+      "category": "人力",
+      "aliases": [
+        "客服",
+        "售后",
+        "客诉",
+        "工单"
+      ],
+      "estHours": 20,
+      "resources": [
+        {
+          "title": "客服话术与技巧",
+          "platform": "B站"
+        },
+        {
+          "title": "客诉处理流程",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "accounting",
+      "name": "会计核算",
+      "category": "财务",
+      "aliases": [
+        "会计",
+        "做账",
+        "凭证",
+        "总账"
+      ],
+      "estHours": 50,
+      "resources": [
+        {
+          "title": "基础会计学",
+          "platform": "B站"
+        },
+        {
+          "title": "企业做账实操",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.4,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "tax-practice",
+      "name": "税务实务",
+      "category": "财务",
+      "aliases": [
+        "税务",
+        "报税",
+        "发票",
+        "个税"
+      ],
+      "estHours": 35,
+      "resources": [
+        {
+          "title": "纳税申报实操",
+          "platform": "B站"
+        },
+        {
+          "title": "税法基础",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "financial-reporting",
+      "name": "财务报表",
+      "category": "财务",
+      "aliases": [
+        "报表",
+        "三表",
+        "财报",
+        "合并报表"
+      ],
+      "estHours": 40,
+      "resources": [
+        {
+          "title": "财务报表分析",
+          "platform": "B站"
+        },
+        {
+          "title": "三张报表的勾稽关系",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "financial-analysis",
+      "name": "财务分析",
+      "category": "财务",
+      "aliases": [
+        "财务分析",
+        "经营分析",
+        "毛利",
+        "预算"
+      ],
+      "estHours": 35,
+      "resources": [
+        {
+          "title": "财务分析入门",
+          "platform": "B站"
+        },
+        {
+          "title": "经营分析实战",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "audit-basics",
+      "name": "审计基础",
+      "category": "财务",
+      "aliases": [
+        "审计",
+        "内审",
+        "底稿",
+        "审计程序"
+      ],
+      "estHours": 35,
+      "resources": [
+        {
+          "title": "审计学基础",
+          "platform": "B站"
+        },
+        {
+          "title": "审计底稿怎么做",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "contract-law",
+      "name": "合同与法律基础",
+      "category": "财务",
+      "aliases": [
+        "合同",
+        "法务",
+        "劳动法",
+        "合同法"
+      ],
+      "estHours": 35,
+      "resources": [
+        {
+          "title": "合同审查实务",
+          "platform": "B站"
+        },
+        {
+          "title": "劳动法基础",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "compliance-risk",
+      "name": "合规与风险管理",
+      "category": "财务",
+      "aliases": [
+        "合规",
+        "风险管理",
+        "反洗钱",
+        "内控"
+      ],
+      "estHours": 30,
+      "resources": [
+        {
+          "title": "企业合规基础",
+          "platform": "B站"
+        },
+        {
+          "title": "内控与风险管理",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "procurement",
+      "name": "采购管理",
+      "category": "供应链",
+      "aliases": [
+        "采购",
+        "询价",
+        "比价",
+        "下单"
+      ],
+      "estHours": 30,
+      "resources": [
+        {
+          "title": "采购流程入门",
+          "platform": "B站"
+        },
+        {
+          "title": "采购谈判与比价",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "supplier-mgmt",
+      "name": "供应商管理",
+      "category": "供应链",
+      "aliases": [
+        "供应商",
+        "准入",
+        "供应商考核",
+        "供应商开发"
+      ],
+      "estHours": 25,
+      "resources": [
+        {
+          "title": "供应商管理实务",
+          "platform": "B站"
+        },
+        {
+          "title": "供应商准入与评估",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.6,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "supply-planning",
+      "name": "供应链计划",
+      "category": "供应链",
+      "aliases": [
+        "计划",
+        "备货",
+        "需求预测",
+        "PMC"
+      ],
+      "estHours": 30,
+      "resources": [
+        {
+          "title": "供应链计划入门",
+          "platform": "B站"
+        },
+        {
+          "title": "需求预测方法",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "logistics-ops",
+      "name": "物流运营",
+      "category": "供应链",
+      "aliases": [
+        "物流",
+        "运输",
+        "配送",
+        "调度"
+      ],
+      "estHours": 25,
+      "resources": [
+        {
+          "title": "物流管理基础",
+          "platform": "B站"
+        },
+        {
+          "title": "运输与配送管理",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
+    },
+    {
+      "id": "warehouse-ops",
+      "name": "仓储管理",
+      "category": "供应链",
+      "aliases": [
+        "仓储",
+        "库存",
+        "盘点",
+        "库位"
+      ],
+      "estHours": 25,
+      "resources": [
+        {
+          "title": "仓储管理实务",
+          "platform": "B站"
+        },
+        {
+          "title": "库存盘点方法",
+          "platform": "知乎"
+        }
+      ],
+      "marketFrequency": 0.5,
+      "source_date": "2026-03",
+      "updated_at": "2026-09-27",
+      "verified_at": "2026-09-20",
+      "sample_size": 0,
+      "confidence": "low"
     }
   ]
 }

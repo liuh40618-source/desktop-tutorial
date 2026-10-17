@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "note": "开场第 3 步「技能基础」勾选项 → 库内 skillId 映射。skillIds 必须全部存在于 skills.json。Q3：media-edit 借用 visual-design + motion-design，不新增技能（计入现有 134 个技能）。"
+  },
+  "items": [
+    { "id": "excel", "label": "Excel / 表格处理", "skillIds": ["excel"] },
+    { "id": "sql", "label": "SQL / 数据库查询", "skillIds": ["sql"] },
+    { "id": "programming", "label": "Python 或其他编程语言", "skillIds": ["python", "java", "golang", "js", "ts", "cpp"] },
+    { "id": "dataviz", "label": "数据可视化", "skillIds": ["data-viz", "bi-tools"] },
+    { "id": "stats", "label": "统计与概率", "skillIds": ["stats"] },
+    { "id": "writing", "label": "文案写作", "skillIds": ["doc-writing", "content-plan"] },
+    { "id": "media-edit", "label": "图片视频编辑", "skillIds": ["visual-design", "motion-design"] },
+    { "id": "prototype", "label": "原型设计工具", "skillIds": ["prototype"] },
+    { "id": "english", "label": "英语读写", "skillIds": ["tech-english"] }
+  ]
+}
