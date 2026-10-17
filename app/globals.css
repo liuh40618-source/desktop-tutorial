@@ -1,15 +1,16 @@
 @import "tailwindcss";
+@import "./trial.css";
 
-/* ===== 夸克高考风：浅色 · 圆角 · 柔和 · 友好 ===== */
+/* Shared tokens for the trial flow and existing auxiliary pages. */
 :root {
-  --background: #f5f6f8;
+  --background: #f7f8fa;
   --foreground: #1c1f24;
   --muted: #6f7684;
   --border: #e3e6ee;
   --card: #ffffff;
-  --accent: #2f6bff;
-  --accent-strong: #1f57e6;
-  --accent-soft: #eaf1ff;
+  --accent: #157963;
+  --accent-strong: #12634f;
+  --accent-soft: #e9f4ee;
 }
 
 @theme inline {
@@ -19,8 +20,9 @@
   --color-border: var(--border);
   --color-card: var(--card);
   --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
   --color-accent-soft: var(--accent-soft);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: "Segoe UI", "Microsoft YaHei", sans-serif;
 }
 
 body {
@@ -51,6 +53,7 @@ body {
 }
 
 * {
+  letter-spacing: 0 !important;
   box-sizing: border-box;
 }
 
@@ -62,7 +65,7 @@ body {
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 1.25rem;
+  border-radius: 8px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -70,7 +73,7 @@ body {
   width: 100%;
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 0.9rem;
+  border-radius: 6px;
   padding: 0.75rem 0.9rem;
   font-size: 0.9375rem;
   line-height: 1.55;
@@ -104,7 +107,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  border-radius: 0.9rem;
+  border-radius: 6px;
   padding: 0.8rem 1.1rem;
   font-size: 0.9375rem;
   font-weight: 500;
@@ -125,9 +128,9 @@ body {
   cursor: not-allowed;
 }
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), #5b8cff);
+  background: var(--accent);
   color: #fff;
-  box-shadow: 0 8px 20px rgba(47, 107, 255, 0.26);
+  box-shadow: none;
 }
 .btn-primary:hover:not(:disabled) {
   opacity: 0.94;
@@ -264,7 +267,7 @@ body {
 .track > i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), #5b8cff);
+  background: var(--accent);
   border-radius: 999px;
   transition: width 0.45s cubic-bezier(0.23, 1, 0.32, 1);
 }
