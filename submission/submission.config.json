@@ -1,0 +1,54 @@
+{
+  "_note": "提交包的唯一配置源。scripts/submit/build-submission.mjs 读取本文件生成可直接发送的 zip。",
+  "_guide": "docs/SUBMISSION-GUIDE.md",
+  "_deadline": "2026-10-23T24:00:00+08:00",
+  "_warning": "带空字符串的字段必须填写真实信息，否则打包会以非零退出码失败。",
+  "project": {
+    "name": "职途",
+    "industry": "教育",
+    "captain": {
+      "name": "队长",
+      "phone": "[请填写联系电话]",
+      "email": "[请填写邮箱]"
+    },
+    "members": [],
+    "advisor": ""
+  },
+  "aiCoding": {
+    "_requirement": "参赛通知要求：提交时须注明所使用的 AI 工具名称及其具体用途。",
+    "tools": [
+      {
+        "name": "TRAE",
+        "usage": "梳理产品需求边界与信息架构，起草四层架构方案（知识库 / 算法 / API / UI）并对比取舍"
+      },
+      {
+        "name": "WorkBuddy",
+        "usage": "实现三章节主流程与前端组件、编写数据校验器与自动化验收脚本、整理项目文档与参赛材料"
+      },
+      {
+        "name": "Codex (OpenAI)",
+        "usage": "辅助代码审查与边界问题定位（简历编码兜底、数据一致性、版本兼容），并协助重构主组件"
+      }
+    ]
+  },
+  "materials": {
+    "_requirement": "通知要求：产品说明书或商业计划书（二选一）+ 产品 Demo，两项均须提交，材料不完整视为弃赛。",
+    "docType": "产品说明书",
+    "demoType": "网站",
+    "demoUrl": "https://fff90d15a0ce43c182996d5aa54fb7e5.sg2.agentos-app.run",
+    "_demoNote": "Demo 为公网可访问的在线产品（网站形式）。访问入口见 demoUrl；包内另附《产品 Demo 访问说明》列明入口、首次打开耗时与推荐体验路径。"
+  },
+  "packaging": {
+    "_separatorNote": "通知原文为「项目名称 + 队长姓名.zip」。若主办方核对时不认字面加号，把 separator 改为 \"\" 即可生成「项目名称队长姓名.zip」。",
+    "separator": "+",
+    "maxTotalBytes": 26214400,
+    "includeInfoSheet": true,
+    "includeEntryHtml": true,
+    "includeSource": true,
+    "_entryHtmlNote": "包根目录生成「00-请先打开我.html」，内嵌 Demo 链接与体验路径，评审双击即可进入产品。",
+    "_sourceNote": "把产品源码以「源码/」子目录同包提交，作为 Demo 的离线凭证，并支撑 AI Coding 工具使用声明。"
+  },
+  "delivery": {
+    "to": "marketing@newtouch.com"
+  }
+}

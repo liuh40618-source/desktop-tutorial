@@ -1,111 +1,288 @@
 # 职途 · career-navigator
 
-把你的技能，和岗位要求对齐。
+从做过的事，到值得试的路。
+
+> **第二届“新致杯”人工智能创新大赛参赛原型**。按参赛通知，预选赛作品提交截止为 10 月 23 日 24:00。
+> 面向教育领域的大学生职业探索场景。参赛提交中心：[`/submit`](app/submit/page.tsx)（`/competition` 307 跳转至此）；
+> 提交指引见 [`docs/SUBMISSION-GUIDE.md`](docs/SUBMISSION-GUIDE.md)；当前版本、边界与演示脚本见 [`docs/COMPETITION-ITERATION.md`](docs/COMPETITION-ITERATION.md)。
+
+## 当前体验：职业试选
+
+学生在这里首先要解决的是方向不清，而不是管理求职指标。可以从经历开始、不填经历先做一项 15 分钟左右的职业试驾任务，也可以从已有岗位或 JD 入手；之后再核对能力、比较方向、补作品证据并决定是否做长期计划。
+
+**入口：`http://localhost:4000`**（根路径 307 跳转到 `/plan`）。主流程实际挂在 `/plan`。
+
+示例体验不会自动覆盖个人草稿，退出示例后恢复个人经历。无账号模式会用 HttpOnly 访客会话隔离不同浏览器的数据；访客记录不会跨设备同步。
+
+## 页面路由
+
+| 路由 | 内容 |
+| --- | --- |
+| `/` | 307 重定向到 `/plan` |
+| `/plan` | 主流程：三章节职业试选（看见经历 / 比较选择 / 动手验证），含无经历门槛的职业试驾任务；内置岗位和确认后的真实 JD 均可生成差距与行动计划 |
+| `/submit` | 参赛提交中心：提交入口、所需字段与格式、材料清单与要求、关键约束、提交后确认方式 |
+| `/competition` | 307 重定向到 `/submit`（历史文档沿用此路径） |
+| `/market` | 知识库观察：基于本地模板的 5 张图表 |
+| `/admin` | 岗位 / 技能数据后台（CRUD，写 SQLite） |
+| `/admin/login` | 后台登录页；生产环境需配置 `ADMIN_TOKEN` 才会开放后台 |
+
+## 界面预览
+
+截图尚未纳入版本库（`demo/` 目录当前不存在）。本地复现方式：
+
+```bash
+npm install && npm run dev      # 打开 http://localhost:4000/plan
+```
+
+或直接运行自动化验收脚本，它会驱动真实浏览器走完整流程并输出结果：
+
+```bash
+node scripts/demo/verify-e2e.mjs           # 端到端：入口 → 开场定位 → 经历 → 岗位库 → 提交页 → 容错
+node scripts/demo/verify-resilience.mjs    # 草稿恢复、示例隔离与保存/删除异常
+node scripts/demo/verify-job-library.mjs   # 岗位库搜索、筛选、排序与分页
+```
+
+> `scripts/demo/verify-workspace.mjs` 是**旧版单步向导**时代的回归脚本，其选择器早于当前的三章节 + 开场定位流程，当前版本下会超时失败，**不作为本版本的验收依据**。端到端验收以 `npm test` 与上述三个脚本为准。
+
+## 一句话竞赛叙事
+
+> **“从我说我会，到我能展示：把职业目标拆成可解释、可执行、可验收的成长行动。”**
+
+- **围绕证据与行动**：区分自述技能、项目支撑和待补材料，不把关键词出现等同于能力被核验
+- **结构与数据由本地知识库保证**——579 岗 × 17 方向 × 134 技能，权重与门槛人工可复核
+- **算法全部可解释**——匹配分 = 覆盖率 75% + 加分项 15% + 方向契合 10%，每分都有 `reasons` 字符串
+- **当前没有大模型调用**：匹配与识别基于本地规则；主流程不依赖外部图片，学习资源链接跳转外部平台
+- **不只是"匹配"**——能从一份真实 JD 算差距、能导出可读规划，能用 SQL 管理后台维护数据
 
 不是一个"问 AI 我适合干什么"的聊天框。它内置了一份**可解释的岗位 × 技能知识库**，
 用你的技能画像逐条比对，算出覆盖率、缺口、补齐周期和学习顺序。每个数字都能拆开看。
 
 ## 核心思路
 
-LLM 擅长生成，但生成职业规划时会编造 JD、编造薪资、编造课程链接，而且过程是黑盒。
-这个项目反着来：**结构与数据由本地知识库保证，算法全部可解释，不依赖任何大模型**。
+职业建议需要可追溯的数据与明确边界。当前版本以**本地岗位模板、公开计算公式和用户确认**构成规则基线；模板与权重仍需通过真实 JD 和用户测试持续校准。
 
-当前 TypeScript 版本**全程零 LLM、零外部 API**——`lib/db.ts` 里没有一个网络请求，
-`app/` 与 `lib/` 下也不存在任何调模型的代码。所有数字都由可复核的公式算出。
+真实 JD 经过本地文本清洗和规则技能识别，返回命中别名证据并由用户确认后保存。ASCII 技能别名按词边界匹配，避免 Java 命中 JavaScript、SQL 命中 NoSQL；否定、学习中和经验有限等邻近表述会提示人工核对。该提示基于规则启发式，不能替代上下文判断。当前不调用模型；未来若接入语义识别，需独立评测并提供关闭、降级与数据发送提示。
 
-> 岗位与技能条目**持续扩充**中，以 `data/*.json` 与 `/api/knowledge` 实时返回为准；
-> 数量不在文档里写死。当前数据已是手工维护模式（133 岗 / 13 方向 / 109 技能，`_meta.version` 3.0），
-> 扩编流程：编辑 `data/*.json` → 跑 `node scripts/validate-data.mjs` 回归 → 版本号升档，
+> 数据规模：579 岗 / 17 方向 / 134 技能（`_meta.version` 3.7）。
+> 扩编流程：编辑 `data/*.json` → 跑 `node scripts/data/validate-data.mjs` 回归 → 版本号升档，
 > 详见 `data/*.json` 的 `_meta.note`。
 
-## 五步流程
+## 三个章节
 
-| 步骤 | 做什么 |
+| 章节 | 做什么 |
 | --- | --- |
-| 01 我的画像 | 填背景 + 勾选技能（可**上传简历** PDF/DOCX/TXT/MD 自动识别，或从文字自动预识别——两者都**只预勾选、不静默判定**，用户可逐条改）+ 选方向 + 设每周投入时长 |
-| 02 方向定位 | 按各方向聚合平均覆盖率，看自己离哪个领域最近 |
-| 03 岗位匹配 | 候选岗位按匹配分排序，附覆盖率、缺口时长、补齐周期、薪资参考，以及**逐条计算依据** |
-| 04 技能差距 | 目标岗位的必备技能清单 + 相近岗位横向对比矩阵 |
-| 05 学习路径 | 按「权重 ÷ 耗时」排序，配平台搜索链接，可打卡；打卡后缺口与覆盖率实时重算 |
+| 01 看见经历 | 直接写一段做过的事，核对关键词与候选能力，自评证据等级；详细资料内可导入简历、补技能、选意向与每周时间 |
+| 02 比较选择 | 从有技能交集的模板中选不同方向：沿用已有能力、回应其他意向（若存在）、换个方向看看；解释理由与缺口，再检查目标岗位证据 |
+| 03 动手验证 | 先呈现一项含交付物与验收标准的行动；完成后记录作品位置、个人贡献与体验反馈，再决定继续或比较其他方向；复盘可保存、回看与导出 Markdown |
+
+方向候选至多三项，不为凑数重复方向。候选仍来自现有规则排序，不代表兴趣测评；当前行动仍为技能练习，不是经行业验证的职业模拟。全部岗位、真实 JD 对照与方向聚合在「岗位库」。
+
+职业试驾是并列的轻入口：当前提供数据分析、前端交互和产品分析 3 个样例任务。交付参考与自我感受只用于复盘，不构成能力测评；任务需经目标学生试做和相关从业者审阅后再扩大范围。
+
+## 知识库观察
+
+路由 `/market` 展示本地模板分布，不代表实时招聘市场，
+把知识库沉淀的 579 岗 × 134 技能转成 5 张可追溯图表：
+
+| 板块 | 展示 | 数据来源 |
+| --- | --- | --- |
+| ① 岗位方向分布 | 17 个方向各收录多少岗位（水平条形图） | `jobs.track` |
+| ② 模板低频技能 | 按核心或加分项引用该技能的岗位占比展示低频技能，不推断市场稀缺性 | `jobs.core + plus` |
+| ③ 模板薪资分布 | 模板月薪区间中点的档位分布，不是实时薪酬统计 | `jobs.salary` |
+| ④ 核心技能引用 | 被更多模板列为核心要求的技能，字号仅代表库内引用数 | `jobs.core` |
+| ⑤ 方向 × 关键技能 | 各方向最看重的 Top 技能（按岗位权重求和） | `jobs.track + core` |
+
+> 全部**纯前端本地理算**（`components/MarketBoard.tsx`），复用同一 `/api/knowledge` 数据源，
+> 零 LLM、零外部图表库，SVG/CSS 实现——延续"可解释、零依赖"的产品理念。
 
 ## 算法（公开，可复核）
 
 ```
-覆盖率   = Σ(已掌握技能的权重) / Σ(岗位必备技能权重)
-匹配分   = 覆盖率 × 75% + 加分项覆盖率 × 15% + 方向契合 × 10%
+技能覆盖 = Σ(用户确认技能的权重) / Σ(岗位必备技能权重)
+证据覆盖 = Σ(用户确认且自评证据等级 >= 3 的技能权重) / Σ(岗位必备技能权重)
+匹配分   = 技能覆盖 × 75% + 加分项覆盖率 × 15% + 方向契合 × 10%
 方向契合 = 未勾选方向 → 1.0；勾选且命中 → 1.0；勾选但不命中 → 0.5
-补齐周期 = Σ(缺失技能预估时长) / 每周投入时长（默认 10 小时/周）
-学习顺序 = 按 权重 ÷ 预估耗时 降序（先补性价比高的）
+行动周期 = Σ(补技能与补作品行动估算时长) / 每周投入时长（默认 10 小时/周）
+行动顺序 = 核心权重降序，再按 权重 ÷ 估算耗时 降序
 ```
 
-技能权重：3 = 硬门槛（缺了基本过不了初筛）、2 = 重要、1 = 加分。
+技能权重：3 = 模板核心要求、2 = 重要、1 = 一般。模板权重不等同于某家企业的实际初筛规则。证据覆盖仅依据用户自评，不代表材料已被核验。
 
 每个岗位的结果都带一组 `reasons` 字符串，直接说明这个分是怎么来的——
-覆盖了几项、命中哪些硬门槛、缺哪几个关键项、加分项有没有、是不是因为方向没勾选被打了折。
+覆盖了几项、命中哪些核心要求、缺哪些关键项、加分项有没有、所选方向是否一致。未勾选方向不会扣方向分。
 
 预估时长为零基础到能独立完成基本工作的经验估算，**不是精确值**，仅用于排序与节奏参考。
 
-## 简历导入（本地解析，零模型）
+## 简历导入（应用服务端解析，零模型）
 
-第 01 步支持上传 PDF / DOCX / TXT / MD（≤5MB）。服务端 `app/api/parse-resume/` 只做
-「提取纯文本」这一件事（unpdf / mammoth，内存中完成、不落盘、不调用任何外部接口），
-前端再用 `data/skills.json` 里的别名做关键词识别并**预勾选**，用户逐条确认。
+「核对能力」的详细资料内支持上传 PDF / DOCX / TXT / MD（≤5MB）。文件会发送到当前应用服务端，
+由 `app/api/parse-resume/` 使用 unpdf / mammoth 提取纯文本；应用代码不写入数据库或持久文件，也不调用第三方模型。
+本机部署时文件留在本机进程处理；远程部署时文件会到达部署服务器。前端再用 `data/skills.json` 里的别名做关键词识别并**预勾选**，用户逐条确认；否定、学习中和经验有限等邻近表达不会自动预勾选，并会在经历核对时提示人工判断。
 
 简历文本本身不参与打分、不进数据库——它只是帮你更快勾出技能，避免手动翻简历。
 
+## 评审友好型 · 为什么选这条路径
+
+| 评审常见追问 | 本项目应对 |
+| --- | --- |
+| 数字怎么来的？ | 岗位卡可展开技能覆盖、加分项、方向契合三项构成；证据覆盖单独显示，匹配分不是录用概率 |
+| 数据可靠吗？ | 579 岗 / 17 方向 / 134 技能是静态模板；结构校验不代表市场代表性，逐条来源与外部验证仍待补齐 |
+| 怎么验证？ | `npm run check`、生产构建、17 个测试文件，以及 `scripts/demo/verify-resilience.mjs` / `verify-job-library.mjs` 覆盖移动端与保存恢复 |
+| 模型在哪？ | 没有模型。`lib/db.ts` 与 `lib/matcher.ts` 不发起任何网络请求，UI 与算法全部基于本地知识库 |
+| 怎么扩展？ | 后台 CRUD（`app/admin/`）+ `data/*.json` JSON 数据；改完跑 `node scripts/data/validate-data.mjs` 回归 |
+
 ## 数据来源与边界
 
-- 岗位技能要求、门槛、薪资区间：整理自公开招聘平台的常见描述，城市量级参考新一线。
+- 岗位技能要求、门槛、薪资区间：本地参考模板，目前没有完整逐条可追溯的采样记录，不能当作真实市场统计。
   不同城市/公司/学历差异很大，**请以目标岗位的实际 JD 为准**。数据版本写在 `data/*.json` 的 `_meta.version`。
 - 学习资源：只写资源名与平台，链接由 `lib/links.ts` 按「平台 + 关键词」拼成平台搜索链接。
   不写死具体 URL——课程会下架、文档会改版，写死的链接必然腐烂。
-- 用户数据写在服务端 SQLite（`career.db`），**浏览器 localStorage 只作为接口异常时的兜底**。
-  当前是单用户本地场景（`user_profile` 固定一行 `key='local'`），没有账号体系、没有多端同步。
+- 草稿同时写入浏览器 localStorage 与服务端 SQLite（`career.db`）；本地缓存按访客会话分区，仅当前访客的缓存优先于服务端副本。已有有效会话的浏览器可一次性迁移旧缓存；新访客不会自动导入无分区的旧缓存。个人草稿、规划与 JD 按签名访客会话隔离；换浏览器或设备不会自动同步。
+- 在「我的记录」可清除当前访客的画像、职业试驾答案、规划、JD 与对应浏览器缓存；清除服务端数据需能连接当前应用服务。
 
 ## 运行
 
+当前阶段以本机可复现 Demo 为主。完整验收步骤见 [`docs/LOCAL_DEMO.md`](docs/LOCAL_DEMO.md)，快速上手指南见 [`docs/QUICKSTART.md`](docs/QUICKSTART.md)。
+
 ```bash
 npm install
-npm run dev          # http://localhost:4000
+npm run dev          # 打开 http://localhost:4000/plan
 ```
 
 **环境要求**：Node 22.5 以上（项目用 Node 内置的 `node:sqlite`，启动脚本带 `--experimental-sqlite`）。
 
 首次启动会读 `data/*.json` 种子化 `career.db`，之后所有读取走数据库。
 
-因为用了 `node:sqlite` 和服务端 API Route（`/api/knowledge`、`/api/plans`、`/api/profile`、`/api/parse-resume`、`/api/admin/...`），
-**当前版本不能纯静态部署**，需要一个 Node 运行时。
+**环境变量**：只有 `ADMIN_TOKEN`（后台口令），见 `.env.example`。本地开发可留空，此时后台不加锁；局域网或公网暴露必须设置长随机口令。
+
+**路由**：主流程 `/plan`，参赛说明 `/competition`，知识库观察 `/market`，数据后台 `/admin`。
+
+因为用了 `node:sqlite` 和服务端 API Route（`/api/knowledge`、`/api/session`、`/api/profile`、`/api/data`、`/api/plans`、`/api/jds`、
+`/api/jds/parse`、`/api/parse-resume`、`/api/admin/...`），**当前版本不能纯静态部署**，需要一个 Node 运行时。
+
+`deploy/` 下保留了 PM2（`ecosystem.config.cjs`）与 Nginx（`nginx-career.conf`）配置片段，
+但**尚未公开部署**。本轮已为草稿、规划和 JD 增加访客会话隔离；正式多人部署前仍需设置 `ADMIN_TOKEN`，并核对 HTTPS、单实例 SQLite 和服务端滥用防护。Nginx 模板为 JD 与简历解析接口配置了请求频率和请求体限制；只有流量确实经过该 Nginx 时这些限制才生效。
+
+## 参赛提交
+
+提交入口是**邮件附件**：全部文件打包为 zip 发至 `marketing@newtouch.com`，邮件主题与压缩包同名为
+「项目名称+队长姓名」。截止 **2026 年 10 月 23 日 24:00**，逾期视为自动弃赛。
+完整要求见 [`docs/SUBMISSION-GUIDE.md`](docs/SUBMISSION-GUIDE.md) 与在线页 [`/submit`](app/submit/page.tsx)。
+
+```bash
+# 1. 填写 submission/submission.config.json（队长姓名、电话、AI 工具用途为必填）
+# 2. 放入材料：submission/materials/doc-*.pdf 与 demo-*
+npm run submit:check     # 只校验，有阻断项时退出码为 1
+npm run submit:build     # 产出 dist/submission/<项目名称>+<队长姓名>.zip
+```
+
+校验存在阻断项时脚本**不产出 zip**，避免误发材料不完整的包。包内自动附一份《提交信息》，
+列明 AI Coding 工具名称及具体用途，直接满足通知的披露要求。
+
+通知**未规定**文件类型、附件大小上限、页数字数；脚本中的 25MB 为工程建议值，不是主办方约束。
+提交动作仍需本人从自有邮箱发出——本项目只负责把包打对、把材料查全，不代发邮件。
 
 ## 目录
 
 ```
 data/
-  skills.json     技能库：分类、别名（用于文本识别）、预估时长、学习资源（持续扩充）
-  jobs.json       岗位库 / 方向库：必备技能及权重、加分项、门槛、薪资区间、发展路径（持续扩充）
+  skills.json     技能库：分类、别名（用于文本识别）、预估时长、学习资源（134 项）
+  jobs.json       岗位库 / 方向库：必备技能及权重、加分项、门槛、薪资区间、发展路径（579 岗 / 17 方向）
 lib/
-  db.ts           SQLite 数据层：建表、种子化、知识库读取、用户画像与方案持久化
-  matcher.ts      匹配 / 差距 / 路径算法（纯函数，前端拿到知识库后本地计算）
-  links.ts        平台搜索链接拼接
-components/
-  ResumeImport.tsx  简历上传 → 解析 → 技能预勾选（第 01 步内嵌）
+  db.ts           SQLite 数据层：建表、迁移、种子化、知识库读取、画像与规划持久化
+  matcher.ts      匹配 / 差距 / 路径算法 + 方向候选选择（纯函数，前端拿到知识库后本地计算）
+  jd.ts           真实 JD 文本清洗与规则技能识别（别名边界匹配，零模型）
+  compilePlan.ts  规划记录 → Markdown 导出
+  links.ts        平台搜索链接拼接（避免写死 URL 腐烂）
+  session.ts      HttpOnly 签名访客会话
+  trial-tasks.ts  不依赖经历或模型的入门工作样本
+  types.ts        前后端共享类型 + 示例画像 DEMO_PROFILE
+components/                 15 个当前使用的组件文件
+  OpeningGate.tsx      开场定位：经历类型选择与入口分流
+  ExperienceInput.tsx  01 看见经历 · 经历输入与原话线索
+  SkillTranslation.tsx 02 核对能力与自评证据（内嵌 ProfileForm：背景 / 技能 / 方向 / 每周时间）
+  CareerChoices.tsx    03 比较选择 · 不同方向候选、选择依据与技能组成
+  Orientation.tsx      方向契合度分档展示（与开场定位共用同一套阈值）
+  DomainBrief.tsx      方向说明书：一句话定位、子方向与入门周期
+  GapView.tsx          04 查差距 · 证据缺口 + 相近岗位横向对比
+  PathView.tsx         05 动手验证 · 当前交付物、验收标准、行动清单
+  JobList.tsx          岗位库视图 · 匹配排序 + 真实 JD 修订、保存与目标计划（30KB）
+  MarketBoard.tsx      知识库观察 · 5 张图表（纯 SVG/CSS，零图表库）
+  Records.tsx          我的记录 · 列表 / 详情 / 重命名 / 导出
+  TrialLab.tsx         职业试驾 · 独立短任务、提交复盘、参考思路与档案导出
+  PlanMd.tsx           轻量 markdown 渲染（仅覆盖导出所用语法，被 Records 引用）
+  ProfileForm.tsx      背景与技能表单（被 SkillTranslation 引用，内嵌 ResumeImport）
+  ResumeImport.tsx     简历上传 → 解析 → 技能预勾选
 app/
-  page.tsx        五步主流程
+  page.tsx        根路径：307 重定向到 /plan
+  plan/page.tsx   主组件（约 809 行）：三章节状态管理 + 持久化 + 视图切换
+  submit/page.tsx 参赛提交中心
+  competition/page.tsx 307 重定向到 /submit
+  market/page.tsx 知识库观察页
+  admin/          岗位 / 技能数据后台（CRUD）与登录页
+  layout.tsx      根布局
+  globals.css     全局样式
+  trial.css       试选界面样式
   api/knowledge/  返回整库知识库，纯数据、零外部调用
-  api/profile/    用户画像读写（SQLite，localStorage 兜底）
-  api/plans/      保存的方案列表增删改查
-  api/parse-resume/ 简历文本提取（unpdf / mammoth，本地，零模型）
-  api/admin/      岗位 / 技能数据后台（CRUD，写 SQLite）
-  admin/          配套管理界面
+  api/session/    初始化无账号访客会话
+  api/profile/    当前访客画像读写（SQLite，localStorage 兜底）
+  api/data/       当前访客全部数据清除（画像、规划和 JD）
+  api/plans/      当前访客已保存规划的增删改查
+  api/jds/        当前访客真实 JD 的读写（我的 JD）
+  api/jds/parse/  粘贴 JD → 清洗 + 规则技能识别，返回命中别名证据
+  api/parse-resume/ 简历文本提取（unpdf / mammoth，进程内完成，零模型）
+  api/admin/      岗位 / 技能数据后台 CRUD（含引用保护与 estHours 校验）
+proxy.ts          后台鉴权；生产环境未设置 ADMIN_TOKEN 时关闭管理入口并返回 503
+deploy/
+  ecosystem.config.cjs  PM2 配置片段（单实例）
+  nginx-career.conf     Nginx 反向代理片段
+tests/                    17 个测试文件（纯函数 / 契约 / API 冒烟 / QA 回归 / 提交包）
+  matcher.test.mjs        匹配 / 路径 / 方向候选纯函数测试
+  jd.test.mjs             JD 清洗与识别测试
+  jd-contract.test.mjs    JD 结果契约测试
+  api-smoke.test.mjs      API 冒烟测试（需先启动 dev server）
+  submit.test.mjs         提交包 ZIP 结构测试
+  qa-*.test.mjs           QA 回归与对抗性用例
 scripts/
-  validate-data.mjs 只读一致性校验器：id/track/引用/权重/薪资/estHours/平台白名单/meta 版本，
-                    改动 data 后必跑，零错误才算过
+  data/validate-data.mjs  只读一致性校验器：id/track/引用/权重/薪资/estHours/平台白名单/meta 版本，
+                          改动 data 后必跑，零错误才算过
+  demo/verify-e2e.mjs          端到端验收（入口 → 开场定位 → 经历 → 岗位库 → 提交页 → 容错）
+  demo/verify-resilience.mjs   草稿恢复、示例隔离与保存/删除异常验收
+  demo/verify-job-library.mjs  岗位库搜索、筛选、排序与分页验收（岗位总数从 data/jobs.json 读取，不硬编码）
+  demo/verify-workspace.mjs    旧版单步向导时代的回归脚本，选择器已与当前流程脱节，不作为验收依据
+  submit/build-submission.mjs  参赛提交包构建器：校验字段与材料完整性，产出可发送的 zip 与提交报告
+  submit/lib/zip.mjs           零依赖 ZIP 写入器（store + deflate，UTF-8 文件名）
+submission/       参赛提交工作区
+  submission.config.json  提交元数据：项目名、队长、成员、AI 工具及用途、材料选择
+  materials/              待提交材料；doc- 前缀 = 说明书/计划书，demo- 前缀 = Demo
+  templates/              产品说明书 / 商业计划书提纲模板
+.env.example      环境变量样例（ADMIN_TOKEN）
+docs/
+  QUICKSTART.md    快速上手（安装 / 启动 / 三章节操作 / 路由）
+  LOCAL_DEMO.md    本地 Demo 与验收说明
+  SUBMISSION-GUIDE.md       参赛提交指引：入口、字段、材料清单、关键约束、确认方式
+  COMPETITION-ITERATION.md  本轮参赛迭代说明与下一阶段验收
+  NEWTOUCH.md      参赛说明与评审 Q&A
+  AI_LOG.md        AI 编程开发日志
 ```
 
-## 已知边界
+> 说明：界面截图（`demo/` 目录）尚未纳入版本库，因此上文不引用图片路径。
+> 需要截图时先运行 `npm run dev` 自行截取，或运行 `scripts/demo/verify-resilience.mjs` /
+> `scripts/demo/verify-job-library.mjs` 获取流程验收结果。
 
-- 知识库是手工整理的，覆盖面有限，且会随时间过时——以 `data/*.json` 实际内容与
-  `/api/knowledge` 实时返回为准；扩编 = 改 `data/*.json` + `node scripts/validate-data.mjs` 回归 + 版本升档。
-- 覆盖率只看「你勾选的技能」与「岗位要求」的交集，不评估熟练程度，也不看项目经历
-  （简历导入也只是辅助勾选，不代表经历被计入评分）。
-- 单用户本地场景，没有账号、权限与多端同步。
-- 匹配分里的「方向契合」是粗粒度打折（命中 1.0 / 不命中 0.5），不是精细建模。
+## AI 编程开发
+
+本项目全程使用 AI 自动编程工具（TRAE / WorkBuddy / Codex）开发，核心设计过程与每次关键交互记录见 [`docs/AI_LOG.md`](docs/AI_LOG.md)。
+
+本轮参赛迭代另使用 Codex（OpenAI）与 WorkBuddy 审视需求并协助实现功能、说明页与相关文档。逐工具用途见 [`/competition`](app/competition/page.tsx)；提交前须由参赛者核对工具清单与历史记录。AI Coding 用于开发，不代表产品运行时调用生成式 AI。
+
+## 已知边界（坦诚写）
+
+- **数据规模有限**：579 岗 / 17 方向 / 134 技能为人工整理，会随行业演化而局部过时。
+  扩编 = 改 `data/*.json` + `node scripts/data/validate-data.mjs` 回归 + 版本升档。
+- **不核验项目质量**：技能覆盖看用户确认的技能；证据覆盖看自评等级，目前不检查作品附件或第三方证明。
+  简历导入只是辅助识别；勾选行动完成不自动提升技能或证据等级。
+- **无账号访客模式**：按浏览器会话隔离个人记录，不支持跨设备同步；数据库仍是单实例 SQLite。正式部署时需配置 `ADMIN_TOKEN` 并评估服务容量与滥用防护。
+- **方向契合是粗粒度打分**：命中 1.0 / 不命中 0.5，不是精细建模。
+- **没有 LLM、所以也不会有「AI 给出惊喜建议」**：你勾了什么就是什么；遇到库里没的技能，
+  会被存为"自定义记录"且不参与评分，避免假数据。

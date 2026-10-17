@@ -1,0 +1,231 @@
+
+> career-navigator@0.1.0 predev
+> echo â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• && echo   èŒé€” Â· å²—ä½æŠ€èƒ½åŒ¹é… && echo   é»˜è®¤ç«¯å£: 4000 && echo   æ•°æ®æº: SQLite (data/*.json) && echo â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T 
+  Ö°Í¾ ¡¤ ¸ÚÎ»¼¼ÄÜÆ¥Åä 
+  Ä¬ÈÏ¶Ë¿Ú: 4000 
+  Êý¾ÝÔ´: SQLite (data/*.json) 
+¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T
+
+> career-navigator@0.1.0 dev
+> node --experimental-sqlite ./node_modules/next/dist/bin/next dev -p 4000 -p 4000
+
+â–² Next.js 16.3.1 (Turbopack)
+- Local:         http://localhost:4000
+- Network:       http://192.168.137.1:4000
+âœ“ Ready in 1961ms
+âœ“ Running next.config.ts took 75ms
+
+(node:31768) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ GET /api/knowledge 200 in 292ms (next.js: 247ms, application-code: 45ms)
+ GET /market 200 in 211ms (next.js: 73ms, application-code: 138ms)
+ GET / 200 in 52ms (next.js: 18ms, application-code: 34ms)
+ GET /api/knowledge 200 in 16ms (next.js: 5ms, application-code: 11ms)
+ GET /api/knowledge 200 in 18ms (next.js: 8ms, application-code: 10ms)
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <RootLayout>
+                        <html
+                          lang="zh-CN"
+                          className="geist_a71539c9-module__T19VSG__variable geist_mono_8d43a2aa-module__8Li5zG__variable"
+-                         data-trae-theme="light"
+                        >
+                  ...
+ 
+ GET /api/profile?id=local 200 in 41ms (next.js: 36ms, application-code: 6ms)
+ GET /api/jds 200 in 83ms (next.js: 78ms, application-code: 5ms)
+ POST /api/profile 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /market 200 in 56ms (next.js: 6ms, application-code: 49ms)
+ GET /api/knowledge 200 in 17ms (next.js: 4ms, application-code: 13ms)
+ GET /api/knowledge 200 in 14ms (next.js: 4ms, application-code: 10ms)
+ GET /market 200 in 77ms (next.js: 8ms, application-code: 69ms)
+ GET / 200 in 35ms (next.js: 6ms, application-code: 29ms)
+ GET / 200 in 29ms (next.js: 4ms, application-code: 25ms)
+ GET /market 200 in 29ms (next.js: 15ms, application-code: 14ms)
+âœ“ Compiled in 49ms
+ GET / 200 in 37ms (next.js: 8ms, application-code: 28ms)
+ GET /market 200 in 37ms (next.js: 20ms, application-code: 17ms)
+ GET / 200 in 34ms (next.js: 5ms, application-code: 29ms)
+ GET /market 200 in 35ms (next.js: 17ms, application-code: 19ms)
+ GET / 200 in 32ms (next.js: 4ms, application-code: 28ms)
+ GET /market 200 in 32ms (next.js: 16ms, application-code: 15ms)
+ POST /api/profile 200 in 8ms (next.js: 1.9ms, application-code: 6ms)
+ POST /api/profile 200 in 8ms (next.js: 1.7ms, application-code: 6ms)
+ POST /api/profile 200 in 7ms (next.js: 2ms, application-code: 5ms)
+ POST /api/profile 200 in 6ms (next.js: 1.9ms, application-code: 4ms)
+ POST /api/plans 200 in 238ms (next.js: 230ms, application-code: 8ms)
+ POST /api/profile 200 in 6ms (next.js: 1.8ms, application-code: 4ms)
+ POST /api/profile 200 in 6ms (next.js: 1.7ms, application-code: 4ms)
+ POST /api/profile 200 in 5ms (next.js: 1.6ms, application-code: 4ms)
+ POST /api/profile 200 in 5ms (next.js: 1.6ms, application-code: 4ms)
+ GET / 200 in 29ms (next.js: 3ms, application-code: 25ms)
+ GET /api/knowledge 200 in 11ms (next.js: 4ms, application-code: 7ms)
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <RootLayout>
+                        <html
+                          lang="zh-CN"
+                          className="geist_a71539c9-module__T19VSG__variable geist_mono_8d43a2aa-module__8Li5zG__variable"
+-                         data-trae-theme="light"
+                        >
+                  ...
+ 
+    at console.<computed> [as error] (https://lf3-static.bytednsdoc.com/obj/eden-cn/lkpkbvsj/ljhwZthlaukjlkulzlp/previewer-tools/previewer-tools.20260827.umd.js:43:22367) (https://lf3-static.bytednsdoc.com/obj/eden-cn/lkpkbvsj/ljhwZthlaukjlkulzlp/previewer-tools/previewer-tools.20260827.umd.js:43:22367)
+ GET /api/knowledge 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/profile?id=local 200 in 6ms (next.js: 2ms, application-code: 4ms)
+ GET /api/jds 200 in 15ms (next.js: 10ms, application-code: 5ms)
+ POST /api/profile 200 in 6ms (next.js: 2ms, application-code: 4ms)
+ GET / 200 in 43ms (next.js: 4ms, application-code: 39ms)
+ GET /api/knowledge 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/knowledge 200 in 13ms (next.js: 3ms, application-code: 9ms)
+ GET /api/profile?id=local 200 in 9ms (next.js: 4ms, application-code: 6ms)
+ GET /api/jds 200 in 18ms (next.js: 13ms, application-code: 5ms)
+ POST /api/profile 200 in 6ms (next.js: 2ms, application-code: 4ms)
+ POST /api/profile 200 in 7ms (next.js: 1.8ms, application-code: 5ms)
+ POST /api/profile 200 in 8ms (next.js: 1.9ms, application-code: 6ms)
+ POST /api/profile 200 in 8ms (next.js: 3ms, application-code: 5ms)
+ POST /api/profile 200 in 12ms (next.js: 4ms, application-code: 8ms)
+ POST /api/profile 200 in 6ms (next.js: 1.7ms, application-code: 4ms)
+ POST /api/profile 200 in 6ms (next.js: 1.8ms, application-code: 5ms)
+ GET / 200 in 43ms (next.js: 3ms, application-code: 39ms)
+ GET /api/knowledge 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/knowledge 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/profile?id=local 200 in 8ms (next.js: 3ms, application-code: 5ms)
+ GET /api/jds 200 in 14ms (next.js: 9ms, application-code: 5ms)
+ POST /api/profile 200 in 6ms (next.js: 1.7ms, application-code: 4ms)
+ POST /api/profile 200 in 10ms (next.js: 1.9ms, application-code: 8ms)
+ POST /api/profile 200 in 7ms (next.js: 2ms, application-code: 5ms)
+ GET / 200 in 39ms (next.js: 4ms, application-code: 35ms)
+ GET /api/knowledge 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/knowledge 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/profile?id=local 200 in 13ms (next.js: 4ms, application-code: 9ms)
+ GET /api/jds 200 in 22ms (next.js: 16ms, application-code: 7ms)
+ GET /market 200 in 25ms (next.js: 5ms, application-code: 20ms)
+ GET /api/knowledge 200 in 14ms (next.js: 5ms, application-code: 9ms)
+ GET /api/knowledge 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET / 200 in 20ms (next.js: 4ms, application-code: 17ms)
+ GET /api/knowledge 200 in 12ms (next.js: 3ms, application-code: 10ms)
+ GET /api/knowledge 200 in 11ms (next.js: 2ms, application-code: 9ms)
+ GET /api/profile?id=local 200 in 10ms (next.js: 3ms, application-code: 6ms)
+ GET /api/jds 200 in 15ms (next.js: 11ms, application-code: 4ms)
+âœ“ Compiled in 82ms
+ GET /api/knowledge 200 in 50ms (next.js: 40ms, application-code: 10ms)
+ GET /api/knowledge 200 in 72ms (next.js: 51ms, application-code: 21ms)
+ GET /api/knowledge 200 in 17ms (next.js: 4ms, application-code: 13ms)
+ GET /api/knowledge 200 in 32ms (next.js: 19ms, application-code: 13ms)
+ GET / 200 in 191ms (next.js: 20ms, application-code: 171ms)
+ GET / 200 in 191ms (next.js: 43ms, application-code: 148ms)
+ GET /api/profile?id=local 200 in 13ms (next.js: 6ms, application-code: 7ms)
+ GET /api/jds 200 in 24ms (next.js: 16ms, application-code: 8ms)
+ GET /market 200 in 159ms (next.js: 13ms, application-code: 145ms)
+ GET /api/profile?id=local 200 in 11ms (next.js: 5ms, application-code: 6ms)
+ GET /api/jds 200 in 20ms (next.js: 13ms, application-code: 7ms)
+âœ“ Compiled in 80ms
+ GET / 200 in 93ms (next.js: 18ms, application-code: 74ms)
+ GET / 200 in 92ms (next.js: 38ms, application-code: 55ms)
+ GET /market 200 in 33ms (next.js: 6ms, application-code: 27ms)
+âœ“ Compiled in 84ms
+ GET / 200 in 63ms (next.js: 16ms, application-code: 47ms)
+ GET / 200 in 62ms (next.js: 38ms, application-code: 24ms)
+âœ“ Compiled in 83ms
+ GET / 200 in 60ms (next.js: 12ms, application-code: 48ms)
+ GET / 200 in 60ms (next.js: 31ms, application-code: 29ms)
+âœ“ Compiled in 75ms
+ GET / 200 in 65ms (next.js: 13ms, application-code: 53ms)
+ GET / 200 in 67ms (next.js: 40ms, application-code: 27ms)
+âœ“ Compiled in 81ms
+ GET / 200 in 75ms (next.js: 15ms, application-code: 60ms)
+ GET / 200 in 76ms (next.js: 39ms, application-code: 37ms)
+âœ“ Compiled in 71ms
+ GET / 200 in 61ms (next.js: 13ms, application-code: 49ms)
+ GET / 200 in 62ms (next.js: 34ms, application-code: 28ms)
+ GET / 200 in 64ms (next.js: 15ms, application-code: 49ms)
+ GET / 200 in 64ms (next.js: 37ms, application-code: 27ms)
+âœ“ Compiled in 73ms
+ GET / 200 in 60ms (next.js: 12ms, application-code: 48ms)
+ GET / 200 in 60ms (next.js: 35ms, application-code: 25ms)
+ POST /api/jds/parse 200 in 359ms (next.js: 339ms, application-code: 20ms)
+ POST /api/jds/parse 400 in 8ms (next.js: 3ms, application-code: 5ms)
+ POST /api/jds 200 in 14ms (next.js: 3ms, application-code: 10ms)
+ GET /api/jds 200 in 9ms (next.js: 3ms, application-code: 6ms)
+ DELETE /api/jds?id=api-test-jd 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ DELETE /api/jds?id=api-test-jd 404 in 8ms (next.js: 3ms, application-code: 5ms)
+ GET / 200 in 56ms (next.js: 4ms, application-code: 52ms)
+ GET /api/knowledge 200 in 12ms (next.js: 4ms, application-code: 8ms)
+ GET /api/knowledge 200 in 10ms (next.js: 2ms, application-code: 8ms)
+ GET /api/profile?id=local 200 in 8ms (next.js: 3ms, application-code: 5ms)
+ GET /api/jds 200 in 15ms (next.js: 10ms, application-code: 6ms)
+ POST /api/jds/parse 200 in 18ms (next.js: 3ms, application-code: 15ms)
+ POST /api/jds/parse 400 in 7ms (next.js: 3ms, application-code: 5ms)
+ POST /api/jds 400 in 13ms (next.js: 4ms, application-code: 9ms)
+ POST /api/jds 200 in 12ms (next.js: 2ms, application-code: 9ms)
+ DELETE /api/jds?id=api-smoke-1788965371243 200 in 10ms (next.js: 4ms, application-code: 6ms)
+ DELETE /api/jds?id=api-smoke-1788965371243 404 in 8ms (next.js: 3ms, application-code: 5ms)
+ GET / 200 in 49ms (next.js: 14ms, application-code: 35ms)
+ GET /api/knowledge 200 in 19ms (next.js: 5ms, application-code: 14ms)
+ GET /api/knowledge 200 in 13ms (next.js: 5ms, application-code: 9ms)
+ GET /api/jds 200 in 7ms (next.js: 2ms, application-code: 5ms)
+ GET /api/profile?id=local 200 in 16ms (next.js: 10ms, application-code: 6ms)
+ POST /api/jds/parse 200 in 14ms (next.js: 3ms, application-code: 11ms)
+ POST /api/jds 200 in 12ms (next.js: 4ms, application-code: 8ms)
+ POST /api/profile 200 in 10ms (next.js: 1.8ms, application-code: 8ms)
+ GET /market 200 in 73ms (next.js: 29ms, application-code: 44ms)
+ GET /api/knowledge 200 in 23ms (next.js: 9ms, application-code: 14ms)
+ GET /api/knowledge 200 in 7ms (next.js: 1.5ms, application-code: 5ms)
+ GET / 200 in 52ms (next.js: 21ms, application-code: 31ms)
+ GET /api/knowledge 200 in 15ms (next.js: 4ms, application-code: 11ms)
+ GET /api/knowledge 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/profile?id=local 200 in 33ms (next.js: 13ms, application-code: 20ms)
+ GET /api/jds 200 in 65ms (next.js: 45ms, application-code: 20ms)

@@ -5,13 +5,20 @@
   "scripts": {
     "predev": "echo ════════════════════════════════════════ && echo   职途 · 岗位技能匹配 && echo   默认端口: 4000 && echo   数据源: SQLite (data/*.json) && echo ════════════════════════════════════════",
     "dev": "node --experimental-sqlite ./node_modules/next/dist/bin/next dev -p 4000",
+    "start": "node scripts/start.mjs",
     "build": "node --experimental-sqlite ./node_modules/next/dist/bin/next build",
-    "start": "node --experimental-sqlite ./node_modules/next/dist/bin/next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --experimental-strip-types --test tests/jd*.test.mjs tests/matcher.test.mjs tests/freshness.test.mjs tests/orientation.test.mjs tests/skill-fallback.test.mjs tests/evaluate-deliverable.test.mjs tests/submit.test.mjs",
+    "test:api": "node --experimental-strip-types --test tests/api-smoke.test.mjs",
+    "check": "npm run lint && npm run test && node scripts/data/validate-data.mjs",
+    "submit:check": "node scripts/submit/build-submission.mjs --check",
+    "submit:build": "node scripts/submit/build-submission.mjs",
+    "submit:pdf": "node scripts/submit/md-to-pdf.mjs"
   },
   "dependencies": {
+    "lucide-react": "^1.47.0",
     "mammoth": "^1.12.2",
-    "next": "16.3.1",
+    "next": "^16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "unpdf": "^1.8.1"
@@ -22,7 +29,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.3.1",
+    "eslint-config-next": "^16.3.5",
+    "playwright": "^1.62.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
