@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "version": "1.1",
+    "note": "17 个分类的默认行动模板。key 必须与 data/skills.json 现有 category 原值逐字一致。{skill} 在解析时替换为技能名。"
+  },
+  "byCategory": {
+    "基础": { "deliverableType": "report", "deliverable": "一份用到「{skill}」的可复现练习产出", "acceptance": "说明任务、个人贡献与实现过程；附可复现步骤与 3 条自查记录。" },
+    "数据": { "deliverableType": "report", "deliverable": "一份含「{skill}」的真实数据分析产出", "acceptance": "含原始数据来源、处理前后对比、结论与口径说明。" },
+    "AI": { "deliverableType": "script", "deliverable": "一个用到「{skill}」的可运行 AI 小项目", "acceptance": "含输入样例、运行说明、失败案例与效果对比。" },
+    "前端": { "deliverableType": "prototype", "deliverable": "一个用到「{skill}」的可访问交互页面", "acceptance": "核心流程可走通，含加载/空/错误状态与移动端布局。" },
+    "后端": { "deliverableType": "repo", "deliverable": "一个用到「{skill}」的可运行服务或模块", "acceptance": "含 README、可复现启动步骤与接口/模块说明。" },
+    "产品": { "deliverableType": "doc", "deliverable": "一份含「{skill}」的产品文档", "acceptance": "含目标用户、问题定义、方案取舍与衡量口径。" },
+    "运营": { "deliverableType": "case-study", "deliverable": "一份含「{skill}」的运营案例复盘", "acceptance": "含背景、动作、数据结果与可复用结论。" },
+    "软技能": { "deliverableType": "doc", "deliverable": "一份展示「{skill}」的书面产出", "acceptance": "含结构化章节、受众说明与自我复盘。" },
+    "设计": { "deliverableType": "design", "deliverable": "一套含「{skill}」的设计稿", "acceptance": "含设计目标、至少 2 版方案对比与设计说明。" },
+    "安全": { "deliverableType": "report", "deliverable": "一份含「{skill}」的安全测试或分析报告", "acceptance": "含目标环境说明、发现清单、复现步骤与修复建议。" },
+    "游戏": { "deliverableType": "prototype", "deliverable": "一个含「{skill}」的可运行游戏原型", "acceptance": "含核心玩法可走通、操作说明与已知问题清单。" },
+    "移动端": { "deliverableType": "repo", "deliverable": "一个含「{skill}」的可运行移动端工程", "acceptance": "含 README、构建步骤与真机/模拟器运行截图。" },
+    "基础架构": { "deliverableType": "repo", "deliverable": "一套含「{skill}」的可复现环境或脚本", "acceptance": "含依赖说明、一键启动步骤与故障演练记录。" },
+    "市场": { "deliverableType": "case-study", "deliverable": "一份含「{skill}」的市场营销案例复盘", "acceptance": "含背景、目标人群、动作、数据结果与可复用结论。" },
+    "人力": { "deliverableType": "case-study", "deliverable": "一份含「{skill}」的人力案例复盘", "acceptance": "含背景、动作、结果与可复用结论。" },
+    "财务": { "deliverableType": "report", "deliverable": "一份含「{skill}」的财务分析报告", "acceptance": "含数据来源、计算口径、结论与风险提示。" },
+    "供应链": { "deliverableType": "case-study", "deliverable": "一份含「{skill}」的供应链案例复盘", "acceptance": "含背景、流程动作、数据结果与可复用结论。" }
+  }
+}
