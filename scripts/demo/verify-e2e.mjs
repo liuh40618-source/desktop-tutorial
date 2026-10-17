@@ -3,7 +3,7 @@ import { chromium } from "playwright";
 
 /**
  * 端到端市场可用性验证：以真实用户视角走完三章节主流程 + 关键页面。
- * 对齐当前版本（三章节 + 开场定位），不依赖已脱节的 verify-workspace.mjs 选择器。
+ * 对齐当前版本（三章节 + 开场定位）。旧版单步向导的回归脚本已移除。
  */
 const base = process.env.TEST_BASE_URL || "http://127.0.0.1:4000";
 const browser = await chromium.launch({ headless: true });

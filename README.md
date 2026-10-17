@@ -28,7 +28,7 @@
 
 ## 界面预览
 
-截图尚未纳入版本库（`demo/` 目录当前不存在）。本地复现方式：
+截图尚未纳入版本库。本地复现方式：
 
 ```bash
 npm install && npm run dev      # 打开 http://localhost:4000/plan
@@ -42,7 +42,7 @@ node scripts/demo/verify-resilience.mjs    # 草稿恢复、示例隔离与保�
 node scripts/demo/verify-job-library.mjs   # 岗位库搜索、筛选、排序与分页
 ```
 
-> `scripts/demo/verify-workspace.mjs` 是**旧版单步向导**时代的回归脚本，其选择器早于当前的三章节 + 开场定位流程，当前版本下会超时失败，**不作为本版本的验收依据**。端到端验收以 `npm test` 与上述三个脚本为准。
+验收脚本运行后会在 `demo/` 下输出截图（该目录为脚本产物，不进版本库）。
 
 ## 一句话竞赛叙事
 
@@ -249,7 +249,6 @@ scripts/
   demo/verify-e2e.mjs          端到端验收（入口 → 开场定位 → 经历 → 岗位库 → 提交页 → 容错）
   demo/verify-resilience.mjs   草稿恢复、示例隔离与保存/删除异常验收
   demo/verify-job-library.mjs  岗位库搜索、筛选、排序与分页验收（岗位总数从 data/jobs.json 读取，不硬编码）
-  demo/verify-workspace.mjs    旧版单步向导时代的回归脚本，选择器已与当前流程脱节，不作为验收依据
   submit/***REMOVED***  ***REMOVED***包构建器：校验字段与材料完整性，产出可发送的 zip 与提交报告
   submit/lib/zip.mjs           零依赖 ZIP 写入器（store + deflate，UTF-8 文件名）
 ***REMOVED***       ***REMOVED***工作区
@@ -266,9 +265,9 @@ docs/
   ***REMOVED***        AI 编程开发日志
 ```
 
-> 说明：界面截图（`demo/` 目录）尚未纳入版本库，因此上文不引用图片路径。
+> 说明：界面截图尚未纳入版本库，因此上文不引用图片路径。`demo/` 为验收脚本的运行产物目录，不进版本库。
 > 需要截图时先运行 `npm run dev` 自行截取，或运行 `scripts/demo/verify-resilience.mjs` /
-> `scripts/demo/verify-job-library.mjs` 获取流程验收结果。
+> `scripts/demo/verify-job-library.mjs` 获取流程验收结果与截图。
 
 ## AI 编程开发
 
