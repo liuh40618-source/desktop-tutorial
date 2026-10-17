@@ -1,0 +1,207 @@
+%% 职途 · 增量架构 v0.1 · 类图（Class Diagram）
+%% 对应文档：tasks/ARCH-increment-v0.1.md §3
+%% 约定：实线 = 组合/聚合；虚线 ..> = 模块依赖（纯函数模块读取 KB）
+
+classDiagram
+  direction LR
+
+  class Profile {
+    +string major
+    +string grade
+    +string experiences
+    +ExperienceParts experienceParts
+    +string experienceType
+    +string experienceTimeline
+    +string[] knownSkillIds
+    +string[] customSkills
+    +string[] tempSkillIds
+    +Record~string,number~ evidenceLevels
+    +string[] targetTracks
+    +number hoursPerWeek
+    +OrientationResult orientation
+    +Record~string,string~ pendingCandidates
+    +Record~string,ActionEvaluation~ actionEvaluations
+    +Record~string,string~ evidenceText
+    +Record~string,string~ evidenceResult
+  }
+
+  class ExperienceParts {
+    +string title
+    +string what
+    +string part
+    +string[] partTags
+    +string tools
+    +string problem
+    +string result
+    +string hasDeliverable
+    +string deliverableNote
+  }
+
+  class OrientationResult {
+    +string[] contentExcluded
+    +string[] contextExcluded
+    +string[] excludedJobIds
+    +string[] excludedTrackIds
+    +string[] partialTrackIds
+    +OrientationCandidate[] candidates
+    +ExcludedReason[] excludedReasons
+    +boolean contextDowngraded
+    +boolean skipped
+    +number completedAt
+  }
+
+  class OrientationCandidate {
+    +string trackId
+    +string trackName
+    +CandidateLevel level
+    +string[] reasons
+    +string[] pending
+    +string[] sampleJobIds
+  }
+
+  class ActionEvaluation {
+    +string actionId
+    +string deliverableType
+    +string[] requiredElements
+    +string[] confirmedElements
+    +string[] ruleHits
+    +string artifactTitle
+    +string artifactLocation
+    +string quantitativeResult
+    +number suggestedLevel
+    +number finalLevel
+    +boolean overridden
+    +boolean reviewRequested
+    +string reviewReason
+    +number evaluatedAt
+  }
+
+  class KnowledgeBase {
+    +Job[] jobs
+    +Skill[] skills
+    +Track[] tracks
+    +Meta meta
+    +Exclusions exclusions
+    +StarterSkills starterSkills
+    +DeliverableTypes deliverableTypes
+    +ActionTemplates actionTemplates
+    +KnowledgeMeta knowledgeMeta
+  }
+
+  class Job {
+    +string id
+    +string title
+    +string track
+    +string summary
+    +CoreSkill[] core
+    +string[] plus
+    +string threshold
+    +string growth
+    +WorkTag[] workTags
+    +string sourceDate
+    +string verifiedAt
+    +number sampleSize
+    +string confidence
+  }
+
+  class WorkTag {
+    +string tag
+    +string tier
+    +string note
+    +string reviewStatus
+  }
+
+  class Skill {
+    +string id
+    +string name
+    +string category
+    +string[] aliases
+    +number estHours
+    +SkillAction action
+    +string verifiedAt
+    +number sampleSize
+    +string confidence
+  }
+
+  class Track {
+    +string id
+    +string name
+    +string oneLiner
+    +string[] subDirections
+    +GlossaryItem[] glossary
+    +string entryCycle
+    +string[] hardThresholds
+    +string dataNote
+    +string verifiedAt
+    +number sampleSize
+    +string confidence
+  }
+
+  class PathItem {
+    +string skillId
+    +string name
+    +number weight
+    +number estHours
+    +number priority
+    +number cumulativeWeeks
+    +ResourceRef[] resources
+    +string kind
+    +string deliverable
+    +string acceptance
+    +string deliverableType
+    +string[] requiredElements
+  }
+
+  class matcher {
+    <<module lib/matcher.ts>>
+    +initKB(kb) void
+    +actionTemplate(id, name, category) ActionTemplate
+    +matchJob(profile, jobId) JobMatch
+    +buildPath(profile, jobId) PathItem[]
+    +detectSkillsDetailed(text) SkillHit[]
+  }
+
+  class freshness {
+    <<module lib/freshness.ts>>
+    +getFreshness(verifiedAt, now) Freshness
+    +formatVerifiedAt(verifiedAt, now) string
+    +FRESHNESS_LABEL
+  }
+
+  class orientation {
+    <<module lib/orientation.ts>>
+    +TRACK_EXCLUDE_RATIO
+    +computeOrientation(input, kb) OrientationResult
+    +estimateCandidateLevel(tagMatch, skillHit) CandidateLevel
+    +filterKnownSkillIds(ids, known) string[]
+  }
+
+  class skillFallback {
+    <<module lib/skill-fallback.mjs>>
+    +ALIAS_GROUPS
+    +findSkillFallback(text, skills) FallbackHit[]
+  }
+
+  class evaluateDeliverable {
+    <<module lib/evaluate-deliverable.ts>>
+    +requiredElementsFor(type, types) string[]
+    +evaluateDeliverable(input, types) EvaluationResult
+  }
+
+  Profile --> ExperienceParts
+  Profile --> OrientationResult
+  Profile --> ActionEvaluation
+  OrientationResult --> OrientationCandidate
+
+  KnowledgeBase --> Job
+  KnowledgeBase --> Skill
+  KnowledgeBase --> Track
+  Job --> WorkTag
+
+  matcher ..> KnowledgeBase : reads
+  orientation ..> KnowledgeBase : reads
+  skillFallback ..> KnowledgeBase : reads
+  evaluateDeliverable ..> KnowledgeBase : reads
+  matcher ..> PathItem : builds
+  orientation ..> OrientationResult : builds
+  evaluateDeliverable ..> ActionEvaluation : feeds

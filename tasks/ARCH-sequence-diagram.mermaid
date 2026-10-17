@@ -1,0 +1,120 @@
+%% 职途 · 增量架构 v0.1 · 时序图（Sequence Diagram）
+%% 对应文档：tasks/ARCH-increment-v0.1.md §4
+%% 覆盖：开场定位 → 领域说明书 → 经历 → 能力翻译 → 匹配 → 证据审计 → 行动 → 提交评判 → 升级重算
+
+sequenceDiagram
+  autonumber
+  actor U as 用户
+  participant P as app/plan/page.tsx
+  participant OG as OpeningGate
+  participant DB as DomainBrief
+  participant OR as lib/orientation.ts
+  participant EI as ExperienceInput
+  participant ST as SkillTranslation
+  participant FB as lib/skill-fallback.mjs
+  participant CC as CareerChoices
+  participant GV as GapView
+  participant PV as PathView
+  participant EV as lib/evaluate-deliverable.ts
+  participant M as lib/matcher.ts
+  participant KB as /api/knowledge
+  participant API as /api/profile
+
+  Note over P,KB: 初始化（沿用现有）
+  P->>KB: GET /api/knowledge
+  KB-->>P: {jobs, skills, tracks, meta, exclusions, starterSkills, deliverableTypes, actionTemplates}
+  P->>M: initKB(kb)  %% 新字段全部可选，缺省安全
+  P->>API: GET /api/profile
+  API-->>P: 草稿（可能含 orientation）
+
+  alt 老草稿 / 已 started
+    Note over P: orientation 缺失 → 视为 skipped=true
+    P->>P: 直接进入 step 0（不显示开场门）
+  else 新用户
+    Note over P,OG: ① 开场定位（独立前置门，不占 step）
+    P->>OG: 渲染第一屏（无输入框 + 单一主按钮 + 次入口）
+    U->>OG: 开始定位
+    OG->>U: 第1步 内容排除（≤4）/ 第2步 条件排除（≤3）/ 第3步 基础盘点（选填）
+    U->>OG: 勾选（可全不选；全选则阻断并提示放宽一项）
+    alt 点击「跳过定位」/ 次入口「直接选方向」
+      OG->>P: orientation.skipped=true; started=true
+      P->>API: POST /api/profile（持久化）
+      P->>P: 进入 step 0
+    else 正常完成
+      OG->>OR: computeOrientation({contentOptionIds, contextOptionIds, knownSkillIds}, kb)
+      OR->>OR: excludedJobIds = jobs.filter(workTags 含 core 命中 tag)
+      OR->>OR: 方向级聚合 ratio ≥ TRACK_EXCLUDE_RATIO(0.6) → 已排除 / 0<ratio<0.6 → partial / 0 → 保留
+      alt 仅条件排除后候选 < 3
+        OR->>OR: contextDowngraded = true（降级为排序权重，不硬排除）
+      end
+      OR-->>OG: OrientationResult（候选 = trackId 为主键，等级 高/中高/中/低，含依据 + 待确认）
+      OG->>U: 输出页（已排除 N 个方向 + 逐条理由 + 候选 Top3 + 免责声明紧贴结论区）
+      U->>OG: 点候选方向
+      OG->>P: profile.orientation = result; started = true
+      P->>API: POST /api/profile（持久化 orientation）
+      Note over P,DB: ② 领域入门说明书（view="brief"，可跳过）
+      P->>DB: 渲染 tracks[trackId]（oneLiner/subDirections/glossary/entryCycle/hardThresholds/dataNote）
+      DB->>DB: formatVerifiedAt(verifiedAt) + sampleSize + confidence
+      U->>DB: 「换一个方向看看」/「直接开始记录经历」
+    end
+  end
+
+  Note over P,EI: ③ 经历采集（step 0）
+  U->>EI: 填写 what/part/tools/problem/result + 新字段(title/partTags/hasDeliverable/deliverableNote/experienceType/timeline)
+  EI->>P: experiences = what/part/tools/problem/result 按原顺序 \n 连接（★ 合并文本行为不变）
+
+  Note over P,FB: ④ 能力翻译（step 1）
+  P->>ST: 渲染候选（detectSkillsDetailed 第一层）
+  ST->>FB: findSkillFallback(text, skills)（未命中时，纯规则，无网络）
+  FB-->>ST: [{id, source: exact-alias|alias-group|substring|fuzzy, confidence, matchedText}]
+  ST->>U: 候选卡（命中原文高亮 + 理由 + 置信度含 source）
+  alt 确认
+    U->>ST: 确认 → knownSkillIds += id（默认证据等级 1）
+  else 否认
+    U->>ST: 否认 → dismissed
+  else 修改
+    U->>ST: 改指向 skillId 或降级为 customSkills
+  else 暂不确定
+    U->>ST: pendingCandidates[id]="uncertain"
+  end
+  Note over ST: 第三层 词条归一：精确 id→name→alias→别名组→近似<br/>命中→库内 skillId；未命中→customSkills（不参与匹配分）<br/>★ skillId 白名单校验：matcher 侧 filterKnownSkillIds + API 侧各一次
+  ST->>P: 更新 profile
+
+  Note over P,GV: ⑤ 岗位匹配（step 2）⑥ 证据审计（step 3）
+  P->>M: rankJobs(profile)（★ orientation 不入分，公式不变）
+  P->>CC: 渲染候选方向（selectExplorations，无结构性改动）
+  U->>CC: 选目标岗位
+  P->>GV: 渲染差距 + formatVerifiedAt 时效标注
+  U->>GV: 生成下一步行动
+
+  Note over P,EV: ⑦ 最小补强行动（step 4）⑧ 提交评判 → 升级 → 重算
+  P->>M: buildPath(profile, jobId)
+  M->>M: actionTemplate(id, name, category) 三级解析
+  M-->>PV: PathItem[]{deliverable, acceptance, deliverableType, requiredElements}
+  U->>PV: 勾选「已完成」（★ 勾选仍不提升等级）
+  U->>PV: 提交产出物（artifactTitle / artifactLocation / artifactNote）
+  PV->>EV: requiredElementsFor(type, deliverableTypes)
+  EV-->>PV: requiredElements[]
+  U->>PV: 逐条自评 有/无/不确定
+  PV->>EV: evaluateDeliverable(input, types)
+  EV->>EV: 正则/字符串检测 → ruleHits → confirmed = ruleHits ∪ userYes
+  EV->>EV: ratio=1 且 artifactLocation 非空 → 4 / ratio≥0.6 → 3 / location 非空 → 2 / else → 1（等级 5 不由本函数给出）
+  EV-->>PV: {suggestedLevel, confirmedElements, missingElements, ruleHits}
+  PV->>U: 「我看了你的什么」（ruleHits 原文片段 / 未检测到提示）
+  alt 用户推翻
+    U->>PV: finalLevel = 自评（overridden=true）
+  end
+  opt 申请复核（Q8）
+    U->>PV: reviewRequested=true + reviewReason（★ 禁止「已核验」字样）
+  end
+  PV->>P: actionEvaluations[actionId] = evaluation; evidenceLevels[skillId] = max(finalLevel, 现值)
+  P->>API: POST /api/profile（持久化）
+  P->>M: navigate(2) → rankJobs 重算
+  M-->>PV: 新 match（技能覆盖 X%→Y% / 项目证据覆盖 X%→Y%）
+  PV->>U: 展示升级前后对比
+
+  Note over P,API: P1-1 观察记录（唯一写路径，可关闭）
+  U->>API: POST /api/jds/parse
+  API->>API: normalizeJdText + parseJdText（规则识别）
+  API->>API: INSERT raw_jd_observations（★ 仅一次 INSERT，无聚合查询）
+  API-->>U: 立即返回（已记录，会用于校准知识库）
