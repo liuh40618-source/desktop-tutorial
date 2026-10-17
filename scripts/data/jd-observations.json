@@ -1,0 +1,175 @@
+{
+  "_meta": {
+    "purpose": "R1-1 真实 JD 抽样观察记录（人工检索、来源可追溯）",
+    "collected_at": "2026-09-26",
+    "collector": "engineer (Kou)",
+    "note": "每条 = 1 份真实公开招聘 JD（source='manual'）。sourceType='jd-page' 表示原始 JD 页面已直接抓取；sourceType='jd-cited' 表示招聘平台反爬，记录的是公开分析文章中对该 JD 的引用片段（已标注 [引用]）。raw_jd_observations 表的 raw_text 会带一行【来源】前缀，保证数据库行自身可追溯。",
+    "skills_referenced": "parsed_skills 仅取 skills.json 中已存在的 skillId，便于后续聚合；未映射到词条的 JD 要求（如「性能优化」「竞品分析」「AI 工具应用」）不虚构 id。"
+  },
+  "observations": [
+    {
+      "jobId": "data-analyst",
+      "company": "河南农村商业银行",
+      "title": "数据分析师",
+      "url": "https://www.gaoxiaojob.com/job/detail/2284787.html",
+      "sourceType": "jd-page",
+      "rawText": "岗位职责：1.业务数据分析与可视化报表开发；2.数据指标体系设计；3.数据挖掘与建模；4.BI系统开发与维护；5.分析报告撰写与汇报。任职要求：精通SQL/Python，有BI系统开发经验者优先。",
+      "parsedSkills": ["sql", "python", "data-viz", "metric-system", "bi-tools", "structured-expression"]
+    },
+    {
+      "jobId": "data-analyst",
+      "company": "海尔消费金融",
+      "title": "数据分析师（27届春招实习）XB",
+      "url": "https://www.gaoxiaojob.com/job/detail/2160076.html",
+      "sourceType": "jd-page",
+      "rawText": "任职要求：1、金融、经济、计算机、统计、数理等相关专业；2、掌握SQL基础查询能力，熟悉Python或Matlab中的至少一种，能完成基础数据清洗与分析；3、了解BI可视化工具（如Tableau、PowerBI等），能使用Office办公软件（特别是Excel公式及简单数据处理功能）；4、对数据敏感，逻辑清晰，具备良好的学习意愿与责任心，善于沟通协作。",
+      "parsedSkills": ["sql", "python", "data-clean", "bi-tools", "excel", "structured-expression"]
+    },
+    {
+      "jobId": "data-analyst",
+      "company": "海尔消费金融",
+      "title": "数据分析师（27届春招实习）FS",
+      "url": "https://www.gaoxiaojob.com/job/detail/2160066.html",
+      "sourceType": "jd-page",
+      "rawText": "任职要求：2、具备基础数据分析能力，熟练使用Excel（透视表、函数），了解SQL或Python者优先；3、学习与研究能力强，可独立完成调研并输出结构化报告；4、结果导向，责任心强，沟通协作良好，做事细致严谨，具备复盘优化意识。",
+      "parsedSkills": ["excel", "sql", "python", "structured-expression"]
+    },
+    {
+      "jobId": "data-analyst",
+      "company": "青岛银行",
+      "title": "数据分析师",
+      "url": "https://www.gaoxiaojob.com/job/detail/1968786.html",
+      "sourceType": "jd-page",
+      "rawText": "岗位职责：1.对银行业务数据（信贷、风控、客户行为等）进行深度清洗、整合与分析，输出具有业务指导意义的洞察报告。2.负责开发与应用信用评分、反欺诈、精准营销等数据模型与算法工具。3.设计、开发并维护数据可视化平台、指标平台及自动化数据产品。任职要求：3.精通SQL/Python/R及数据分析方法，熟悉机器学习框架与数据仓库架构，具备扎实的数据分析基础和报告撰写能力。",
+      "parsedSkills": ["sql", "python", "data-clean", "data-viz", "metric-system", "warehouse", "structured-expression"]
+    },
+    {
+      "jobId": "data-analyst",
+      "company": "中国移动（经公开分析文章引用，原文未直接抓取）",
+      "title": "2026 校招 数据分析师",
+      "url": "https://www.sohu.com/a/1078221963_123004684",
+      "sourceType": "jd-cited",
+      "rawText": "[引用] 中国移动2026年校招数据分析师岗位核心能力第一条：熟练掌握SQL数据查询与处理，能运用Python进行数据清洗和分析；第二条：熟练掌握Tableau、Power BI等可视化工具的使用；能独立完成数据需求分析、报告撰写，具备清晰的逻辑思维与问题解决能力。",
+      "parsedSkills": ["sql", "python", "data-clean", "bi-tools", "structured-expression"]
+    },
+    {
+      "jobId": "data-analyst",
+      "company": "字节跳动（经公开分析文章引用，原文未直接抓取）",
+      "title": "2026届 抖音数据分析师",
+      "url": "https://www.sohu.com/a/1078221963_123004684",
+      "sourceType": "jd-cited",
+      "rawText": "[引用] 字节跳动2026届抖音数据分析师岗位要求第五条直接写精通SQL，熟练使用R或Python进行数据分析、挖掘；岗位描述里写负责业务上各类A/B实验设计与分析、核心指标异动分析、产品优化效果评估。",
+      "parsedSkills": ["sql", "python", "ab-test", "metric-system", "data-driven"]
+    },
+
+    {
+      "jobId": "fe-web",
+      "company": "京东",
+      "title": "WEB前端开发工程师",
+      "url": "https://www.quanzhi.com/job/690dd341b49f1f3fbebe9251",
+      "sourceType": "jd-page",
+      "rawText": "岗位职责：1、负责前端相关的技术规划和系统架构设计；2、负责搭建前端框架、通用组件方案制定、性能优化等相关工作；4、推动前端工程化，自动化和工具化建设。任职资格：2、熟悉React、Vue、Redux、RN、Taro等并了解其中原理；3、精通Babel、Node等；4、具备跨终端的前端开发与架构设计能力（RN、Flutter、Hybrid等），能够独立完成Web（PC+Mobile）。",
+      "parsedSkills": ["spa-framework", "fe-build", "node", "react-native", "flutter", "js"]
+    },
+    {
+      "jobId": "fe-web",
+      "company": "天府绛溪实验室",
+      "title": "Web前端开发工程师（数据平台方向）",
+      "url": "https://www.gaoxiaojob.com/job/detail/2097335.html",
+      "sourceType": "jd-page",
+      "rawText": "任职要求：2.有扎实的前端技术基础，熟练使用TypeScript进行开发，熟悉React、Vue等主流技术栈，掌握Three.js等图形处理工具及框架；岗位职责：2.负责前端标准化、工程化体系建设，提升研发效率和交付质量。",
+      "parsedSkills": ["ts", "spa-framework", "fe-build", "data-viz"]
+    },
+    {
+      "jobId": "fe-web",
+      "company": "浙江大学伊利诺伊大学厄巴纳香槟校区联合学院",
+      "title": "Web前端开发",
+      "url": "https://www.gaoxiaojob.com/job/detail/392946.html",
+      "sourceType": "jd-page",
+      "rawText": "任职要求：2、精通HTML、CSS、XML、JSON，熟悉页面架构和布局；3、对Web标准和标签语义化有深入理解，对浏览器兼容性有研究，了解HTML5；4、掌握至少一种Vue、Ajax、JavaScript、DOM等前端技术，掌握面向对象编程思想；5、有PC端、微信公众号、小程序开发、APP开发经验优先。",
+      "parsedSkills": ["html-css", "js", "mini-program", "spa-framework"]
+    },
+    {
+      "jobId": "fe-web",
+      "company": "青岛蓝色地球大数据科技有限公司",
+      "title": "Web前端开发工程师",
+      "url": "https://www.gaoxiaojob.com/job/detail/19407.html",
+      "sourceType": "jd-page",
+      "rawText": "技能要求：熟悉HTML+DIV+CSS网页布局，精通H5开发，熟悉最新的CSS标准，能结合原型图完成前端页面设计，符合项目设计需求；熟练掌握JavaScript、JQuery、AJAX；熟练掌握多种可视化插件，例如可视化图表生成插件Echarts、AntV、HighCharts等；了解VUE、REACT、BOOTSTRAP、DOJO等架构。",
+      "parsedSkills": ["html-css", "js", "prototype", "data-viz", "spa-framework"]
+    },
+    {
+      "jobId": "fe-web",
+      "company": "中国科学院信息工程研究所",
+      "title": "研发工程师/助理工程师-Web前端开发",
+      "url": "https://www.gaoxiaojob.com/job/detail/1939284.html",
+      "sourceType": "jd-page",
+      "rawText": "任职要求：2.熟练掌握HTML5、CSS3、Javascript等前端开发技术；3.熟悉至少一种常见的前端框架（如Vue、React等），能够理解并应用其原理；4.熟练使用前端开发工具：VSCode、Git等；5.具备前端架构设计能力，能够根据项目设计合适的架构。",
+      "parsedSkills": ["html-css", "js", "spa-framework", "git"]
+    },
+    {
+      "jobId": "fe-web",
+      "company": "深圳市博互云信息技术有限公司",
+      "title": "前端开发工程师",
+      "url": "https://www.yupao.com/topic/a1c0/?keywords=%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91",
+      "sourceType": "jd-page",
+      "rawText": "任职要求：1、本科计算机相关专业优先；2、初步掌握HTML, CSS, JavaScript, ES6，熟悉HTTP协议；3、熟悉JQuery、React、Vue等框架；4、有一定的小程序开发经验或者移动端APP开发经验优先。",
+      "parsedSkills": ["html-css", "js", "api-design", "spa-framework", "mini-program"]
+    },
+
+    {
+      "jobId": "pm-b",
+      "company": "京东",
+      "title": "产品经理（履约数字化产品部）",
+      "url": "https://zhaopin.jd.com/web/job-info-detail?requementId=217658",
+      "sourceType": "jd-page",
+      "rawText": "岗位描述：1.负责履约数字化AI产品的规划与设计，结合业务需求，推动产品的迭代与优化；2.深入理解业务逻辑，挖掘用户需求，提出创新的产品解决方案；3.与研发、设计、运营等团队紧密合作；5.负责产品的数据分析与效果评估，通过数据驱动产品优化。任职要求：产品能力：具备优秀的产品规划与设计能力，能够独立完成产品需求分析、方案设计、项目管理等工作；业务理解：具备良好的业务敏感度；沟通协作：具备出色的沟通能力和团队协作精神。",
+      "parsedSkills": ["prd", "user-research", "project-mgmt", "data-driven", "business-sense", "structured-expression"]
+    },
+    {
+      "jobId": "pm-b",
+      "company": "网易",
+      "title": "2027届校招 产品经理",
+      "url": "https://campus.163.com/app/detail/index?id=4791&projectId=103",
+      "sourceType": "jd-page",
+      "rawText": "岗位描述：2、深入理解用户和业务场景，通过用户调研、数据分析、竞品研究等方式发现问题和机会，完成需求分析及产品方案设计；3、负责产品需求的全流程推进，包括需求定义、原型设计、项目协同、上线验收及效果跟踪。岗位要求：4、具备良好的沟通表达、跨团队协作及项目推动能力；5、具备一定的数据分析意识，能够通过数据辅助产品判断和效果评估。",
+      "parsedSkills": ["user-research", "data-driven", "prd", "prototype", "project-mgmt", "structured-expression"]
+    },
+    {
+      "jobId": "pm-b",
+      "company": "阿里巴巴",
+      "title": "2027届实习生 产品经理",
+      "url": "https://campus-talent.alibaba.com/campus/position/199903220012",
+      "sourceType": "jd-page",
+      "rawText": "职位描述：1. 深入理解业务场景，通过用户调研、行为分析及研究，挖掘用户真实痛点及需求，定义出核心产品价值；2. 负责产品功能的规划及原型设计，产出高质量需求文档（PRD），推动产品从「概念」走向「落地」；3. 协同研发、设计、运营等角色，共同推动研发进度；4. 建立数据指标体系，监控产品表现。职位要求：3. 熟悉产品设计工具（如Axure/Figma），有用户导向意识与创新思维；4. 具备良好的沟通与团队协作能力。",
+      "parsedSkills": ["user-research", "prototype", "prd", "project-mgmt", "metric-system", "structured-expression"]
+    },
+    {
+      "jobId": "pm-b",
+      "company": "MapGIS（中地数码）",
+      "title": "产品经理",
+      "url": "https://mapgis.com/index.php?a=shows&catid=37&id=151",
+      "sourceType": "jd-page",
+      "rawText": "岗位职责：1、协助负责软件产品从0到1的全生命周期管理，参与市场调研、用户需求分析，协助输出产品需求文档（PRD）、原型设计（Axure/Figma等工具）；2、配合研发、设计、测试等跨部门团队，跟进项目目标与时间节点；3、跟踪产品上线后的用户反馈与数据表现（如用户活跃度、转化率等）。任职要求：3、具备基本的产品文档撰写能力，熟练使用Axure、Figma、Visio、XMind等工具者优先；4、具备良好的沟通协作能力，能够高效配合研发、设计、测试等团队推进项目。",
+      "parsedSkills": ["user-research", "prd", "prototype", "project-mgmt", "data-driven", "doc-writing", "structured-expression"]
+    },
+    {
+      "jobId": "pm-b",
+      "company": "百度",
+      "title": "产品经理（J100820）",
+      "url": "https://talent.baidu.com/jobs/detail/GRADUATE/31e3795e-d5fd-4573-854b-960ab1fcf46a",
+      "sourceType": "jd-page",
+      "rawText": "工作职责：-关注并分析互联网用户行为，能从用户行为中发现所负责产品的潜在用户需求 -针对用户需求进行研究，并设计出相应的产品功能 -与各其他团队密切配合一起工作，推动产品功能实现并取得预期的效果 -对产品进行数据分析，验证产品的健康状况并及时发现产品的潜在问题。职责要求：-对用户需求有正确的理解和判断 -拥有良好的沟通和协作能力。",
+      "parsedSkills": ["user-research", "prd", "project-mgmt", "data-driven", "structured-expression"]
+    },
+    {
+      "jobId": "pm-b",
+      "company": "北森",
+      "title": "2027届校招 软件产品经理",
+      "url": "https://www.shixiseng.com/intern/inn_mwane2xk8uoo",
+      "sourceType": "jd-page",
+      "rawText": "岗位职责：1、负责北森相关产品的用户研究和需求分析；2、参与市场、竞品、用户调研，对现有产品进行不断改进；3、根据产品需求完成功能设计和交互设计，制作demo原型；4、负责产品的客户使用情况追踪及分析验证。任职要求：3、掌握相关产品工具，能撰写PRD文档；4、具备良好的沟通能力与协调能力。",
+      "parsedSkills": ["user-research", "prd", "prototype", "data-driven", "doc-writing", "structured-expression"]
+    }
+  ]
+}
