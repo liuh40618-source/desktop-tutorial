@@ -44,7 +44,16 @@ next-env.d.ts
 career.db
 career.db-wal
 career.db-shm
+# 数据库备份 / 残留文件（含访客数据，不得进版本库）
+_*.db
+_*.db.*
+*.t05abak
 install.log
+
+# 开发工具与 AI Coding 本地配置
+/.workbuddy/
+/.workbuddy-ai/
+.wbapp_*
 
 # run logs
 .run.log
@@ -53,10 +62,9 @@ install.log
 # AI 生成的临时调试产物
 _*.json
 
+# 参赛提交包产出（由 npm run submit:build 生成，含大体积媒体文件，不进版本库）
+/dist/
+
 # python
 __pycache__/
 *.py[cod]
-
-# 本地 AI 工具的工作目录（非项目源码）
-.workbuddy/
-.workbuddy-ai/
