@@ -93,8 +93,6 @@
 - node scripts/demo/verify-resilience.mjs（草稿恢复、示例隔离与保存/删除异常）
 - node scripts/demo/verify-job-library.mjs（岗位库搜索、筛选与排序）
 
-> `scripts/demo/verify-workspace.mjs` 为旧版单步向导时代的回归脚本，选择器早于当前
-> 三章节 + 开场定位流程，当前版本下会超时失败，不作为本版本的验收依据。
 - npm audit
 
 ## 验收记录

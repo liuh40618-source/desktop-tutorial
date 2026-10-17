@@ -96,7 +96,6 @@ scripts/
   demo/verify-e2e.mjs          端到端验收（入口 → 开场定位 → 经历 → 岗位库 → 提交页 → 容错）
   demo/verify-resilience.mjs   草稿恢复、示例隔离与保存/删除异常验收
   demo/verify-job-library.mjs  岗位库搜索、筛选与排序验收
-  demo/verify-workspace.mjs    旧版单步向导脚本，选择器已与当前流程脱节，不作为验收依据
   submit/build-submission.mjs  参赛提交包构建器（校验字段与材料 → 产出可发送 zip）
 tests/                      纯函数 / 契约 / API 冒烟 / QA 回归 / 提交包测试（17 个文件）
 submission/                 参赛提交工作区（配置 + materials/ + templates/）
