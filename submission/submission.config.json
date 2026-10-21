@@ -7,9 +7,9 @@
     "name": "职途",
     "industry": "教育",
     "captain": {
-      "name": "队长",
-      "phone": "[请填写联系电话]",
-      "email": "[请填写邮箱]"
+      "name": "",
+      "phone": "",
+      "email": ""
     },
     "members": [],
     "advisor": ""

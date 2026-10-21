@@ -82,13 +82,12 @@ try {
     await page.getByRole("button", { name: "清空搜索", exact: true }).click();
   });
 
-  // 5. /submit 提交中心：真实队长信息与包名
-  await run("/submit：渲染队长队长 / [请填写联系电话] / 职途+队长.zip", async () => {
+  // 5. /submit 提交中心：联系方式使用发布版占位值
+  await run("/submit：显示联系占位值与示例包名", async () => {
     await page.goto(`${base}/submit`, { waitUntil: "networkidle" });
     const body = await page.locator("body").innerText();
-    assert.ok(body.includes("队长"), "提交页应显示队长姓名队长");
     assert.ok(body.includes("[请填写联系电话]"), "提交页应显示队长电话");
-    assert.ok(body.includes("职途+队长.zip"), "提交页应显示真实压缩包名");
+    assert.ok(body.includes("职途+[队长姓名].zip"), "提交页应显示示例压缩包名");
     assert.ok(body.includes("marketing@newtouch.com"), "提交页应显示收件邮箱");
     assert.ok(!body.includes("项目名称+队长姓名"), "不应残留占位符包名");
     assert.ok(!body.includes("待填"), "不应残留待填占位");
