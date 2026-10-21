@@ -8,12 +8,9 @@
     "start": "node scripts/start.mjs",
     "build": "node --experimental-sqlite ./node_modules/next/dist/bin/next build",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test tests/jd*.test.mjs tests/matcher.test.mjs tests/freshness.test.mjs tests/orientation.test.mjs tests/skill-fallback.test.mjs tests/evaluate-deliverable.test.mjs tests***REMOVED***.test.mjs",
+    "test": "node --experimental-strip-types --test tests/jd*.test.mjs tests/matcher.test.mjs tests/freshness.test.mjs tests/orientation.test.mjs tests/skill-fallback.test.mjs tests/evaluate-deliverable.test.mjs",
     "test:api": "node --experimental-strip-types --test tests/api-smoke.test.mjs",
-    "check": "npm run lint && npm run test && node scripts/data/validate-data.mjs",
-    "***REMOVED***": "node scripts***REMOVED***/***REMOVED*** --check",
-    "***REMOVED***": "node scripts***REMOVED***/***REMOVED***",
-    "***REMOVED***": "node scripts***REMOVED***/***REMOVED***"
+    "check": "npm run lint && npm run test && node scripts/data/validate-data.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.47.0",

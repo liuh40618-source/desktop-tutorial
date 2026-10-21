@@ -82,19 +82,7 @@ try {
     await page.getByRole("button", { name: "清空搜索", exact: true }).click();
   });
 
-  // 5. ***REMOVED*** 提交中心：真实***REMOVED***信息与包名
-  await run("***REMOVED***：渲染***REMOVED******REMOVED*** / ***REMOVED*** / ***REMOVED******REMOVED***.zip", async () => {
-    await page.goto(`${base}***REMOVED***`, { waitUntil: "networkidle" });
-    const body = await page.locator("body").innerText();
-    assert.ok(body.includes("***REMOVED***"), "提交页应显示***REMOVED******REMOVED***");
-    assert.ok(body.includes("***REMOVED***"), "提交页应显示***REMOVED***电话");
-    assert.ok(body.includes("***REMOVED******REMOVED***.zip"), "提交页应显示真实压缩包名");
-    assert.ok(body.includes("marketing@newtouch.com"), "提交页应显示收件邮箱");
-    assert.ok(!body.includes("项目名称+***REMOVED***"), "不应残留占位符包名");
-    assert.ok(!body.includes("待填"), "不应残留待填占位");
-  });
-
-  // 6. /market 知识库观察
+  // 5. /market 知识库观察
   await run("/market：知识库观察页正常渲染", async () => {
     await page.goto(`${base}/market`, { waitUntil: "networkidle" });
     const body = await page.locator("body").innerText();
@@ -104,7 +92,7 @@ try {
     assert.ok(!body.includes("109"), "/market 不应残留 109 技能");
   });
 
-  // 7. /admin 不再暴露裸 503
+  // 6. /admin 不再暴露裸 503
   await run("/admin：未配 ADMIN_TOKEN 时重定向回 /plan 而非裸错误页", async () => {
     const resp = await page.goto(`${base}/admin`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(1200);

@@ -2,9 +2,8 @@
 
 从做过的事，到值得试的路。
 
-> *****REMOVED******REMOVED*****。按***REMOVED***，***REMOVED*** ***REMOVED***。
-> 面向教育领域的大学生职业探索场景。***REMOVED***：[`***REMOVED***`](app***REMOVED***/page.tsx)（`***REMOVED***` 307 跳转至此）；
-> 提交指引见 [`docs/***REMOVED***`](docs/***REMOVED***)；当前版本、边界与演示脚本见 [`docs/***REMOVED***`](docs/***REMOVED***)。
+> 面向教育领域的大学生职业探索项目，帮助学生把经历转化为可尝试的职业方向与具体行动。
+> 当前版本、产品边界与本地演示步骤见 [`docs/LOCAL_DEMO.md`](docs/LOCAL_DEMO.md)。
 
 ## 当前体验：职业试选
 
@@ -20,8 +19,6 @@
 | --- | --- |
 | `/` | 307 重定向到 `/plan` |
 | `/plan` | 主流程：三章节职业试选（看见经历 / 比较选择 / 动手验证），含无经历门槛的职业试驾任务；内置岗位和确认后的真实 JD 均可生成差距与行动计划 |
-| `***REMOVED***` | ***REMOVED***：提交入口、所需字段与格式、材料清单与要求、关键约束、提交后确认方式 |
-| `***REMOVED***` | 307 重定向到 `***REMOVED***`（历史文档沿用此路径） |
 | `/market` | 知识库观察：基于本地模板的 5 张图表 |
 | `/admin` | 岗位 / 技能数据后台（CRUD，写 SQLite） |
 | `/admin/login` | 后台登录页；生产环境需配置 `ADMIN_TOKEN` 才会开放后台 |
@@ -44,7 +41,7 @@ node scripts/demo/verify-job-library.mjs   # 岗位库搜索、筛选、排序�
 
 验收脚本运行后会在 `demo/` 下输出截图（该目录为脚本产物，不进版本库）。
 
-## 一句话竞赛叙事
+## 产品定位
 
 > **“从我说我会，到我能展示：把职业目标拆成可解释、可执行、可验收的成长行动。”**
 
@@ -121,9 +118,9 @@ node scripts/demo/verify-job-library.mjs   # 岗位库搜索、筛选、排序�
 
 简历文本本身不参与打分、不进数据库——它只是帮你更快勾出技能，避免手动翻简历。
 
-## 评审友好型 · 为什么选这条路径
+## 设计取舍与依据
 
-| 评审常见追问 | 本项目应对 |
+| 常见问题 | 本项目应对 |
 | --- | --- |
 | 数字怎么来的？ | 岗位卡可展开技能覆盖、加分项、方向契合三项构成；证据覆盖单独显示，匹配分不是录用概率 |
 | 数据可靠吗？ | 579 岗 / 17 方向 / 134 技能是静态模板；结构校验不代表市场代表性，逐条来源与外部验证仍待补齐 |
@@ -155,32 +152,13 @@ npm run dev          # 打开 http://localhost:4000/plan
 
 **环境变量**：只有 `ADMIN_TOKEN`（后台口令），见 `.env.example`。本地开发可留空，此时后台不加锁；局域网或公网暴露必须设置长随机口令。
 
-**路由**：主流程 `/plan`，***REMOVED*** `***REMOVED***`，知识库观察 `/market`，数据后台 `/admin`。
+**路由**：主流程 `/plan`，知识库观察 `/market`，数据后台 `/admin`。
 
 因为用了 `node:sqlite` 和服务端 API Route（`/api/knowledge`、`/api/session`、`/api/profile`、`/api/data`、`/api/plans`、`/api/jds`、
 `/api/jds/parse`、`/api/parse-resume`、`/api/admin/...`），**当前版本不能纯静态部署**，需要一个 Node 运行时。
 
 `deploy/` 下保留了 PM2（`ecosystem.config.cjs`）与 Nginx（`nginx-career.conf`）配置片段，
 但**尚未公开部署**。本轮已为草稿、规划和 JD 增加访客会话隔离；正式多人部署前仍需设置 `ADMIN_TOKEN`，并核对 HTTPS、单实例 SQLite 和服务端滥用防护。Nginx 模板为 JD 与简历解析接口配置了请求频率和请求体限制；只有流量确实经过该 Nginx 时这些限制才生效。
-
-## ***REMOVED***
-
-提交入口是**邮件附件**：全部文件打包为 zip 发至 `marketing@newtouch.com`，邮件主题与压缩包同名为
-「项目名称+***REMOVED***」。截止 *****REMOVED*****，***REMOVED***。
-完整要求见 [`docs/***REMOVED***`](docs/***REMOVED***) 与在线页 [`***REMOVED***`](app***REMOVED***/page.tsx)。
-
-```bash
-# 1. 填写 ***REMOVED******REMOVED***（***REMOVED***、***REMOVED***为必填）
-# 2. 放入材料：***REMOVED***materials/doc-*.pdf 与 demo-*
-npm run ***REMOVED***     # 只校验，有阻断项时退出码为 1
-npm run ***REMOVED***     # 产出 ***REMOVED***<项目名称>+<***REMOVED***>.zip
-```
-
-校验存在阻断项时脚本**不产出 zip**，避免误发材料不完整的包。包内自动附一份《提交信息》，
-列明 AI Coding 工具名称及具体用途，直接满足通知的披露要求。
-
-通知**未规定**文件类型、附件大小上限、页数字数；脚本中的 25MB 为工程建议值，不是主办方约束。
-提交动作仍需本人从自有邮箱发出——本项目只负责把包打对、把材料查全，不代发邮件。
 
 ## 目录
 
@@ -216,8 +194,6 @@ components/                 15 个当前使用的组件文件
 app/
   page.tsx        根路径：307 重定向到 /plan
   plan/page.tsx   主组件（约 809 行）：三章节状态管理 + 持久化 + 视图切换
-  submit/page.tsx ***REMOVED***
-  competition/page.tsx 307 重定向到 ***REMOVED***
   market/page.tsx 知识库观察页
   admin/          岗位 / 技能数据后台（CRUD）与登录页
   layout.tsx      根布局
@@ -236,44 +212,31 @@ proxy.ts          后台鉴权；生产环境未设置 ADMIN_TOKEN 时关闭管�
 deploy/
   ecosystem.config.cjs  PM2 配置片段（单实例）
   nginx-career.conf     Nginx 反向代理片段
-tests/                    17 个测试文件（纯函数 / 契约 / API 冒烟 / QA 回归 / 提交包）
+tests/                    16 个测试文件（纯函数 / 契约 / API 冒烟 / QA 回归）
   matcher.test.mjs        匹配 / 路径 / 方向候选纯函数测试
   jd.test.mjs             JD 清洗与识别测试
   jd-contract.test.mjs    JD 结果契约测试
   api-smoke.test.mjs      API 冒烟测试（需先启动 dev server）
-  submit.test.mjs         提交包 ZIP 结构测试
   qa-*.test.mjs           QA 回归与对抗性用例
 scripts/
   data/validate-data.mjs  只读一致性校验器：id/track/引用/权重/薪资/estHours/平台白名单/meta 版本，
                           改动 data 后必跑，零错误才算过
-  demo/verify-e2e.mjs          端到端验收（入口 → 开场定位 → 经历 → 岗位库 → 提交页 → 容错）
+  demo/verify-e2e.mjs          端到端验收（入口 → 开场定位 → 经历 → 岗位库 → 容错）
   demo/verify-resilience.mjs   草稿恢复、示例隔离与保存/删除异常验收
   demo/verify-job-library.mjs  岗位库搜索、筛选、排序与分页验收（岗位总数从 data/jobs.json 读取，不硬编码）
-  submit/***REMOVED***  ***REMOVED***包构建器：校验字段与材料完整性，产出可发送的 zip 与提交报告
-  submit/lib/zip.mjs           零依赖 ZIP 写入器（store + deflate，UTF-8 文件名）
-***REMOVED***       ***REMOVED***工作区
-  ***REMOVED***  提交元数据：项目名、***REMOVED***、成员、AI 工具及用途、材料选择
-  materials/              待提交材料；doc- 前缀 = 说明书/计划书，demo- 前缀 = Demo
-  templates/              产品说明书 / 商业计划书提纲模板
 .env.example      环境变量样例（ADMIN_TOKEN）
 docs/
   QUICKSTART.md    快速上手（安装 / 启动 / 三章节操作 / 路由）
   LOCAL_DEMO.md    本地 Demo 与验收说明
-  ***REMOVED***       ***REMOVED***指引：入口、字段、材料清单、关键约束、确认方式
-  ***REMOVED***  本轮***REMOVED***迭代说明与下一阶段验收
-  ***REMOVED***      ***REMOVED***与评审 Q&A
-  ***REMOVED***        AI 编程开发日志
 ```
 
 > 说明：界面截图尚未纳入版本库，因此上文不引用图片路径。`demo/` 为验收脚本的运行产物目录，不进版本库。
 > 需要截图时先运行 `npm run dev` 自行截取，或运行 `scripts/demo/verify-resilience.mjs` /
 > `scripts/demo/verify-job-library.mjs` 获取流程验收结果与截图。
 
-## AI 编程开发
+## 运行时 AI
 
-本项目全程使用 AI 自动编程工具（TRAE / WorkBuddy / Codex）开发，核心设计过程与每次关键交互记录见 [`docs/***REMOVED***`](docs/***REMOVED***)。
-
-本轮***REMOVED***迭代另使用 Codex（OpenAI）与 WorkBuddy 审视需求并协助实现功能、说明页与相关文档。逐工具用途见 [`***REMOVED***`](app***REMOVED***/page.tsx)；提交前须由***REMOVED***核对工具清单与历史记录。AI Coding 用于开发，不代表产品运行时调用生成式 AI。
+当前版本不调用大模型；岗位匹配、技能识别和规划计算均基于本地规则与知识库。
 
 ## 已知边界（坦诚写）
 

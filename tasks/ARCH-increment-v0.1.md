@@ -96,7 +96,7 @@
 | `components/ExperienceInput.tsx` | 新字段（`title`/`partTags`/`hasDeliverable`/`deliverableNote`/`experienceType`/`timeline`），**合并文本不变** | R2 |
 | `components/GapView.tsx` | 时效标注接入（`formatVerifiedAt`），可选 | R2 |
 | `README.md` | 「完成行动不自动提升技能或证据等级」→ 新口径（P0-18） | R2 |
-| `docs/***REMOVED***` | 同上，两处同步 | R2 |
+| `docs/LOCAL_DEMO.md` | 同上，两处同步 | R2 |
 | `scripts/demo/verify-workspace.mjs` | **重新基线化**到当前 UI + 新增「跳过开场」可定位控件 | R2 |
 
 ### 2.3 删除（DELETE）
@@ -496,7 +496,7 @@ POST /api/jds/parse
 - **要点**：**不得覆盖 `components/Orientation.tsx`**；第一屏无输入框、单一主按钮；「跳过定位」控件必须有**稳定的可访问名**（供 `verify-workspace.mjs` 自动定位）；P0-8 视觉清单逐条落地（无渐变/emoji、`01/02/03` 编号、表格清单、等级四档、红色仅硬门槛、绿色仅已验证）。
 
 #### T05 — 能力翻译四态 + 闭环 + 文案同步（P0/P1）
-- **Source Files**：`components/SkillTranslation.tsx`（四态 + 第二层兜底）、`components/PathView.tsx`（提交评判 + 升级 + 「X%→Y%」+ 文案改写）、`components/ExperienceInput.tsx`（新字段）、`components/GapView.tsx`（时效标注）、`README.md`、`docs/***REMOVED***`、`scripts/demo/verify-workspace.mjs`（重新基线化 + 跳过开场）
+- **Source Files**：`components/SkillTranslation.tsx`（四态 + 第二层兜底）、`components/PathView.tsx`（提交评判 + 升级 + 「X%→Y%」+ 文案改写）、`components/ExperienceInput.tsx`（新字段）、`components/GapView.tsx`（时效标注）、`README.md`、`docs/LOCAL_DEMO.md`、`scripts/demo/verify-workspace.mjs`（重新基线化 + 跳过开场）
 - **Dependencies**：T03、T04
 - **优先级**：P0（`verify-workspace` 重新基线化为 P1）
 - **⚠️ 文件重叠提示**：`app/plan/page.tsx` 在 T04 已被修改（开场门 + `view`）。T05 若需再改 `page.tsx`（为 `PathView` 传新 props），**T05 开始时必须重读该文件**；若可将改动全部收口在 `components/PathView.tsx` 内部则**不动 `page.tsx`**（推荐：`PathView` 通过新增 `onEvaluate` 回调由 T04 一次性接好）。
@@ -567,7 +567,7 @@ graph TD
    - 等级只用「高 / 中高 / 中 / 低」，**禁止百分比**。
    - **禁止出现「已核验」**（Q8）；「申请复核」= `reviewRequested=true` + 理由 + 个人待办。
    - `assumed` 行必须附「（此项为人工初判，待校准）」。
-   - `PathView` / `README.md` / `docs/***REMOVED***` 三处口径必须一致。
+   - `PathView` / `README.md` / `docs/LOCAL_DEMO.md` 三处口径必须一致。
 7. **零 LLM 红线**：新增代码不得出现 `fetch` 到外部、`embedding`、`ocr`、任何模型 SDK；`/api/*` 只读写本地 SQLite。
 
 ---
@@ -685,7 +685,7 @@ graph TD
 | `app/plan/page.tsx` 的 `step`/`view` 状态机 | 新增 `view="brief"`；`step` 取值域 0–4 不变；开场门独立于 `step` | 中 |
 | `Persisted` / `plan-storage.ts` | 不改（`orientation` 随 `profile` 走） | 低 |
 | `PathView.tsx` 的 `actionReviews` | 保留；新增 `actionEvaluations`（互不冲突，前者=体验复盘，后者=产出物评判） | 中 |
-| `README.md` / `docs/***REMOVED***` 文案 | 两处同步改写 | 低 |
+| `README.md` / `docs/LOCAL_DEMO.md` 文案 | 两处同步改写 | 低 |
 
 ## 附录 B：验收自检清单（交付前逐条勾）
 
@@ -700,5 +700,5 @@ graph TD
 - [ ] `confidence` 与 `sample_size` 三处（jobs/skills/tracks）自洽
 - [ ] 前端零硬编码时效字符串（全部来自 `formatVerifiedAt`）
 - [ ] 无任何「已核验」字样；无批量 `verified_at` 标记入口
-- [ ] `PathView` / `README.md` / `docs/***REMOVED***` 三处口径一致
+- [ ] `PathView` / `README.md` / `docs/LOCAL_DEMO.md` 三处口径一致
 - [ ] 无新依赖；无外部网络调用 / embedding / OCR

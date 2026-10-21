@@ -815,7 +815,6 @@ export default function Home() {
       )}
 
       </main><footer className="trial-footer"><span>职途 / 从做过的事，到值得试的路</span><div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <Link href="***REMOVED***">***REMOVED*** <ArrowUpRight size={13} /></Link>
         <Link href="/market">模板 v{DATA_META.version} · 数据与边界 <ArrowUpRight size={13} /></Link>
       </div></footer>
     </div>

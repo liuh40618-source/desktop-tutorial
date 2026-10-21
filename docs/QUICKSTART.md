@@ -43,7 +43,6 @@ npm run dev
 | --- | --- |
 | `/` | 307 重定向到 `/plan` |
 | `/plan` | 主流程：三章节职业试选（写经历 → 比较方向 → 动手验证） |
-| `***REMOVED***` | ***REMOVED***与提交前核对项 |
 | `/market` | 知识库观察：5 张基于本地模板的图表，纯前端 SVG/CSS |
 | `/admin` | 岗位 / 技能数据后台（CRUD，写 SQLite） |
 | `/admin/login` | 后台登录页；生产环境需配置 `ADMIN_TOKEN` 才会开放后台 |
