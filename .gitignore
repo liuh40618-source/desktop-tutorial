@@ -62,7 +62,7 @@ install.log
 # AI 生成的临时调试产物
 _*.json
 
-# ***REMOVED***包产出（由 npm run ***REMOVED*** 生成，含大体积媒体文件，不进版本库）
+# Build output
 /dist/
 
 # python

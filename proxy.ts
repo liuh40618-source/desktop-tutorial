@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
  * - 配置后：/admin 页面与 /api/admin/* 写接口需要 cookie zhitu_admin == ADMIN_TOKEN
  * - 未登录访问页面 → 302 到 /admin/login；直调写接口 → 401
  *
- * 未配置 ADMIN_TOKEN 时的生产行为（***REMOVED*** / 演示场景按此表现，勿改回裸 503 文本）：
+ * 未配置 ADMIN_TOKEN 时的生产行为（访客访问管理入口时按此表现）：
  * - 页面 /admin/* → 302 回首页，访客不会撞到"管理后台暂未启用"的裸错误页
  * - 接口 /api/admin/* → 503 + JSON，仅暴露给直接调用方
  *
