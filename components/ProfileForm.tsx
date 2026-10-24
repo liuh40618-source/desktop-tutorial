@@ -43,7 +43,8 @@ export function ProfileForm({
     return Array.from(m.entries());
   }, [skills]);
 
-  const set = (k: keyof Profile, v: any) => setProfile({ ...profile, [k]: v });
+  const set = <K extends keyof Profile>(key: K, value: Profile[K]) =>
+    setProfile({ ...profile, [key]: value });
 
   function toggleSkill(id: string) {
     const has = profile.knownSkillIds.includes(id);
@@ -196,7 +197,7 @@ export function ProfileForm({
     <section>
       <h2 className="text-xl font-semibold tracking-tight text-foreground">我的情况</h2>
       <p className="mt-1 text-sm text-muted">
-        补齐这三项，匹配就能跑了；填得越准，匹配分越能拆出价值
+        请补充以下三项信息，以生成岗位匹配结果。信息越准确，匹配依据和能力差距越清晰。
       </p>
 
       <div className="card mt-5 p-5">
@@ -275,6 +276,17 @@ export function ProfileForm({
         <div className="mt-3">
           <ResumeImport
             onNotice={onNotice}
+            onSanitizedText={(text) => setProfile({
+              ...profile,
+              experiences: text,
+              experienceMasking: {
+                version: "regex-v1",
+                manualTerms: profile.experienceMasking?.manualTerms ?? [],
+                autoMaskedCount: 0,
+                cleanedText: text,
+                cleanedAt: Date.now(),
+              },
+            })}
             onDetected={(ids) =>
               set("knownSkillIds", Array.from(new Set([...profile.knownSkillIds, ...ids])))
             }
@@ -292,7 +304,7 @@ export function ProfileForm({
               </span>
             </h3>
             <p className="mt-0.5 text-xs text-muted">
-              权重 3=硬门槛 2=重要 1=加分；勾得越准，匹配分拆得越开
+              权重 3=硬门槛 2=重要 1=补充；用于要求向量和缺口排序
             </p>
           </div>
           <button onClick={autoDetect} className="btn btn-ghost shrink-0 whitespace-nowrap px-3 py-1.5 text-xs">

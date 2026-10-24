@@ -56,15 +56,19 @@ function interestLabel(interest: TrialAttempt["interest"]) {
 export function TrialLab({
   attempts,
   onChange,
+  initialActiveId = "",
+  onActiveIdChange,
   onBack,
   onContinuePlanner,
 }: {
   attempts: TrialAttempt[];
   onChange: (attempts: TrialAttempt[]) => void;
+  initialActiveId?: string;
+  onActiveIdChange: (id: string) => void;
   onBack: () => void;
   onContinuePlanner: () => void;
 }) {
-  const [activeId, setActiveId] = useState("");
+  const [activeId, setActiveId] = useState(initialActiveId);
   const active = attempts.find((attempt) => attempt.id === activeId);
   const task = active ? getTrialTask(active.taskId) : undefined;
   const latestOpen = useMemo(
@@ -77,6 +81,11 @@ export function TrialLab({
     return role ? [role] : [];
   }));
 
+  function selectAttempt(id: string) {
+    setActiveId(id);
+    onActiveIdChange(id);
+  }
+
   function updateAttempt(id: string, change: Partial<TrialAttempt>) {
     onChange(attempts.map((attempt) => attempt.id === id ? { ...attempt, ...change } : attempt));
   }
@@ -84,7 +93,7 @@ export function TrialLab({
   function handleStartTask(taskId: string) {
     const attempt = createTrialAttempt(taskId);
     onChange([...attempts, attempt]);
-    setActiveId(attempt.id);
+    selectAttempt(attempt.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -100,7 +109,7 @@ export function TrialLab({
     const isComplete = active.status === "completed";
     return (
       <section className="trial-lab-page">
-        <button className="quiet-button" onClick={() => setActiveId("")}><ArrowLeft size={16} />返回试驾任务</button>
+        <button className="quiet-button" onClick={() => selectAttempt("")}><ArrowLeft size={16} />返回试驾任务</button>
         <div className="trial-lab-heading">
           <span className="chapter-label">职业试驾 / {task.role}</span>
           <h1>{task.title}</h1>
@@ -147,7 +156,7 @@ export function TrialLab({
         </div>
 
         {isComplete && <details className="trial-reference"><summary>查看参考核对思路</summary><ul>{task.reference.map((item) => <li key={item}>{item}</li>)}</ul></details>}
-        {isComplete && <div className="trial-result-actions"><button className="btn btn-secondary" onClick={() => setActiveId("")}>再比较一个方向 <ArrowRight size={15} /></button><button className="btn btn-primary" onClick={onContinuePlanner}>继续整理经历与计划 <ArrowRight size={15} /></button></div>}
+        {isComplete && <div className="trial-result-actions"><button className="btn btn-secondary" onClick={() => selectAttempt("")}>再比较一个方向 <ArrowRight size={15} /></button><button className="btn btn-primary" onClick={onContinuePlanner}>继续整理经历与计划 <ArrowRight size={15} /></button></div>}
       </section>
     );
   }
@@ -167,7 +176,7 @@ export function TrialLab({
         <div className="trial-passport-list">{completed.slice(-4).reverse().map((attempt) => {
           const doneTask = getTrialTask(attempt.taskId);
           if (!doneTask) return null;
-          return <button key={attempt.id} onClick={() => setActiveId(attempt.id)}><span><b>{doneTask.role}</b>{doneTask.title}</span><small>{interestLabel(attempt.interest)}</small></button>;
+          return <button key={attempt.id} onClick={() => selectAttempt(attempt.id)}><span><b>{doneTask.role}</b>{doneTask.title}</span><small>{interestLabel(attempt.interest)}</small></button>;
         })}</div>
       </section>}
 

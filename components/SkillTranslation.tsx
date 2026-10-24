@@ -216,13 +216,10 @@ export function SkillTranslation({
   }
 
   return (
-    <section>
-      <span className="chapter-label">01 / 看见经历 · 核对能力</span>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground">这段经历里，哪些是你真正做过的？</h2>
-      <p className="mt-1 text-sm text-muted">
-        关键词命中不等于掌握。只保留你能说明个人贡献的能力。
-      </p>
-      {profile.experiences && <blockquote className="source-quote">{profile.experiences}</blockquote>}
+    <section className="evidence-workbench">
+      <span className="chapter-label">02 / 看见经历 · 核对能力</span>
+      <div className="evidence-workbench-heading"><div><h2 className="text-xl font-semibold tracking-tight text-foreground">把刚才的话，整理成几条证据。</h2><p className="mt-1 text-sm text-muted">系统只把原话里的线索递给你。逐条判断：这是我真的做过的吗？</p></div><div className="evidence-workbench-stats"><strong>{profile.knownSkillIds.length}</strong><span>已确认能力</span><strong>{pending.length}</strong><span>待核对线索</span></div></div>
+      {profile.experiences && <blockquote className="source-quote evidence-source"><span>你的原话</span>{profile.experiences}</blockquote>}
 
       {layerUsed === "layer2" && (
         <p className="mt-3 rounded-md bg-[var(--surface-2)] px-3 py-2 text-xs text-muted">
@@ -232,14 +229,14 @@ export function SkillTranslation({
       )}
 
       {pending.length > 0 ? (
-        <div className="mt-4 space-y-2.5">
+        <div className="mt-4 space-y-2.5 evidence-candidate-list">
           {pending.map((c) => {
             const quotes = matchingLines(c.hitAliases);
             const r = readout(quotes, c.hitAliases);
             const state = pendingCandidates[c.id];
             const isEditing = editing === c.id;
             return (
-              <div key={c.id} className="card p-4">
+              <div key={c.id} className="card evidence-candidate-card p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="tag w1">{c.category}</span>
                   <span className="text-sm text-muted">这段经历，岗位通常叫</span>
@@ -360,7 +357,7 @@ export function SkillTranslation({
         </p>
       )}
 
-      <div className="card mt-4 p-5">
+      <div className="card evidence-board mt-4 p-5">
         <h3 className="text-base font-medium text-foreground">
           已确认的能力
           <span className="ml-2 text-xs font-normal text-muted">{profile.knownSkillIds.length} 项</span>

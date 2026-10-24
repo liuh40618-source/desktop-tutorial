@@ -27,6 +27,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", ".
 // ---------------------------------------------------------------------------
 const jobsJson = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "jobs.json"), "utf8"));
 const skillsJson = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "skills.json"), "utf8"));
+const onetJson = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "onet-31.0.json"), "utf8"));
 
 const tracks = Array.isArray(jobsJson.tracks) ? jobsJson.tracks : [];
 const jobs = Array.isArray(jobsJson.jobs) ? jobsJson.jobs : [];
@@ -349,7 +350,20 @@ check("tracks 13 方向说明书字段完整（glossary≥5 且 plain 不复述 
 check("_meta.version 已升档（> 3.4）", jobsVer > "3.4" && skillsVer > "3.4", `jobs=${jobsVer} / skills=${skillsVer}`);
 
 // ---------------------------------------------------------------------------
-// 13. 别名体检报告（**不阻断**，但每次跑都打印，让「待清理清单」一直撞在眼前）
+// 13. O*NET source and crosswalk sanity checks
+// ---------------------------------------------------------------------------
+const localSkillIds = new Set(skills.map((skill) => skill.id));
+const onetMappings = onetJson.skillMappings ?? {};
+const invalidOnetMappings = Object.entries(onetMappings).flatMap(([skillId, ids]) =>
+  !localSkillIds.has(skillId) || !Array.isArray(ids) || ids.length === 0 || ids.some((id) => !/^\d\.[A-Z](?:\.\d+|\.[a-z])+(?:\.[a-z0-9]+)*$/i.test(id))
+    ? [skillId]
+    : []
+);
+check("O*NET 来源元数据与 CC BY 4.0 标注完整", onetJson.version === "31.0" && onetJson.source?.includes("onetcenter.org") && onetJson.license === "CC BY 4.0", `O*NET ${onetJson.version ?? "?"}`);
+check("O*NET 技能交叉映射只引用本地技能且结构有效", invalidOnetMappings.length === 0, `${Object.keys(onetMappings).length} 个本地技能`);
+
+// ---------------------------------------------------------------------------
+// 14. 别名体检报告（**不阻断**，但每次跑都打印，让「待清理清单」一直撞在眼前）
 // ---------------------------------------------------------------------------
 const aliasOwners = new Map();
 const shortCjkAliases = [];

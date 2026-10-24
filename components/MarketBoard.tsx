@@ -14,6 +14,16 @@ interface SalaryBucket {
   count: number;
 }
 
+interface MarketJob {
+  track: string;
+  core: Array<{ s: string; w?: number }>;
+  salary?: { junior?: string };
+}
+
+interface MarketData {
+  jobs: MarketJob[];
+}
+
 function parseSalaryRange(s: string | undefined): [number, number] | null {
   if (!s) return null;
   const m = s.match(/([0-9]+(?:\.[0-9]+)?)\s*[-–—]\s*([0-9]+(?:\.[0-9]+)?)/);
@@ -26,7 +36,7 @@ function parseSalaryRange(s: string | undefined): [number, number] | null {
 
 /** 按技能权重与需求频次打分的方向关键技能：core 的 w 加权 + 被引用次数 */
 function trackSkillScore(
-  jobsRaw: any[],
+  jobsRaw: MarketJob[],
   skillName: (id: string) => string
 ): Array<{ track: string; skills: Array<{ name: string; w: number }> }> {
   const map = new Map<string, Map<string, number>>();
@@ -67,7 +77,7 @@ export function MarketBoard() {
   }, [skills]);
 
   const data = useLocalSBData();
-  const jobs = useMemo(() => (data ? (data as any)?.jobs ?? [] : []), [data]);
+  const jobs = useMemo(() => data?.jobs ?? [], [data]);
   const dataReady = !!data;
 
   // ── 板块1：方向岗位数 ──
@@ -298,13 +308,18 @@ export function MarketBoard() {
 
 /** 在纯客户端组件里拉取 /api/knowledge（与主页面共用同一数据源） */
 function useLocalSBData() {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<MarketData | null>(null);
   useEffect(() => {
     let alive = true;
     fetch("/api/knowledge")
-      .then((r) => r.json())
-      .then((kb) => {
+      .then((r) => {
+        if (!r.ok) throw new Error("知识库读取失败");
+        return r.json() as Promise<unknown>;
+      })
+      .then((value) => {
         if (alive) {
+          if (!value || typeof value !== "object") throw new Error("知识库格式无效");
+          const kb = value as Parameters<typeof initKB>[0] & MarketData;
           initKB(kb);
           setData(kb);
         }

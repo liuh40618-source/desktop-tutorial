@@ -28,70 +28,23 @@ function fmtScore(n: number): string {
 
 function ScoreBreakdown({
   match,
-  targetTracks,
 }: {
   match: JobMatch;
-  targetTracks: string[];
 }) {
-  const totalCore = match.covered.length + match.missing.length;
-  const covPts = match.scoreBreakdown.coverage;
-  const dirOk = targetTracks.length === 0 || targetTracks.includes(match.track);
-  const dirPts = dirOk ? 10 : 5;
-
-  const rows: { label: string; scale: string; state: string; pts: string }[] = [
-    {
-      label: "必备技能覆盖率",
-      scale: "×0.75",
-      state: `必备技能命中 ${match.covered.length}/${totalCore} 项（按权重计 ${match.coverage}%）`,
-      pts: `${fmtScore(covPts)} / 75`,
-    },
-    {
-      label: "加分项",
-      scale: "×0.15",
-      state:
-        match.plusCovered.length > 0
-          ? `已命中：${match.plusCovered.join("、")}`
-          : "未命中加分技能",
-      pts: `${fmtScore(match.scoreBreakdown.bonus)} / 15`,
-    },
-    {
-      label: "方向契合",
-      scale: "×0.10",
-      state: dirOk
-        ? targetTracks.length === 0
-          ? "未限定方向，不打折"
-          : `勾选了「${match.trackName}」，不打折`
-        : "未勾选此方向，按一半计",
-      pts: `${fmtScore(dirPts)} / 10`,
-    },
-  ];
-
   return (
     <div>
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-xs font-semibold text-foreground">匹配分构成</span>
-        <span className="num text-xs text-foreground">合计 {match.score} 分</span>
+        <span className="text-xs font-semibold text-foreground">匹配依据</span>
+        <span className="num text-xs text-foreground">余弦 {fmtScore(match.cosineSimilarity * 100)}%</span>
       </div>
-      <p className="mt-0.5 text-[0.68rem] leading-relaxed text-muted">
-        覆盖率 ×0.75 ＋ 加分技能覆盖率 ×0.15 ＋ 方向契合 ×0.10，加总后四舍五入。分数用于排序，不代表录用概率。
-      </p>
+      <p className="mt-0.5 text-[0.68rem] leading-relaxed text-muted">余弦相似度用作主排序指标；方向偏好不修改技能相似度，结果不是录用概率。</p>
       <div className="mt-1 text-xs">
-        {rows.map((r) => (
-          <div
-            key={r.label}
-            className="flex items-center justify-between gap-3 border-b border-border/60 py-1.5 last:border-b-0"
-          >
-            <div className="min-w-0 flex-1">
-              <span className="text-foreground">{r.label}</span>
-              <span className="ml-1.5 rounded border border-border bg-white px-1 align-middle text-[0.62rem] text-muted">
-                {r.scale}
-              </span>
-              <div className="mt-0.5 truncate text-[0.68rem] text-muted">{r.state}</div>
-            </div>
-            <span className="num shrink-0 whitespace-nowrap text-muted">{r.pts}</span>
-          </div>
-        ))}
+        <div className="flex items-center justify-between border-b border-border/60 py-1.5"><span>核心命中 / 漏报</span><span className="num">{match.signalDetection.hits} / {match.signalDetection.misses}</span></div>
+        <div className="flex items-center justify-between border-b border-border/60 py-1.5"><span>非核心误报</span><span className="num">{match.signalDetection.falseAlarms ?? "不适用"}</span></div>
+        <div className="flex items-center justify-between py-1.5"><span>d′（模板标签区分度）</span><span className="num">{match.signalDetection.dPrime === null ? "不适用" : fmtScore(match.signalDetection.dPrime)}</span></div>
+        <div className="flex items-center justify-between py-1.5"><span>判定准则 c</span><span className="num">{match.signalDetection.criterion === null ? "不适用" : fmtScore(match.signalDetection.criterion)}</span></div>
       </div>
+      <p className="mt-1 text-[0.68rem] leading-relaxed text-muted">信号检测标签暂来自岗位模板的核心/非核心技能，未使用录用结果标签。</p>
     </div>
   );
 }
@@ -418,7 +371,6 @@ function JdSection({
 export function JobList({
   matches,
   selectedId,
-  targetTracks,
   jds,
   selectedGoalId,
   knownSkillIds,
@@ -432,7 +384,6 @@ export function JobList({
 }: {
   matches: JobMatch[];
   selectedId: string;
-  targetTracks: string[];
   jds: JdFront[];
   selectedGoalId: string;
   knownSkillIds: string[];
@@ -459,7 +410,7 @@ export function JobList({
       const statusOk = statusFilter === "all" || (statusFilter === "ready" && match.missing.length === 0) || (statusFilter === "gaps" && match.missing.length > 0) || (statusFilter === "hard" && match.missing.some((skill) => skill.weight === 3));
       return (!needle || searchable.includes(needle)) && (trackFilter === "all" || match.track === trackFilter) && statusOk;
     });
-    return result.sort((a, b) => sort === "coverage" ? b.coverage - a.coverage || b.score - a.score : sort === "gap" ? a.missing.length - b.missing.length || b.coverage - a.coverage : b.score - a.score);
+    return result.sort((a, b) => sort === "coverage" ? b.coverage - a.coverage || b.cosineSimilarity - a.cosineSimilarity : sort === "gap" ? a.missing.length - b.missing.length || b.cosineSimilarity - a.cosineSimilarity : b.cosineSimilarity - a.cosineSimilarity || (b.signalDetection.dPrime ?? -Infinity) - (a.signalDetection.dPrime ?? -Infinity));
   }, [matches, query, sort, statusFilter, trackFilter]);
   const pageCount = Math.max(1, Math.ceil(filteredMatches.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount - 1);
@@ -481,7 +432,7 @@ export function JobList({
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           <label className="text-xs text-muted">方向<select className="input mt-1 py-2 text-sm" value={trackFilter} onChange={(event) => { setTrackFilter(event.target.value); setPage(0); }}><option value="all">全部方向</option>{tracks.map((track) => <option key={track.id} value={track.id}>{track.name}</option>)}</select></label>
           <label className="text-xs text-muted">技能缺口<select className="input mt-1 py-2 text-sm" value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value as typeof statusFilter); setPage(0); }}><option value="all">全部岗位</option><option value="ready">技能已覆盖</option><option value="gaps">有技能缺口</option><option value="hard">有硬门槛缺口</option></select></label>
-          <label className="text-xs text-muted">排序<select className="input mt-1 py-2 text-sm" value={sort} onChange={(event) => { setSort(event.target.value as typeof sort); setPage(0); }}><option value="match">匹配分最高</option><option value="coverage">技能覆盖最高</option><option value="gap">待补技能最少</option></select></label>
+          <label className="text-xs text-muted">排序<select className="input mt-1 py-2 text-sm" value={sort} onChange={(event) => { setSort(event.target.value as typeof sort); setPage(0); }}><option value="match">余弦相似度最高</option><option value="coverage">技能覆盖最高</option><option value="gap">待补技能最少</option></select></label>
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted"><span role="status" aria-live="polite" className="inline-flex items-center gap-1.5"><SlidersHorizontal size={14} aria-hidden />显示 {filteredMatches.length} / {matches.length} 个岗位模板{activeFilters.length > 0 ? " · 已应用 " + activeFilters.length + " 项筛选" : ""}</span>{(query || trackFilter !== "all" || statusFilter !== "all" || sort !== "match") && <button type="button" className="quiet-button text-xs" onClick={clearFilters}>清除筛选</button>}</div>
         {activeFilters.length > 0 && <p className="mt-2 text-[0.68rem] text-muted">当前条件：{activeFilters.join(" · ")}{sort !== "match" ? " · " + (sort === "coverage" ? "按技能覆盖排序" : "按待补技能排序") : ""}</p>}
@@ -499,7 +450,7 @@ export function JobList({
 
       <div className="mt-7">
         <h3 className="text-sm font-semibold tracking-tight text-foreground">
-          内置岗位模板 · {sort === "coverage" ? "技能覆盖最高" : sort === "gap" ? "待补技能最少" : "匹配分最高"}
+          内置岗位模板 · {sort === "coverage" ? "技能覆盖最高" : sort === "gap" ? "待补技能最少" : "余弦相似度最高"}
         </h3>
         {filteredMatches.length === 0 ? (
           <div className="card p-8 text-center text-sm text-muted">
@@ -528,7 +479,7 @@ export function JobList({
                         {m.coverage}%
                       </div>
                       <div className="text-xs text-muted">覆盖率</div>
-                      <div className="mt-0.5 num text-xs text-muted">匹配分 {m.score}</div>
+                      <div className="mt-0.5 num text-xs text-muted">余弦相似度 {(m.cosineSimilarity * 100).toFixed(1)}%</div>
                     </div>
                   </div>
 
@@ -582,7 +533,7 @@ export function JobList({
                   {open && (
                     <div className="mt-3 space-y-2">
                       <div className="rounded-xl bg-[var(--surface-2)] p-3">
-                        <ScoreBreakdown match={m} targetTracks={targetTracks} />
+                        <ScoreBreakdown match={m} />
                       </div>
                       <div className="rounded-xl bg-[var(--surface-2)] p-3">
                         <div className="text-xs font-semibold text-foreground">逐条依据</div>

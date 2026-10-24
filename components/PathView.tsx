@@ -3,7 +3,7 @@
 /**
  * Step 4 · 定计划
  */
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowUpRight, Clock3 } from "lucide-react";
 import type { JobMatch, PathItem } from "@/lib/matcher";
 import { resolveUrl } from "@/lib/links";
@@ -13,21 +13,19 @@ import {
   type DeliverableTypes,
   type EvaluationResult,
 } from "@/lib/evaluate-deliverable";
-import { fmtWeeks, type ActionEvaluation, type ActionReview, type Profile } from "@/lib/types";
-
-type ElementCheck = "yes" | "no" | "unsure";
+import {
+  fmtWeeks,
+  type ActionEvaluation,
+  type ActionEvaluationDraft,
+  type ActionReview,
+  type EvaluationCheck,
+  type PathWorkflowDraft,
+  type Profile,
+} from "@/lib/types";
 
 /** 时间戳取用放在组件外，避免在 render 作用域内直接调用不纯函数 */
 function nowMs(): number {
   return Date.now();
-}
-
-interface EvalDraft {
-  type: string;
-  checks: Record<string, ElementCheck>;
-  overrideLevel: number | null;
-  reviewRequested: boolean;
-  reviewReason: string;
 }
 
 interface EvalBaseline {
@@ -60,6 +58,8 @@ export function PathView({
   actionReviews,
   onUpdateActionReview,
   onCompareDirections,
+  initialWorkflowDraft,
+  onWorkflowDraftChange,
 }: {
   match: JobMatch;
   path: PathItem[];
@@ -75,14 +75,22 @@ export function PathView({
   onCompareDirections: () => void;
   onGoRecords: () => void;
   onBack: () => void;
+  initialWorkflowDraft?: PathWorkflowDraft;
+  onWorkflowDraftChange: (draft: PathWorkflowDraft) => void;
 }) {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [evalError, setEvalError] = useState("");
-  const [focusedSkill, setFocusedSkill] = useState("");
-  const [drafts, setDrafts] = useState<Record<string, EvalDraft>>({});
+  const [githubUrl, setGithubUrl] = useState("");
+  const [githubAuditing, setGithubAuditing] = useState(false);
+  const [githubAuditError, setGithubAuditError] = useState("");
+  const [focusedSkill, setFocusedSkill] = useState(initialWorkflowDraft?.focusedSkill ?? "");
+  const [drafts, setDrafts] = useState<Record<string, ActionEvaluationDraft>>(initialWorkflowDraft?.drafts ?? {});
   const [baselines, setBaselines] = useState<Record<string, EvalBaseline>>({});
+  useEffect(() => {
+    onWorkflowDraftChange({ focusedSkill, drafts });
+  }, [focusedSkill, drafts, onWorkflowDraftChange]);
   const totalHours = path.reduce((sum, item) => sum + item.estHours, 0);
   const pending = path.filter((item) => !completedActions.includes(`${match.jobId}:${item.skillId}:${item.kind}`));
   const first = path.find((item) => item.skillId === focusedSkill) ?? pending[0];
@@ -90,14 +98,14 @@ export function PathView({
   const firstDone = first && completedActions.includes(firstActionId);
   const firstReview = first ? actionReviews[firstActionId] : undefined;
 
-  const emptyDraft = (item: PathItem): EvalDraft => ({
+  const emptyDraft = (item: PathItem): ActionEvaluationDraft => ({
     type: item.deliverableType || "other",
     checks: {},
     overrideLevel: null,
     reviewRequested: false,
     reviewReason: "",
   });
-  const firstDraft: EvalDraft | null = first ? drafts[firstActionId] ?? emptyDraft(first) : null;
+  const firstDraft: ActionEvaluationDraft | null = first ? drafts[firstActionId] ?? emptyDraft(first) : null;
   const requiredElements = firstDraft ? requiredElementsFor(firstDraft.type, deliverableTypes) : [];
   const evalTitle = firstReview?.artifact ?? "";
   const evalLocation = firstReview?.location ?? "";
@@ -109,7 +117,7 @@ export function PathView({
         deliverableTypes
       )
     : null;
-  const effectiveChecks: Record<string, ElementCheck> = {};
+  const effectiveChecks: Record<string, EvaluationCheck> = {};
   if (firstDraft && ruleEval) {
     for (const element of requiredElements) {
       effectiveChecks[element] =
@@ -132,29 +140,8 @@ export function PathView({
       )
     : null;
   const finalLevel = firstDraft && evaluation ? firstDraft.overrideLevel ?? evaluation.suggestedLevel : 1;
-  /**
-   * 最近一次评判结果：从**持久化的** actionEvaluations 里取，而不是局部状态——
-   * 因为升级后该技能可能不再缺，buildPath 会把它移出 path，面板会随之卸载；
-   * 从持久化数据派生才能保证「X% → Y%」在 navigate(2) 回来之后仍然可见。
-   */
-  const latestEvaluation = useMemo(() => {
-    const entries = Object.entries(profile.actionEvaluations ?? {}).filter(([id]) => id.startsWith(`${match.jobId}:`));
-    if (!entries.length) return null;
-    entries.sort((a, b) => (b[1].evaluatedAt ?? 0) - (a[1].evaluatedAt ?? 0));
-    return entries[0] as [string, EvaluationWithBaseline];
-  }, [profile.actionEvaluations, match.jobId]);
-  const latestBaseline = latestEvaluation
-    ? baselines[latestEvaluation[0]] ??
-      (latestEvaluation[1].baseline
-        ? {
-            before: latestEvaluation[1].baseline.coverage,
-            beforeEvidence: latestEvaluation[1].baseline.evidenceCoverage,
-            suggested: latestEvaluation[1].suggestedLevel,
-            final: latestEvaluation[1].finalLevel,
-          }
-        : null)
-    : null;
   const persistedEvaluation = profile.actionEvaluations?.[firstActionId] as EvaluationWithBaseline | undefined;
+  const githubAudited = persistedEvaluation?.source === "github-api" && persistedEvaluation.githubAudit?.passed === true;
   const baseline: EvalBaseline | null =
     baselines[firstActionId] ??
     (persistedEvaluation?.baseline
@@ -166,13 +153,17 @@ export function PathView({
         }
       : null);
 
-  function setDraft(actionId: string, item: PathItem, change: Partial<EvalDraft>) {
+  function setDraft(actionId: string, item: PathItem, change: Partial<ActionEvaluationDraft>) {
     setDrafts((prev) => ({ ...prev, [actionId]: { ...(prev[actionId] ?? emptyDraft(item)), ...change } }));
   }
 
   /** 提交产出物 → 规则层评判 → 升级证据等级 → 重算匹配（页面 match 随 profile 自动重算） */
   function submitEvaluation(item: PathItem, actionId: string) {
     if (!firstDraft || !evaluation) return;
+    if (githubAudited) {
+      setEvalError("这条行动已经由服务端 GitHub 公开 API 审计并自动落库，不能用前端手动覆盖审计结果。");
+      return;
+    }
     setEvalError("");
     if (!evalTitle && !evalLocation && !evalNote) {
       setEvalError("请先填写作品名称、位置或你具体负责了什么，再提交评判。");
@@ -208,6 +199,37 @@ export function PathView({
       ...prev,
       [actionId]: { before: match.coverage, beforeEvidence: match.evidenceCoverage, suggested: evaluation.suggestedLevel, final },
     }));
+  }
+
+  async function auditGithub(actionId: string, skillId: string) {
+    setGithubAuditError("");
+    setGithubAuditing(true);
+    try {
+      const response = await fetch("/api/github/audit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ actionId, skillId, githubUrl }),
+      });
+      const data = (await response.json().catch(() => ({}))) as {
+        error?: string;
+        profile?: Profile;
+        audit?: { passed?: boolean };
+      };
+      if (!response.ok || !data.profile) {
+        setGithubAuditError(data.error || "GitHub 审计失败，请稍后重试。");
+        return;
+      }
+      setProfile(data.profile);
+      if (data.audit?.passed) {
+        setGithubAuditError("");
+      } else {
+        setGithubAuditError("链接已记录，但未达到自动提档门槛；可以修正链接或补充公开提交后重试。");
+      }
+    } catch {
+      setGithubAuditError("审计请求未送达，请确认服务已启动后重试。");
+    } finally {
+      setGithubAuditing(false);
+    }
   }
 
   function updateReview(id: string, change: Partial<ActionReview>) {
@@ -325,6 +347,39 @@ export function PathView({
             </div>
           </div>}
 
+          <div className="work-passport mt-5 border-t border-[#e4eae6] pt-4">
+            <div className="work-passport-heading"><div><span className="detail-eyebrow">作品护照 / 公开证据</span><h4 className="text-sm font-semibold text-foreground">把作品链接交给只读审计</h4></div><span className="work-passport-lock">只读 · 自动落库</span></div>
+            <p className="mt-1 text-xs leading-5 text-muted">
+              只请求公开 GitHub API 的 commits 与 languages，不 clone 仓库、不读取源码。它只记录公开活动证据，不判断原创度或作品质量。
+            </p>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <input
+                className="input min-w-0 flex-1 py-2! text-sm!"
+                value={githubAudited ? (persistedEvaluation?.artifactLocation ?? githubUrl) : githubUrl}
+                onChange={(event) => setGithubUrl(event.target.value)}
+                readOnly={githubAudited}
+                placeholder="https://github.com/用户名/仓库名"
+                aria-label="公开 GitHub 仓库链接"
+              />
+              <button
+                type="button"
+                className="btn btn-primary shrink-0 px-4 py-2 text-xs"
+                disabled={githubAuditing || githubAudited || !githubUrl}
+                onClick={() => void auditGithub(firstActionId, first.skillId)}
+              >
+                {githubAuditing ? "正在读取公开证据…" : githubAudited ? "已自动落库" : "生成作品护照"}
+              </button>
+            </div>
+            <p className="mt-1.5 text-[0.68rem] text-muted">仅接受严格格式：`https://github.com/用户名/仓库名`，不接受查询参数、片段、尾斜杠或其他域名。</p>
+            {githubAudited && persistedEvaluation?.githubAudit && (
+              <div className="work-passport-result mt-3 rounded-lg bg-[#f3f7f3] p-3 text-xs text-[#426c59]">
+                <p className="work-passport-result-title">作品护照已生成</p><p className="mt-1">公开活动：{persistedEvaluation.githubAudit.commitCount} 个 commit · {persistedEvaluation.githubAudit.languageCount} 种语言 · 自动证据等级 {persistedEvaluation.finalLevel}。</p>
+                <p className="mt-1">这是公开活动的规则证据，不等同于人工确认原创度；该结果锁定，前端不能越权覆盖。</p>
+              </div>
+            )}
+            {githubAuditError && <p role="alert" className="danger-text mt-2 text-xs">{githubAuditError}</p>}
+          </div>
+
           {firstDraft && evaluation && ruleEval && (
             <div className="mt-5 border-t border-[#e4eae6] pt-4">
               <h4 className="text-sm font-semibold text-foreground">提交产出物并评判</h4>
@@ -411,6 +466,7 @@ export function PathView({
                   <select
                     className="input w-auto! py-1! text-xs!"
                     value={finalLevel}
+                    disabled={githubAudited}
                     onChange={(e) => setDraft(firstActionId, first, { overrideLevel: Number(e.target.value) })}
                   >
                     {[1, 2, 3, 4].map((lv) => (
@@ -433,6 +489,7 @@ export function PathView({
                   type="checkbox"
                   className="mt-0.5"
                   checked={firstDraft.reviewRequested}
+                  disabled={githubAudited}
                   onChange={(e) => setDraft(firstActionId, first, { reviewRequested: e.target.checked })}
                 />
                 申请复核（零 LLM：标记为「待线下确认」并进入个人待办；不会显示「已核验」）
@@ -449,6 +506,7 @@ export function PathView({
               <button
                 type="button"
                 className="btn btn-primary mt-3 px-4 py-2 text-xs"
+                disabled={githubAudited}
                 onClick={() => submitEvaluation(first, firstActionId)}
               >
                 提交产出物并评判
@@ -474,7 +532,7 @@ export function PathView({
           )}
         </div>}
         {firstDone && <p className="mt-3">已标记完成。{pending.length ? firstReview?.interest ? null : <button className="quiet-button" onClick={() => setFocusedSkill(pending[0].skillId)}>查看下一项待办 <ArrowUpRight size={14} /></button> : "本轮没有剩余行动。可结合上面的体验反馈，复核作品和真实 JD。"}</p>}
-      </article> : path.length > 0 && <div className="first-action"><h3>这轮行动已经完成。</h3><p>作品是否能说明你的个人贡献？实际做的过程，是否值得继续投入？先复核，再决定保留或更换这个方向。</p></div>}
+      </article> : path.length > 0 && <div className="first-action"><h3>本轮行动已完成。</h3><p>请评估作品是否能体现你的个人贡献，以及完成过程是否值得继续投入，再决定是否保留当前方向。</p></div>}
       <div className="plan-overview"><span>{pending.length} 项待完成 / {path.length} 项行动</span><span>完整清单估算 {totalHours} 小时</span><span>技能覆盖 {match.coverage}% · 不是录用概率</span></div>
 
       {!path.length ? (

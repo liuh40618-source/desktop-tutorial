@@ -9,6 +9,8 @@
  */
 import { useRef, useState } from "react";
 import { detectSkills, SKILL_MAP } from "@/lib/matcher";
+import { maskText, strictCleanText } from "@/lib/privacy-mask";
+import { PrivacyMaskBoard } from "@/components/PrivacyMaskBoard";
 
 const ACCEPT = [".pdf", ".docx", ".txt", ".md", ".markdown"];
 
@@ -19,6 +21,8 @@ export interface ResumeImportProps {
   onUndoDetected?: (ids: string[]) => void;
   /** 全局动态提示（可选）：错误 kind="error" 红 Toast，成功/撤销反馈 kind="info" 蓝 Toast */
   onNotice?: (msg: string, kind: "error" | "info") => void;
+  /** 将浏览器侧清洗后的简历文字交给画像；原文不写入父级状态。 */
+  onSanitizedText?: (text: string) => void;
 }
 
 /** 把服务端 / 网络错误翻译成人话 */
@@ -29,13 +33,16 @@ function humanizeErr(status: number, serverMsg: string | undefined): string {
     : "这份文件没能解析成功，换一份试试。";
 }
 
-export function ResumeImport({ onDetected, onUndoDetected, onNotice }: ResumeImportProps) {
+export function ResumeImport({ onDetected, onUndoDetected, onNotice, onSanitizedText }: ResumeImportProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [phase, setPhase] = useState<"idle" | "parsing" | "ok" | "err">("idle");
   const [fileName, setFileName] = useState("");
   const [lastIds, setLastIds] = useState<string[]>([]); // 最近一次识别并入的 ids，用于撤销
   const [chars, setChars] = useState(0); // 本次解析出的文本长度
   const [dragging, setDragging] = useState(false);
+  const [extractedText, setExtractedText] = useState("");
+  const [maskedText, setMaskedText] = useState("");
+  const [maskTerms, setMaskTerms] = useState<string[]>([]);
 
   const notice = (msg: string, kind: "error" | "info") => onNotice?.(msg, kind);
 
@@ -75,7 +82,13 @@ export function ResumeImport({ onDetected, onUndoDetected, onNotice }: ResumeImp
         return;
       }
 
-      const ids = detectSkills(text);
+      const masked = maskText(text);
+      const cleaned = strictCleanText(masked.text);
+      setExtractedText(text);
+      setMaskedText(cleaned);
+      setMaskTerms([]);
+      onSanitizedText?.(cleaned);
+      const ids = detectSkills(cleaned);
       if (!ids.length) {
         setPhase("err");
         notice(
@@ -206,6 +219,22 @@ export function ResumeImport({ onDetected, onUndoDetected, onNotice }: ResumeImp
               撤销本次识别
             </button>
           )}
+        </div>
+      )}
+      {extractedText && (
+        <div className="mt-3">
+          <PrivacyMaskBoard
+            value={extractedText}
+            initialManualTerms={maskTerms}
+            onChange={(cleaned, terms) => {
+              setMaskedText(cleaned);
+              setMaskTerms(terms);
+              onSanitizedText?.(cleaned);
+            }}
+            label="简历文本脱敏看板"
+            help="文件文字返回浏览器后立即按本地规则脱敏；右侧内容可编辑，后续识别只使用清洗结果。"
+          />
+          <p className="mt-1 text-xs text-muted">当前清洗文本 {maskedText.length} 字；原文件与原文不会写入画像。</p>
         </div>
       )}
     </div>

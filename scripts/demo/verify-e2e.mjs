@@ -94,7 +94,7 @@ try {
 
   // 6. /admin 不再暴露裸 503
   await run("/admin：未配 ADMIN_TOKEN 时重定向回 /plan 而非裸错误页", async () => {
-    const resp = await page.goto(`${base}/admin`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${base}/admin`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(1200);
     const body = await page.locator("body").innerText();
     assert.ok(!body.includes("管理后台暂未启用"), "不应显示裸 503 文本页");

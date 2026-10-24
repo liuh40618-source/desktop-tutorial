@@ -20,6 +20,23 @@ test("self-reported skills are not automatically project evidence", () => {
   assert.equal(match.weakEvidence.length, 2);
 });
 
+test("cosine is the primary weighted-vector metric and signal detection is finite for edge rates", () => {
+  const m = matchJob({ knownSkillIds: ["sql", "excel"] }, "analyst");
+  assert.ok(Math.abs(m.cosineSimilarity - 3 / Math.sqrt(26)) < 1e-12);
+  assert.equal(m.score, 70); // legacy compatibility only
+  assert.equal(m.signalDetection.hits, 1);
+  assert.equal(m.signalDetection.misses, 1);
+  assert.equal(m.signalDetection.falseAlarms, 1);
+  assert.ok(Number.isFinite(m.signalDetection.dPrime));
+  assert.ok(Number.isFinite(m.signalDetection.criterion));
+});
+
+test("O*NET crosswalk dimensions let explicitly mapped skills share cosine signal", () => {
+  initKB({ ...kb, onet: { skillMappings: { sql: ["2.B.3.e"], python: ["2.B.3.e"] } } });
+  const m = matchJob({ knownSkillIds: ["python"] }, "analyst");
+  assert.equal(m.cosineSimilarity, 1);
+});
+
 test("skill preselection uses shared token boundaries", () => {
   assert.deepEqual(detectSkills("JavaScript 和 NoSQL；Java 和 SQL"), ["sql", "java", "javascript"]);
 });

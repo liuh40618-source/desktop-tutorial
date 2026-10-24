@@ -22,6 +22,7 @@
 | `/market` | 知识库观察：基于本地模板的 5 张图表 |
 | `/admin` | 岗位 / 技能数据后台（CRUD，写 SQLite） |
 | `/admin/login` | 后台登录页；生产环境需配置 `ADMIN_TOKEN` 才会开放后台 |
+| `/api/health` | 服务与 SQLite 就绪探针，不返回用户数据 |
 
 ## 界面预览
 
@@ -47,7 +48,7 @@ node scripts/demo/verify-job-library.mjs   # 岗位库搜索、筛选、排序�
 
 - **围绕证据与行动**：区分自述技能、项目支撑和待补材料，不把关键词出现等同于能力被核验
 - **结构与数据由本地知识库保证**——579 岗 × 17 方向 × 134 技能，权重与门槛人工可复核
-- **算法全部可解释**——匹配分 = 覆盖率 75% + 加分项 15% + 方向契合 10%，每分都有 `reasons` 字符串
+- **算法全部可解释**——岗位排序使用 O*NET 对齐技能向量的余弦相似度，并输出基于模板标签的信号检测指标；每项都有 `reasons` 字符串
 - **当前没有大模型调用**：匹配与识别基于本地规则；主流程不依赖外部图片，学习资源链接跳转外部平台
 - **不只是"匹配"**——能从一份真实 JD 算差距、能导出可读规划，能用 SQL 管理后台维护数据
 
@@ -97,8 +98,8 @@ node scripts/demo/verify-job-library.mjs   # 岗位库搜索、筛选、排序�
 ```
 技能覆盖 = Σ(用户确认技能的权重) / Σ(岗位必备技能权重)
 证据覆盖 = Σ(用户确认且自评证据等级 >= 3 的技能权重) / Σ(岗位必备技能权重)
-匹配分   = 技能覆盖 × 75% + 加分项覆盖率 × 15% + 方向契合 × 10%
-方向契合 = 未勾选方向 → 1.0；勾选且命中 → 1.0；勾选但不命中 → 0.5
+岗位排序 = cosine(profile_vector, job_vector)
+信号检测 = d′（命中率与误报率的 Z 分数差）+ c（判定准则）；模板标签不等于录用结果
 行动周期 = Σ(补技能与补作品行动估算时长) / 每周投入时长（默认 10 小时/周）
 行动顺序 = 核心权重降序，再按 权重 ÷ 估算耗时 降序
 ```
@@ -118,11 +119,17 @@ node scripts/demo/verify-job-library.mjs   # 岗位库搜索、筛选、排序�
 
 简历文本本身不参与打分、不进数据库——它只是帮你更快勾出技能，避免手动翻简历。
 
+## 首轮隐私与 GitHub 作品审计
+
+经历和简历提取文字返回浏览器后，会先经过本地正则脱敏；页面提供可编辑的清洗结果和手动隐藏词条。后续技能识别、匹配和保存只使用清洗文本，自动规则覆盖手机号、邮箱、证件号和卡号等常见格式。该规则不等于完整匿名化，提交前仍需检查清洗看板。
+
+行动计划支持公开 GitHub 仓库的轻量审计。服务端只接受严格的 `https://github.com/用户名/仓库名` URL，通过 GitHub 公开 API 读取 commits 和 languages，不 clone 仓库、不读取源码。当前规则为至少 3 个公开 commit 且存在语言统计时，自动写入 `actionEvaluations` 并把对应技能证据等级提到 3；结果标记为自动审计，不能在前端手动覆盖，也不代表人工确认原创度。
+
 ## 设计取舍与依据
 
 | 常见问题 | 本项目应对 |
 | --- | --- |
-| 数字怎么来的？ | 岗位卡可展开技能覆盖、加分项、方向契合三项构成；证据覆盖单独显示，匹配分不是录用概率 |
+| 数字怎么来的？ | 岗位卡可展开余弦相似度、核心命中/漏报、非核心误报与 d′；这些指标不是录用概率 |
 | 数据可靠吗？ | 579 岗 / 17 方向 / 134 技能是静态模板；结构校验不代表市场代表性，逐条来源与外部验证仍待补齐 |
 | 怎么验证？ | `npm run check`、生产构建、17 个测试文件，以及 `scripts/demo/verify-resilience.mjs` / `verify-job-library.mjs` 覆盖移动端与保存恢复 |
 | 模型在哪？ | 没有模型。`lib/db.ts` 与 `lib/matcher.ts` 不发起任何网络请求，UI 与算法全部基于本地知识库 |
@@ -134,7 +141,7 @@ node scripts/demo/verify-job-library.mjs   # 岗位库搜索、筛选、排序�
   不同城市/公司/学历差异很大，**请以目标岗位的实际 JD 为准**。数据版本写在 `data/*.json` 的 `_meta.version`。
 - 学习资源：只写资源名与平台，链接由 `lib/links.ts` 按「平台 + 关键词」拼成平台搜索链接。
   不写死具体 URL——课程会下架、文档会改版，写死的链接必然腐烂。
-- 草稿同时写入浏览器 localStorage 与服务端 SQLite（`career.db`）；本地缓存按访客会话分区，仅当前访客的缓存优先于服务端副本。已有有效会话的浏览器可一次性迁移旧缓存；新访客不会自动导入无分区的旧缓存。个人草稿、规划与 JD 按签名访客会话隔离；换浏览器或设备不会自动同步。
+- 草稿同时写入浏览器 localStorage 与服务端 SQLite（默认 `career.db`）；恢复时以服务端副本为准，服务暂时不可用时才回退到当前访客的浏览器缓存。已有有效会话的浏览器可一次性迁移旧缓存；新访客不会自动导入无分区的旧缓存。个人草稿、规划与 JD 按签名访客会话隔离；换浏览器或设备不会自动同步。
 - 在「我的记录」可清除当前访客的画像、职业试驾答案、规划、JD 与对应浏览器缓存；清除服务端数据需能连接当前应用服务。
 
 ## 运行
@@ -150,7 +157,7 @@ npm run dev          # 打开 http://localhost:4000/plan
 
 首次启动会读 `data/*.json` 种子化 `career.db`，之后所有读取走数据库。
 
-**环境变量**：只有 `ADMIN_TOKEN`（后台口令），见 `.env.example`。本地开发可留空，此时后台不加锁；局域网或公网暴露必须设置长随机口令。
+**环境变量**：`ADMIN_TOKEN`（后台口令）；Docker Compose 可用 `APP_PORT` 修改主机本地端口。`CAREER_DB_PATH` 可将 SQLite 文件放到持久磁盘，默认位于项目目录。见 `.env.example`。本地开发可留空，此时后台不加锁；公网运行必须设置长随机口令。
 
 **路由**：主流程 `/plan`，知识库观察 `/market`，数据后台 `/admin`。
 
@@ -158,7 +165,37 @@ npm run dev          # 打开 http://localhost:4000/plan
 `/api/jds/parse`、`/api/parse-resume`、`/api/admin/...`），**当前版本不能纯静态部署**，需要一个 Node 运行时。
 
 `deploy/` 下保留了 PM2（`ecosystem.config.cjs`）与 Nginx（`nginx-career.conf`）配置片段，
-但**尚未公开部署**。本轮已为草稿、规划和 JD 增加访客会话隔离；正式多人部署前仍需设置 `ADMIN_TOKEN`，并核对 HTTPS、单实例 SQLite 和服务端滥用防护。Nginx 模板为 JD 与简历解析接口配置了请求频率和请求体限制；只有流量确实经过该 Nginx 时这些限制才生效。
+但尚未公开部署。仓库提供 Docker 单实例自托管配置；SQLite 数据库和备份分别放在独立持久卷，容器重建时不会随镜像一起删除。该配置适合小规模试运行，不能横向扩成多个应用副本。正式开放前仍需设置 `ADMIN_TOKEN`、配置 HTTPS、把备份复制到另一台主机或云盘、演练恢复，并做真实用户验收。Nginx 模板为 JD 与简历解析接口配置了请求频率和请求体限制；只有流量确实经过该 Nginx 时这些限制才生效。
+
+### Docker 单实例部署
+
+需要一台支持 Docker Compose 的 Linux 主机。容器只绑定到主机回环地址，公网流量应经过 Nginx 和 HTTPS；SQLite 使用名为 `career_data` 的持久卷。
+
+```bash
+cp .env.example .env
+# 编辑 .env，填写长随机 ADMIN_TOKEN
+docker compose up --build -d
+docker compose ps
+```
+
+应用健康检查地址为 `http://127.0.0.1:3000/api/health`。配置 `deploy/nginx-career.conf` 前，需替换域名和证书路径。数据库位置可通过 `CAREER_DB_PATH` 指定；Compose 已将数据库和备份分别放进持久卷。执行下面的命令会在运行中的应用旁生成一致性备份，并做完整性检查：
+
+```bash
+docker compose exec -T app node --experimental-sqlite scripts/backup-db.mjs
+mkdir -p ./backups
+docker compose cp app:/backups/. ./backups/
+```
+
+Compose 会在应用健康后立即备份一次，此后每 24 小时生成一份，并在备份卷中保留最近 30 份。手动备份命令也可用于即时快照。备份卷与数据库卷分开，但仍位于同一台主机；需把 `./backups/` 定期复制到另一台主机或云盘。**不要运行 `docker compose down -v`，它会删除访客数据和容器内备份所在的数据卷。** 数据库仍是单实例 SQLite，不支持多容器共享写入。
+
+恢复前先把要恢复的文件放入 Compose 的备份卷，然后停止应用。恢复工具会先检查备份、把当前数据库副本保存在备份卷中，再替换数据库并清理旧 WAL 文件：
+
+```bash
+docker compose cp ./backups/career-YYYY-MM-DDTHH-MM-SS.sssZ.db app:/backups/restore.db
+docker compose stop app backup
+docker compose run --rm --no-deps app node --experimental-sqlite scripts/restore-db.mjs /backups/restore.db
+docker compose up -d --wait
+```
 
 ## 目录
 
@@ -200,6 +237,7 @@ app/
   globals.css     全局样式
   trial.css       试选界面样式
   api/knowledge/  返回整库知识库，纯数据、零外部调用
+  api/health/     服务与 SQLite 就绪探针
   api/session/    初始化无账号访客会话
   api/profile/    当前访客画像读写（SQLite，localStorage 兜底）
   api/data/       当前访客全部数据清除（画像、规划和 JD）
@@ -221,10 +259,15 @@ tests/                    16 个测试文件（纯函数 / 契约 / API 冒烟 /
 scripts/
   data/validate-data.mjs  只读一致性校验器：id/track/引用/权重/薪资/estHours/平台白名单/meta 版本，
                           改动 data 后必跑，零错误才算过
+  backup-db.mjs           在线 SQLite 一致性备份与完整性检查
+  restore-db.mjs          停服后校验并恢复备份，保留恢复前副本
   demo/verify-e2e.mjs          端到端验收（入口 → 开场定位 → 经历 → 岗位库 → 容错）
   demo/verify-resilience.mjs   草稿恢复、示例隔离与保存/删除异常验收
   demo/verify-job-library.mjs  岗位库搜索、筛选、排序与分页验收（岗位总数从 data/jobs.json 读取，不硬编码）
 .env.example      环境变量样例（ADMIN_TOKEN）
+Dockerfile        Node 22 单实例生产容器
+docker-compose.yml SQLite 持久卷、仅本机端口绑定与健康检查
+.dockerignore     排除依赖、本地数据库、密钥与临时文件
 docs/
   QUICKSTART.md    快速上手（安装 / 启动 / 三章节操作 / 路由）
   LOCAL_DEMO.md    本地 Demo 与验收说明
@@ -245,6 +288,6 @@ docs/
 - **不核验项目质量**：技能覆盖看用户确认的技能；证据覆盖看自评等级，目前不检查作品附件或第三方证明。
   简历导入只是辅助识别；勾选行动完成不自动提升技能或证据等级。
 - **无账号访客模式**：按浏览器会话隔离个人记录，不支持跨设备同步；数据库仍是单实例 SQLite。正式部署时需配置 `ADMIN_TOKEN` 并评估服务容量与滥用防护。
-- **方向契合是粗粒度打分**：命中 1.0 / 不命中 0.5，不是精细建模。
+- **方向偏好不改技能相似度**：只用于筛选与探索推荐，避免把主观意向混进技能向量。
 - **没有 LLM、所以也不会有「AI 给出惊喜建议」**：你勾了什么就是什么；遇到库里没的技能，
   会被存为"自定义记录"且不参与评分，避免假数据。

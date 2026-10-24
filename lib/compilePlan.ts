@@ -28,7 +28,8 @@ export function compilePlan(p: Profile, m: JobMatch, path: PathItem[]): string {
     lines.push(`- JD 识别技能覆盖率：${m.coverage}%（规则识别，需对照原文复核）`);
     lines.push("- JD 未标技能权重，识别到的技能按等权计算；这不代表招聘方优先级。");
   } else {
-    lines.push(`- 必备技能覆盖率：${m.coverage}%　匹配分：${m.score}`);
+    lines.push(`- 技能向量余弦相似度：${(m.cosineSimilarity * 100).toFixed(1)}%`);
+    lines.push(`- 信号检测：d′ ${m.signalDetection.dPrime === null ? "不适用" : m.signalDetection.dPrime.toFixed(2)}；命中 ${m.signalDetection.hits} / 漏报 ${m.signalDetection.misses} / 误报 ${m.signalDetection.falseAlarms ?? "不适用"}`);
   }
   lines.push(`- 项目证据覆盖率：${m.evidenceCoverage}%（用户自评，未经外部核验）`);
   const totalHours = path.reduce((sum, item) => sum + item.estHours, 0);
@@ -71,6 +72,6 @@ export function compilePlan(p: Profile, m: JobMatch, path: PathItem[]): string {
   lines.push("---");
   lines.push(m.source === "jd"
     ? "说明：技能识别来自本地别名规则，可能漏识别或误命中；JD 未提供权重，故等权计算；时长为经验估算。"
-    : "说明：匹配分 = 覆盖率×75% + 加分项×15% + 方向契合×10%；时长为经验估算，非精确值。");
+    : "说明：岗位排序使用技能向量余弦相似度；信号检测指标只基于本地模板核心/非核心标签，不代表录用概率；时长为经验估算，非精确值。");
   return lines.join("\n");
 }

@@ -72,7 +72,7 @@ PDF / DOCX / TXT / MD，<= 5MB。在应用服务端进程内解析（unpdf / mam
 
 **Q: 需要联网吗？需要 API Key 吗？**
 不需要。全程零 LLM、零外部 API，匹配与识别都在本地算完，没有需要配置的模型密钥。
-唯一的环境变量是后台口令 `ADMIN_TOKEN`（见 `.env.example`，本地开发可留空）。
+本地开发可不配置 `ADMIN_TOKEN`；Docker Compose 生产部署必须设置长随机口令。可选的 `APP_PORT` 修改 Compose 对外监听的本机端口，`CAREER_DB_PATH` 可指定 SQLite 数据文件路径。
 
 **Q: 后台要不要设置口令？**
 本机开发可不设；局域网或公网暴露必须设置较长随机口令，否则任何人都能改数据。

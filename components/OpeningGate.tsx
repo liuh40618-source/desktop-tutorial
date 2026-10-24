@@ -14,11 +14,11 @@
  *  - 7 个条件选项**恒定不参与排除**（contextExclusionApplied=false），只作自我清单。
  *  - 第 1 步上限 4 是承重结构：4 项是最激进的组合仍能留下候选，全选会产生空结果。
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { DATA_META } from "@/lib/matcher";
 import { computeOrientation, type OrientationKB } from "@/lib/orientation";
-import type { OrientationResult } from "@/lib/types";
+import type { OpeningGateDraft, OpeningGateStage, OrientationResult } from "@/lib/types";
 
 export interface OpeningBasics {
   major: string;
@@ -27,7 +27,7 @@ export interface OpeningBasics {
   hoursPerWeek: number;
 }
 
-type Stage = "intro" | "content" | "context" | "basics" | "result";
+type Stage = OpeningGateStage;
 
 const CONTENT_LIMIT = 4;
 const CONTEXT_LIMIT = 3;
@@ -56,6 +56,8 @@ export function OpeningGate({
   kb,
   initialResult = null,
   initialBasics = null,
+  initialDraft = null,
+  onDraftChange,
   onComplete,
   onSkip,
   onOpenBrief,
@@ -63,18 +65,24 @@ export function OpeningGate({
   kb: OrientationKB;
   initialResult?: OrientationResult | null;
   initialBasics?: OpeningBasics | null;
+  initialDraft?: OpeningGateDraft | null;
+  onDraftChange: (draft: OpeningGateDraft) => void;
   onComplete: (result: OrientationResult, basics: OpeningBasics) => void;
   onSkip: () => void;
   onOpenBrief: (trackId: string, result: OrientationResult, basics: OpeningBasics) => void;
 }) {
-  const [stage, setStage] = useState<Stage>(initialResult ? "result" : "intro");
-  const [contentIds, setContentIds] = useState<string[]>(initialResult?.contentExcluded ?? []);
-  const [contextIds, setContextIds] = useState<string[]>(initialResult?.contextExcluded ?? []);
-  const [contentHistory, setContentHistory] = useState<string[]>([]);
+  const [stage, setStage] = useState<Stage>(initialDraft?.stage ?? (initialResult ? "result" : "intro"));
+  const [contentIds, setContentIds] = useState<string[]>(initialDraft?.contentIds ?? initialResult?.contentExcluded ?? []);
+  const [contextIds, setContextIds] = useState<string[]>(initialDraft?.contextIds ?? initialResult?.contextExcluded ?? []);
+  const [contentHistory, setContentHistory] = useState<string[]>(initialDraft?.contentHistory ?? []);
   const [basics, setBasics] = useState<OpeningBasics>(
-    initialBasics ?? { major: "", skillItemIds: [], experienceType: "", hoursPerWeek: 10 }
+    initialDraft?.basics ?? initialBasics ?? { major: "", skillItemIds: [], experienceType: "", hoursPerWeek: 10 }
   );
   const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    onDraftChange({ stage, contentIds, contextIds, contentHistory, basics });
+  }, [stage, contentIds, contextIds, contentHistory, basics, onDraftChange]);
 
   const contentOptions = kb.contentOptions ?? [];
   const contextOptions = kb.contextOptions ?? [];
@@ -361,7 +369,7 @@ export function OpeningGate({
         <div className="animate-step py-6">
           <span className="chapter-label">定位结果</span>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            {result.candidates.length > 0 ? "这是基于你的偏好与基础，先圈出来的几个方向。" : "你排除了所有方向。"}
+            {result.candidates.length > 0 ? "根据你填写的偏好与已确认能力，筛选出以下方向供你比较。" : "当前没有符合所选条件的方向。"}
           </h1>
 
           {result.candidates.length === 0 ? (

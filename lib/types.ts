@@ -40,6 +40,14 @@ export interface Profile {
   evidenceText?: Record<string, string>;
   /** 每条能力的量化结果（简历面板导出前置，本轮只存不展示） */
   evidenceResult?: Record<string, string>;
+  /** 经历文本的本地脱敏记录；只保存清洗后的文本与规则元数据。 */
+  experienceMasking?: {
+    version: "regex-v1";
+    manualTerms: string[];
+    autoMaskedCount: number;
+    cleanedText?: string;
+    cleanedAt: number;
+  };
 }
 
 export interface TrialAttempt {
@@ -59,6 +67,49 @@ export interface ActionReview {
   contribution: string;
   reflection: string;
   interest: "continue" | "uncertain" | "stop" | "";
+}
+
+export type WorkflowView = "flow" | "records" | "library" | "trials" | "brief";
+export type OpeningGateStage = "intro" | "content" | "context" | "basics" | "result";
+export type EvaluationCheck = "yes" | "no" | "unsure";
+
+/** 开场定位门尚未提交时的可恢复草稿。 */
+export interface OpeningGateDraft {
+  stage: OpeningGateStage;
+  contentIds: string[];
+  contextIds: string[];
+  contentHistory: string[];
+  basics: {
+    major: string;
+    skillItemIds: string[];
+    experienceType: "" | "course" | "competition" | "club" | "internship" | "parttime" | "personal" | "none";
+    hoursPerWeek: number;
+  };
+}
+
+/** 行动方案中还未提交的产出物评估草稿。 */
+export interface ActionEvaluationDraft {
+  type: string;
+  checks: Record<string, EvaluationCheck>;
+  overrideLevel: number | null;
+  reviewRequested: boolean;
+  reviewReason: string;
+}
+
+export interface PathWorkflowDraft {
+  focusedSkill: string;
+  drafts: Record<string, ActionEvaluationDraft>;
+}
+
+/** 可从服务端恢复的用户流程位置与未提交输入。 */
+export interface WorkflowState {
+  view: WorkflowView;
+  emptyCheck: boolean;
+  gateOpen: boolean;
+  openingGate: OpeningGateDraft | null;
+  briefTrackId: string;
+  trialActiveId: string;
+  path: PathWorkflowDraft;
 }
 
 /* ============================================================
@@ -150,6 +201,22 @@ export interface ActionEvaluation {
   note?: string;
   /** 年度能力表前置（时间戳） */
   evaluatedAt: number;
+  /** 自动 GitHub 公开 API 审计来源；由服务端生成。 */
+  source?: "rule" | "github-api";
+  skillId?: string;
+  githubAudit?: GithubAudit;
+}
+
+export interface GithubAudit {
+  url: string;
+  owner: string;
+  repo: string;
+  commitCount: number;
+  languageCount: number;
+  languages: string[];
+  passed: boolean;
+  ruleVersion: "github-public-api-v1";
+  auditedAt: number;
 }
 
 /** 结构化经历分栏（PRD 4.5 扩展，全部新增字段可选，向后兼容） */
@@ -242,6 +309,7 @@ export interface Persisted {
   selectedJobId: string;
   /** 旧版打卡存档遗留字段（已弃用打卡）；读取时一次性并入 knownSkillIds */
   doneSkills?: string[];
+  workflow?: WorkflowState | null;
 }
 
 export interface PlanRecord {
@@ -261,9 +329,10 @@ export interface ProfileRowFront {
   name: string;
   step: number;
   started: boolean;
-  profile: any;
+  profile: Profile;
   selectedJobId: string;
   doneSkills: string[];
+  workflow?: WorkflowState | null;
   updatedAt: string;
 }
 

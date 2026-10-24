@@ -6,6 +6,7 @@ import {
   type ProfileRow,
 } from "@/lib/db";
 import { readGuestOwner } from "@/lib/session";
+import type { WorkflowState } from "@/lib/types";
 
 function unauthorized() {
   return NextResponse.json({ ok: false, error: "访客会话已失效，请刷新页面后重试。" }, { status: 401 });
@@ -28,6 +29,9 @@ export async function POST(req: Request) {
       step: body.step ?? 0,
       started: !!body.started,
       profile: body.profile ?? {},
+      workflow: body.workflow && typeof body.workflow === "object" && !Array.isArray(body.workflow)
+        ? body.workflow as WorkflowState
+        : null,
       selectedJobId: body.selectedJobId ?? "",
       doneSkills: body.doneSkills ?? [],
       updatedAt: "",

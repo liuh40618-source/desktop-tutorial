@@ -1,0 +1,61 @@
+services:
+  app:
+    image: career-navigator:local
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      BIND_HOST: 0.0.0.0
+      CAREER_DB_PATH: /var/lib/career-navigator/career.db
+      CAREER_BACKUP_DIR: /backups
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?Set a long random ADMIN_TOKEN in .env}
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    volumes:
+      - career_data:/var/lib/career-navigator
+      - career_backups:/backups
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    security_opt:
+      - no-new-privileges:true
+
+  backup:
+    image: career-navigator:local
+    init: true
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      CAREER_DB_PATH: /var/lib/career-navigator/career.db
+      CAREER_BACKUP_DIR: /backups
+      CAREER_BACKUP_KEEP_COUNT: "30"
+    volumes:
+      - career_data:/var/lib/career-navigator
+      - career_backups:/backups
+    command:
+      - /bin/sh
+      - -c
+      - |
+        while true; do
+          node --experimental-sqlite scripts/backup-db.mjs || echo "scheduled SQLite backup failed"
+          sleep 86400
+        done
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  career_data:
+  career_backups:

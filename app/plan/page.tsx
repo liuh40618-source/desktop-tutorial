@@ -55,6 +55,10 @@ import {
   type Profile,
   type OrientationResult,
   type WorkTag,
+  type OpeningGateDraft,
+  type PathWorkflowDraft,
+  type WorkflowState,
+  type WorkflowView,
 } from "@/lib/types";
 import type { OrientationKB } from "@/lib/orientation";
 
@@ -148,6 +152,9 @@ export default function Home() {
   const [gateResult, setGateResult] = useState<OrientationResult | null>(null);
   const [gateBasics, setGateBasics] = useState<OpeningBasics | null>(null);
   const [briefTrackId, setBriefTrackId] = useState("");
+  const [openingGateDraft, setOpeningGateDraft] = useState<OpeningGateDraft | null>(null);
+  const [trialActiveId, setTrialActiveId] = useState("");
+  const [pathWorkflowDraft, setPathWorkflowDraft] = useState<PathWorkflowDraft>({ focusedSkill: "", drafts: {} });
   const orientationKB = useMemo<OrientationKB | null>(
     () =>
       kbData
@@ -286,10 +293,15 @@ export default function Home() {
     return nextSave;
   }, []);
 
+  const workflow = useMemo<WorkflowState>(
+    () => ({ view, emptyCheck, gateOpen, openingGate: openingGateDraft, briefTrackId, trialActiveId, path: pathWorkflowDraft }),
+    [view, emptyCheck, gateOpen, openingGateDraft, briefTrackId, trialActiveId, pathWorkflowDraft]
+  );
+
   useEffect(() => {
     if (!restored || demo || !cacheScope || clearingGuestData) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    const snapshot: Persisted = { step, started, profile, selectedJobId };
+    const snapshot: Persisted = { step, started, profile, selectedJobId, workflow };
     const revision = ++profileSaveRevision.current;
     saveTimer.current = setTimeout(() => {
       setProfileSaveState("saving");
@@ -300,7 +312,7 @@ export default function Home() {
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
     };
-  }, [restored, step, started, profile, selectedJobId, demo, cacheScope, clearingGuestData, queueProfileSave]);
+  }, [restored, step, started, profile, selectedJobId, workflow, demo, cacheScope, clearingGuestData, queueProfileSave]);
 
   // 首次加载后从服务端拉一次草稿，提示给用户
   const personalRef = useRef<Persisted | null>(null);
@@ -315,6 +327,18 @@ export default function Home() {
         setResumeStep(Math.max(0, Math.min(4, s.step ?? 0)));
         setHasDraft(true);
       }
+      if (s?.workflow) {
+        setView(s.workflow.view);
+        setEmptyCheck(s.workflow.emptyCheck ?? false);
+        setGateOpen(s.workflow.gateOpen);
+        setOpeningGateDraft(s.workflow.openingGate ?? null);
+        setBriefTrackId(s.workflow.briefTrackId ?? "");
+        setTrialActiveId(s.workflow.trialActiveId ?? "");
+        setPathWorkflowDraft(s.workflow.path ?? { focusedSkill: "", drafts: {} });
+        if (s.workflow.view === "records") {
+          void loadPlansFromServer(cacheScope).then((rows) => { if (alive) setPlans(rows); });
+        }
+      }
       setProfileLoaded(true);
     });
     return () => { alive = false; };
@@ -325,10 +349,13 @@ export default function Home() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("admin") !== "off") return;
-    setInfo("管理后台未启用：本演示未配置 ADMIN_TOKEN，数据维护入口已关闭。");
     params.delete("admin");
     const query = params.toString();
     window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
+    const timer = window.setTimeout(() => {
+      setInfo("管理后台未启用：本演示未配置 ADMIN_TOKEN，数据维护入口已关闭。");
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
   function updateProfile(next: Profile) {
     setProfile(next);
@@ -337,9 +364,34 @@ export default function Home() {
     setHasDraft(false);
   }
 
+  const updateOpeningGateDraft = useCallback((draft: OpeningGateDraft) => {
+    setOpeningGateDraft(draft);
+    setRestored(true);
+  }, []);
+
+  const updatePathWorkflowDraft = useCallback((draft: PathWorkflowDraft) => {
+    setPathWorkflowDraft(draft);
+    setRestored(true);
+  }, []);
+
+  const updateTrialActiveId = useCallback((id: string) => {
+    setTrialActiveId(id);
+    setRestored(true);
+  }, []);
+
+  function navigateView(next: WorkflowView) {
+    setView(next);
+    setRestored(true);
+  }
+
+  function showEmptyCheck() {
+    setEmptyCheck(true);
+    setRestored(true);
+  }
+
   function startDemo() {
     if (demo) return;
-    personalRef.current = { step: hasDraft ? resumeStep : step, started: started || hasDraft, profile, selectedJobId };
+    personalRef.current = { step: hasDraft ? resumeStep : step, started: started || hasDraft, profile, selectedJobId, workflow };
     setDemo(true);
     setView("flow");
     setProfile(DEMO_PROFILE);
@@ -357,6 +409,13 @@ export default function Home() {
     setResumeStep(saved?.step ?? 0);
     setHasDraft(saved?.started ?? false);
     setSelectedJobId(saved?.selectedJobId ?? "");
+    setView(saved?.workflow?.view ?? "flow");
+    setEmptyCheck(saved?.workflow?.emptyCheck ?? false);
+    setGateOpen(saved?.workflow?.gateOpen ?? false);
+    setOpeningGateDraft(saved?.workflow?.openingGate ?? null);
+    setBriefTrackId(saved?.workflow?.briefTrackId ?? "");
+    setTrialActiveId(saved?.workflow?.trialActiveId ?? "");
+    setPathWorkflowDraft(saved?.workflow?.path ?? { focusedSkill: "", drafts: {} });
     setStarted(saved?.started ?? false);
     setRestored(false);
     setDemo(false);
@@ -421,7 +480,7 @@ export default function Home() {
       createdAt: Date.now(),
       major: profile.major,
       jobTitle: activeMatch.title,
-      summary: `${activeMatch.source === "jd" ? "真实 JD 技能覆盖" : "匹配分"} ${activeMatch.score}${activeMatch.source === "jd" ? "%" : " 分"} · 行动估算 ${path.reduce((sum, item) => sum + item.estHours, 0)}h${reviewRequests.length ? ` · ${reviewRequests.length} 项申请复核待线下确认` : ""}`,
+      summary: `${activeMatch.source === "jd" ? "真实 JD 技能覆盖" : "余弦相似度"} ${activeMatch.source === "jd" ? activeMatch.coverage : (activeMatch.cosineSimilarity * 100).toFixed(1)}% · 行动估算 ${path.reduce((sum, item) => sum + item.estHours, 0)}h${reviewRequests.length ? ` · ${reviewRequests.length} 项申请复核待线下确认` : ""}`,
       markdown: compilePlan(effective, activeMatch, path) + reviewSection,
     };
     await pushPlanToServer(rec, cacheScope);
@@ -462,7 +521,7 @@ export default function Home() {
   async function retryProfileSave() {
     if (!cacheScope || !restored || demo || clearingGuestData) return;
     const revision = ++profileSaveRevision.current;
-    const snapshot: Persisted = { step, started, profile, selectedJobId };
+    const snapshot: Persisted = { step, started, profile, selectedJobId, workflow };
     setProfileSaveState("saving");
     const result = await queueProfileSave(snapshot, cacheScope);
     if (revision === profileSaveRevision.current) setProfileSaveState(result);
@@ -497,6 +556,14 @@ export default function Home() {
       setRestored(false);
       setHasDraft(false);
       setSelectedJobId("");
+      setEmptyCheck(false);
+      setGateOpen(false);
+      setGateResult(null);
+      setGateBasics(null);
+      setBriefTrackId("");
+      setOpeningGateDraft(null);
+      setTrialActiveId("");
+      setPathWorkflowDraft({ focusedSkill: "", drafts: {} });
       setJds([]);
       setPlans([]);
       setView("flow");
@@ -601,11 +668,11 @@ export default function Home() {
     <div className="trial-app">
       <header className="trial-header">
         <button className="trial-brand" onClick={() => navigate(0)} aria-label="职途，返回经历"><Compass size={26} /><strong>职途</strong><span>职业试选</span></button>
-        <nav aria-label="辅助导航"><button className="quiet-button" onClick={() => setView("trials")}><Sparkles size={16} /><span>职业试驾</span></button><button className="quiet-button" onClick={() => setView("library")}><Search size={16} /><span>岗位库</span></button><button className="quiet-button" onClick={async () => { if (!cacheScope) return; setPlans(await loadPlansFromServer(cacheScope)); setView("records"); }}><FolderOpen size={16} /><span>我的记录</span></button></nav>
+        <nav aria-label="辅助导航"><button className="quiet-button" onClick={() => navigateView("trials")}><Sparkles size={16} /><span>职业试驾</span></button><button className="quiet-button" onClick={() => navigateView("library")}><Search size={16} /><span>岗位库</span></button><button className="quiet-button" onClick={async () => { if (!cacheScope) return; setPlans(await loadPlansFromServer(cacheScope)); navigateView("records"); }}><FolderOpen size={16} /><span>我的记录</span></button></nav>
       </header>
       <main className={`trial-main ${step === 0 && view === "flow" ? "entry-main" : ""}`}>
       {demo && <div className="demo-ribbon"><span>示例体验 · 不覆盖个人草稿</span><button onClick={exitDemo}>返回我的经历 <ArrowUpRight size={14} /></button></div>}
-      {view === "brief" ? null : view === "flow" ? (showOpeningGate ? null : <nav className="chapter-nav" aria-label="试选过程">{["看见经历", "比较选择", "动手验证"].map((label, i) => <button key={label} aria-current={chapter === i ? "step" : undefined} onClick={() => navigate(i === 0 ? 0 : i === 1 ? 2 : 4)}><span>0{i + 1}</span>{label}</button>)}</nav>) : <button className="quiet-button return-flow" onClick={() => setView("flow")}><ArrowLeft size={16} />返回试选</button>}
+      {view === "brief" ? null : view === "flow" ? (showOpeningGate ? null : <nav className="chapter-nav" aria-label="试选过程">{["看见经历", "比较选择", "动手验证"].map((label, i) => <button key={label} aria-current={chapter === i ? "step" : undefined} onClick={() => navigate(i === 0 ? 0 : i === 1 ? 2 : 4)}><span>0{i + 1}</span>{label}</button>)}</nav>) : <button className="quiet-button return-flow" onClick={() => navigateView("flow")}><ArrowLeft size={16} />返回试选</button>}
 
       {(error || info) && (
         <div
@@ -628,29 +695,31 @@ export default function Home() {
         <TrialLab
           attempts={profile.trialAttempts ?? []}
           onChange={(trialAttempts) => updateProfile({ ...profile, trialAttempts })}
-          onBack={() => setView("flow")}
-          onContinuePlanner={() => navigate(0)}
+          initialActiveId={trialActiveId}
+          onActiveIdChange={updateTrialActiveId}
+          onBack={() => navigateView("flow")}
+          onContinuePlanner={() => { updateTrialActiveId(""); navigate(0); }}
         />
       ) : view === "records" ? (
         <Records
           plans={plans}
-          onBack={() => setView("flow")}
+          onBack={() => navigateView("flow")}
           onRename={renamePlan}
           onDelete={deletePlan}
           onClearAll={clearAllGuestData}
         />
       ) : view === "library" ? (
-        <section className="library-page"><JobList matches={matches} selectedId={selectedJobId} selectedGoalId={selectedJobId} targetTracks={effective.targetTracks} jds={jds} knownSkillIds={effective.knownSkillIds} hoursPerWeek={effective.hoursPerWeek} skillOptions={allSkills().map(({ id, name }) => ({ id, name }))} onAddJd={saveJd} onDeleteJd={removeJd} onSelect={(id) => navigate(3, id)} onSelectJd={(id) => navigate(3, `jd:${id}`)} onBack={() => setView("flow")} /><details className="reason-disclosure"><summary>查看各方向的模板分布</summary><Orientation profile={effective} matches={matches} embedded onBack={() => navigate(1)} onNext={() => navigate(2)} /></details></section>
+        <section className="library-page"><JobList matches={matches} selectedId={selectedJobId} selectedGoalId={selectedJobId} jds={jds} knownSkillIds={effective.knownSkillIds} hoursPerWeek={effective.hoursPerWeek} skillOptions={allSkills().map(({ id, name }) => ({ id, name }))} onAddJd={saveJd} onDeleteJd={removeJd} onSelect={(id) => navigate(3, id)} onSelectJd={(id) => navigate(3, `jd:${id}`)} onBack={() => navigateView("flow")} /><details className="reason-disclosure"><summary>查看各方向的模板分布</summary><Orientation profile={effective} matches={matches} embedded onBack={() => navigate(1)} onNext={() => navigate(2)} /></details></section>
       ) : view === "brief" && briefTrack ? (
         <DomainBrief
           track={briefTrack}
           onBackToResult={() => {
             setGateOpen(true);
-            setView("flow");
+            navigateView("flow");
             window.scrollTo({ top: 0, behavior: "instant" });
           }}
           onStartExperience={() => {
-            setView("flow");
+            navigateView("flow");
             navigate(0);
           }}
         />
@@ -662,6 +731,8 @@ export default function Home() {
               kb={orientationKB as OrientationKB}
               initialResult={gateResult}
               initialBasics={gateBasics}
+              initialDraft={openingGateDraft}
+              onDraftChange={updateOpeningGateDraft}
               onComplete={handleGateComplete}
               onSkip={handleGateSkip}
               onOpenBrief={handleGateOpenBrief}
@@ -690,12 +761,12 @@ export default function Home() {
               setProfile={updateProfile}
               onNext={() => navigate(1)}
               onEmptyCheck={() =>
-                (profile.experiences ?? "").trim() ? navigate(1) : setEmptyCheck(true)
+                (profile.experiences ?? "").trim() ? navigate(1) : showEmptyCheck()
               }
               onDemo={demo ? undefined : startDemo}
               onResume={hasDraft && resumeStep > 0 ? () => navigate(resumeStep) : undefined}
-              onTrial={() => setView("trials")}
-              onBrowseJobs={() => setView("library")}
+              onTrial={() => navigateView("trials")}
+              onBrowseJobs={() => navigateView("library")}
             />
           )}
 
@@ -711,7 +782,7 @@ export default function Home() {
 
           {step === 2 && (
             profile.knownSkillIds.length ? (
-              <CareerChoices profile={profile} matches={matches} onSelect={(id) => navigate(3, id)} onBrowse={() => setView("library")} onBack={() => navigate(1)} />
+              <CareerChoices profile={profile} matches={matches} onSelect={(id) => navigate(3, id)} onBrowse={() => navigateView("library")} onBack={() => navigate(1)} />
             ) : (
               <section className="trial-empty">
                 <span className="chapter-label">02 / 比较选择</span>
@@ -752,7 +823,7 @@ export default function Home() {
               <h1>当前目标岗位不可用</h1>
               <p>这条真实 JD 可能已删除，或服务暂时无法读取。回到岗位库重新选择目标，再继续看差距和行动计划。</p>
               <div className="trial-actions">
-                <button className="btn btn-primary" onClick={() => setView("library")}>返回岗位库 <ArrowRight size={17} /></button>
+                <button className="btn btn-primary" onClick={() => navigateView("library")}>返回岗位库 <ArrowRight size={17} /></button>
               </div>
             </section>
           )}
@@ -764,7 +835,7 @@ export default function Home() {
               evidenceLevels={effective.evidenceLevels}
               sourceText={selectedJd?.raw}
               jobMeta={selectedJobMeta}
-              onBack={() => activeMatch.source === "jd" ? setView("library") : navigate(2)}
+              onBack={() => activeMatch.source === "jd" ? navigateView("library") : navigate(2)}
               onNext={() => navigate(4)}
             />
           )}
@@ -784,11 +855,13 @@ export default function Home() {
               actionReviews={profile.actionReviews ?? {}}
               onUpdateActionReview={(id, review) => setProfile((p) => ({ ...p, actionReviews: { ...(p.actionReviews ?? {}), [id]: review } }))}
               onCompareDirections={() => navigate(2)}
+              initialWorkflowDraft={pathWorkflowDraft}
+              onWorkflowDraftChange={updatePathWorkflowDraft}
               onGoRecords={async () => {
                 if (!cacheScope) return;
                 const list = await loadPlansFromServer(cacheScope);
                 setPlans(list);
-                setView("records");
+                navigateView("records");
               }}
               onBack={() => navigate(3)}
             />

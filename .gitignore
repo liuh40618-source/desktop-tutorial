@@ -42,8 +42,10 @@ next-env.d.ts
 
 # local sqlite database (seeded from data/*.json at first run)
 career.db
+career.db.*
 career.db-wal
 career.db-shm
+/backups/
 # 数据库备份 / 残留文件（含访客数据，不得进版本库）
 _*.db
 _*.db.*

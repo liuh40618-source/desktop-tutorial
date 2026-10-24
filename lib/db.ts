@@ -12,13 +12,17 @@ import { createHash, randomBytes } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { confidenceForSampleSize } from "./confidence.mjs";
+import type { Profile, WorkTag, WorkflowState } from "./types";
 
-const DB_PATH = path.join(process.cwd(), "career.db");
+const DB_PATH = process.env.CAREER_DB_PATH
+  ? path.resolve(process.env.CAREER_DB_PATH)
+  : path.join(process.cwd(), "career.db");
 
 let _db: DatabaseSync | null = null;
 
 function db(): DatabaseSync {
   if (_db) return _db;
+  fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
   const conn = new DatabaseSync(DB_PATH);
   conn.exec("PRAGMA journal_mode = WAL;");
   conn.exec("PRAGMA foreign_keys = ON;");
@@ -26,6 +30,11 @@ function db(): DatabaseSync {
   seedIfEmpty(conn);
   _db = conn;
   return _db;
+}
+
+/** Readiness probe used by container and reverse-proxy health checks. */
+export function checkDatabaseHealth(): void {
+  db().prepare("SELECT 1").get();
 }
 
 /**
@@ -84,6 +93,7 @@ function migrate(d: DatabaseSync) {
       step         INTEGER NOT NULL,
       started      INTEGER NOT NULL,
       profile      TEXT NOT NULL,
+      workflow     TEXT NOT NULL DEFAULT 'null',
       selected_job TEXT NOT NULL,
       done_skills  TEXT NOT NULL,
       updated_at   TEXT NOT NULL
@@ -116,6 +126,9 @@ function migrate(d: DatabaseSync) {
   }
   if (!cols.includes("owner_id")) {
     d.exec("ALTER TABLE user_profile ADD COLUMN owner_id TEXT NOT NULL DEFAULT 'legacy-local'");
+  }
+  if (!cols.includes("workflow")) {
+    d.exec("ALTER TABLE user_profile ADD COLUMN workflow TEXT NOT NULL DEFAULT 'null'");
   }
   // 兼容旧库：user_plans 无 name 列（记录命名管理）
   const planCols = (d.prepare("PRAGMA table_info(user_plans)").all() as { name: string }[]).map(
@@ -399,33 +412,148 @@ export function claimLegacyData(ownerId: string): void {
   }
 }
 
+interface JobDbRow {
+  id: string;
+  title: string;
+  track: string;
+  summary: string | null;
+  core: string;
+  plus: string | null;
+  threshold: string | null;
+  salary_intern: string | null;
+  salary_junior: string | null;
+  certs: string | null;
+  growth: string | null;
+  work_tags?: string | null;
+  source_date?: string | null;
+  updated_at?: string | null;
+  verified_at?: string | null;
+  sample_size?: number | null;
+  confidence?: string | null;
+}
+
+interface SkillDbRow {
+  id: string;
+  name: string;
+  category: string | null;
+  aliases: string;
+  estHours: number;
+  resources: string;
+  marketFrequency: number;
+  action: string | null;
+  source_date?: string | null;
+  updated_at?: string | null;
+  verified_at?: string | null;
+  sample_size?: number | null;
+  confidence?: string | null;
+}
+
+interface TrackDbRow {
+  id: string;
+  name: string;
+  one_liner?: string | null;
+  sub_directions?: string | null;
+  glossary?: string | null;
+  entry_cycle?: string | null;
+  hard_thresholds?: string | null;
+  data_note?: string | null;
+  verified_at?: string | null;
+  sample_size?: number | null;
+  confidence?: string | null;
+}
+
+interface ProfileDbRow {
+  key: string;
+  name: string;
+  step: number;
+  started: number;
+  profile: string;
+  workflow?: string | null;
+  selected_job: string;
+  done_skills: string;
+  updated_at: string;
+}
+
+interface PlanDbRow {
+  id: string;
+  name: string | null;
+  created_at: number;
+  major: string | null;
+  job_title: string | null;
+  summary: string | null;
+  markdown: string | null;
+}
+
+interface JdDbRow {
+  id: string;
+  title: string | null;
+  raw: string | null;
+  skills: string | null;
+  created_at: number;
+}
+
+interface JobReferenceDbRow {
+  id: string;
+  title: string;
+  core: string | null;
+  plus: string | null;
+}
+
 export interface KnowledgeBase {
-  jobs: any[];
-  skills: any[];
-  tracks: any[];
+  jobs: Array<{
+    id: string; title: string; track: string; summary: string | null;
+    core: { s: string; w: number }[]; plus: string[]; threshold: string | null;
+    salary: { intern: string | null; junior: string | null }; certs: string[];
+    growth: string | null; workTags: WorkTag[]; source_date: string; updated_at: string;
+    verified_at: string; sample_size: number; confidence: string;
+  }>;
+  skills: Array<{
+    id: string; name: string; category: string | null; aliases: string[]; estHours: number;
+    resources: Array<{ title: string; platform: string }>; marketFrequency: number;
+    action?: { deliverableType?: string; deliverable?: string; acceptance?: string };
+    source_date: string; updated_at: string; verified_at: string; sample_size: number; confidence: string;
+  }>;
+  tracks: Array<{
+    id: string; name: string; oneLiner: string; subDirections: string[];
+    glossary: Array<{ term: string; plain: string }>; entryCycle: string;
+    hardThresholds: string[]; dataNote: string; verifiedAt: string;
+    sampleSize: number; confidence: string;
+  }>;
   meta: { version: string; note: string; salaryNote: string };
   /** 开场排除选项定义（内容 + 条件）；条件项仅自我清单，不参与排除 */
-  exclusions: { contentOptions: any[]; contextOptions: any[]; _meta?: any };
-  starterSkills: { items: any[]; _meta?: any };
-  deliverableTypes: { types: Record<string, { label: string; requiredElements: string[] }>; _meta?: any };
+  exclusions: {
+    contentOptions: Array<{ id: string; tag: string; label: string; reason: string }>;
+    contextOptions: Array<{ id: string; tag: string; label: string; reason: string }>;
+    _meta?: Record<string, unknown>;
+  };
+  starterSkills: { items: Array<{ id: string; label: string; skillIds: string[] }>; _meta?: Record<string, unknown> };
+  deliverableTypes: {
+    types: Record<string, { label: string; requiredElements: string[] }>;
+    _meta?: Record<string, unknown>;
+  };
   actionTemplates: {
     byCategory: Record<string, { deliverableType: string; deliverable: string; acceptance: string }>;
-    _meta?: any;
+    _meta?: Record<string, unknown>;
   };
   knowledgeMeta: { version: string; publishedAt: string; notes?: string };
+  onet: {
+    version: string; releaseDate: string; source: string; dictionary: string; license: string;
+    retrievedAt: string; notes: string; skillMappings: Record<string, string[]>;
+  };
 }
 
 /** 一次性返回整库知识库，供前端注入 matcher / orientation 后在本地计算 */
 export function getKnowledgeBase(): KnowledgeBase {
   const d = db();
-  const readJson = (file: string) =>
+  const readJson = <T,>(file: string): T =>
     JSON.parse(fs.readFileSync(path.join(process.cwd(), "data", file), "utf-8"));
-  const exclusions = readJson("exclusions.json");
-  const starterSkills = readJson("starter-skills.json");
-  const deliverableTypes = readJson("deliverable-types.json");
-  const actionTemplates = readJson("action-templates.json");
+  const exclusions = readJson<KnowledgeBase["exclusions"]>("exclusions.json");
+  const starterSkills = readJson<KnowledgeBase["starterSkills"]>("starter-skills.json");
+  const deliverableTypes = readJson<KnowledgeBase["deliverableTypes"]>("deliverable-types.json");
+  const actionTemplates = readJson<KnowledgeBase["actionTemplates"]>("action-templates.json");
+  const onet = readJson<KnowledgeBase["onet"]>("onet-31.0.json");
 
-  const jobs = (d.prepare("SELECT * FROM jobs").all() as any[]).map((r) => ({
+  const jobs = d.prepare("SELECT * FROM jobs").all<JobDbRow>().map((r) => ({
     id: r.id,
     title: r.title,
     track: r.track,
@@ -443,7 +571,7 @@ export function getKnowledgeBase(): KnowledgeBase {
     sample_size: r.sample_size ?? 0,
     confidence: r.confidence ?? "",
   }));
-  const skills = (d.prepare("SELECT * FROM skills").all() as any[]).map((r) => ({
+  const skills = d.prepare("SELECT * FROM skills").all<SkillDbRow>().map((r) => ({
     id: r.id,
     name: r.name,
     category: r.category,
@@ -458,7 +586,7 @@ export function getKnowledgeBase(): KnowledgeBase {
     sample_size: r.sample_size ?? 0,
     confidence: r.confidence ?? "",
   }));
-  const tracks = (d.prepare("SELECT * FROM tracks").all() as any[]).map((r) => ({
+  const tracks = d.prepare("SELECT * FROM tracks").all<TrackDbRow>().map((r) => ({
     id: r.id,
     name: r.name,
     oneLiner: r.one_liner ?? "",
@@ -481,7 +609,7 @@ export function getKnowledgeBase(): KnowledgeBase {
   const knowledgeMeta = kmRow
     ? { version: kmRow.version, publishedAt: kmRow.published_at, notes: kmRow.notes ?? undefined }
     : { version: meta.version ?? "?", publishedAt: "", notes: undefined };
-  return { jobs, skills, tracks, meta, exclusions, starterSkills, deliverableTypes, actionTemplates, knowledgeMeta };
+  return { jobs, skills, tracks, meta, exclusions, starterSkills, deliverableTypes, actionTemplates, knowledgeMeta, onet };
 }
 
 /* ============================================================
@@ -493,7 +621,8 @@ export interface ProfileRow {
   name: string;
   step: number;
   started: boolean;
-  profile: any;
+  profile: Profile;
+  workflow: WorkflowState | null;
   selectedJobId: string;
   doneSkills: string[];
   updatedAt: string;
@@ -504,15 +633,16 @@ export function listProfiles(ownerId: string): ProfileRow[] {
   return (
     d
       .prepare(
-        "SELECT key, name, step, started, profile, selected_job, done_skills, updated_at FROM user_profile WHERE owner_id = ? ORDER BY updated_at DESC"
+        "SELECT key, name, step, started, profile, workflow, selected_job, done_skills, updated_at FROM user_profile WHERE owner_id = ? ORDER BY updated_at DESC"
       )
-      .all(ownerId) as any[]
+      .all<ProfileDbRow>(ownerId)
   ).map((r) => ({
     id: r.key,
     name: r.name,
     step: r.step,
     started: !!r.started,
     profile: JSON.parse(r.profile),
+    workflow: JSON.parse(r.workflow || "null"),
     selectedJobId: r.selected_job,
     doneSkills: JSON.parse(r.done_skills || "[]"),
     updatedAt: r.updated_at,
@@ -521,7 +651,7 @@ export function listProfiles(ownerId: string): ProfileRow[] {
 
 export function getUserProfile(ownerId: string): ProfileRow | null {
   const d = db();
-  const row = d.prepare("SELECT * FROM user_profile WHERE owner_id = ? LIMIT 1").get(ownerId) as any;
+  const row = d.prepare("SELECT * FROM user_profile WHERE owner_id = ? LIMIT 1").get<ProfileDbRow>(ownerId);
   if (!row) return null;
   return {
     id: row.key,
@@ -529,6 +659,7 @@ export function getUserProfile(ownerId: string): ProfileRow | null {
     step: row.step,
     started: !!row.started,
     profile: JSON.parse(row.profile),
+    workflow: JSON.parse(row.workflow || "null"),
     selectedJobId: row.selected_job,
     doneSkills: JSON.parse(row.done_skills || "[]"),
     updatedAt: row.updated_at,
@@ -537,17 +668,44 @@ export function getUserProfile(ownerId: string): ProfileRow | null {
 
 export function saveUserProfile(p: ProfileRow, ownerId: string) {
   const d = db();
+  // GitHub 自动审计是服务端锁定证据：即使旧的浏览器自动保存请求晚到，
+  // 也不能删除审计记录或把已提档等级降回去。
+  const currentRow = d.prepare("SELECT profile FROM user_profile WHERE owner_id = ? LIMIT 1").get<{ profile: string }>(ownerId);
+  let profile = p.profile ?? ({} as Profile);
+  if (currentRow?.profile) {
+    try {
+      const current = JSON.parse(currentRow.profile) as Profile;
+      const locked = Object.entries(current.actionEvaluations ?? {}).filter(([, value]) => value?.source === "github-api");
+      if (locked.length) {
+        const evaluations = { ...(profile.actionEvaluations ?? {}) };
+        const evidenceLevels = { ...(profile.evidenceLevels ?? {}) };
+        for (const [actionId, evaluation] of locked) {
+          const incoming = evaluations[actionId];
+          if (!incoming || incoming.source !== "github-api" || (incoming.githubAudit?.auditedAt ?? 0) < (evaluation.githubAudit?.auditedAt ?? 0)) {
+            evaluations[actionId] = evaluation;
+          }
+          if (evaluation.skillId) {
+            evidenceLevels[evaluation.skillId] = Math.max(evidenceLevels[evaluation.skillId] ?? 1, evaluation.finalLevel);
+          }
+        }
+        profile = { ...profile, actionEvaluations: evaluations, evidenceLevels };
+      }
+    } catch {
+      // 损坏的旧画像仍按原保存路径处理；不会阻塞普通草稿保存。
+    }
+  }
   d.prepare(
     `INSERT OR REPLACE INTO user_profile
-       (key, owner_id, name, step, started, profile, selected_job, done_skills, updated_at)
-     VALUES (@key, @owner_id, @name, @step, @started, @profile, @selected_job, @done_skills, @updated_at)`
+       (key, owner_id, name, step, started, profile, workflow, selected_job, done_skills, updated_at)
+     VALUES (@key, @owner_id, @name, @step, @started, @profile, @workflow, @selected_job, @done_skills, @updated_at)`
   ).run({
     key: ownerId,
     owner_id: ownerId,
     name: p.name ?? "",
     step: p.step,
     started: p.started ? 1 : 0,
-    profile: JSON.stringify(p.profile ?? {}),
+    profile: JSON.stringify(profile),
+    workflow: JSON.stringify(p.workflow ?? null),
     selected_job: p.selectedJobId ?? "",
     done_skills: JSON.stringify(p.doneSkills ?? []),
     updated_at: new Date().toISOString(),
@@ -591,15 +749,15 @@ export function listPlans(ownerId: string): PlanRow[] {
       .prepare(
         "SELECT id, name, created_at, major, job_title, summary, markdown FROM user_plans WHERE owner_id = ? ORDER BY created_at DESC"
       )
-      .all(ownerId) as any[]
+      .all<PlanDbRow>(ownerId)
   ).map((r) => ({
     id: r.id,
     name: r.name ?? "",
     createdAt: r.created_at,
-    major: r.major,
-    jobTitle: r.job_title,
-    summary: r.summary,
-    markdown: r.markdown,
+    major: r.major ?? "",
+    jobTitle: r.job_title ?? "",
+    summary: r.summary ?? "",
+    markdown: r.markdown ?? "",
   }));
 }
 
@@ -670,7 +828,7 @@ export function allTrackIds(): string[] {
 }
 
 export function getJobById(id: string) {
-  const r = db().prepare("SELECT * FROM jobs WHERE id = ?").get(id) as any;
+  const r = db().prepare("SELECT * FROM jobs WHERE id = ?").get<JobDbRow>(id);
   if (!r) return null;
   return {
     id: r.id,
@@ -697,7 +855,7 @@ export function upsertJob(job: JobInput) {
   // 保留新增列：管理员编辑岗位不应清空 workTags / 时效字段
   const existing = d
     .prepare("SELECT source_date, verified_at, sample_size, confidence, work_tags FROM jobs WHERE id = ?")
-    .get(job.id) as any;
+    .get<Pick<JobDbRow, "source_date" | "verified_at" | "sample_size" | "confidence" | "work_tags">>(job.id);
   d.prepare(
     `INSERT OR REPLACE INTO jobs
        (id, title, track, summary, core, plus, threshold, salary_intern, salary_junior, certs, growth,
@@ -730,7 +888,7 @@ export function deleteJob(id: string) {
 }
 
 export function getSkillById(id: string) {
-  const r = db().prepare("SELECT * FROM skills WHERE id = ?").get(id) as any;
+  const r = db().prepare("SELECT * FROM skills WHERE id = ?").get<SkillDbRow>(id);
   if (!r) return null;
   return {
     id: r.id,
@@ -756,7 +914,7 @@ export function upsertSkill(skill: SkillInput) {
     .prepare(
       "SELECT marketFrequency, source_date, verified_at, sample_size, confidence, action FROM skills WHERE id = ?"
     )
-    .get(skill.id) as any;
+    .get<Pick<SkillDbRow, "marketFrequency" | "source_date" | "verified_at" | "sample_size" | "confidence" | "action">>(skill.id);
   d.prepare(
     `INSERT OR REPLACE INTO skills
        (id, name, category, aliases, estHours, resources, marketFrequency,
@@ -781,7 +939,7 @@ export function upsertSkill(skill: SkillInput) {
 }
 
 export function listJobsReferencingSkill(id: string): { id: string; title: string; role: "core" | "plus" }[] {
-  const rows = db().prepare("SELECT id, title, core, plus FROM jobs").all() as any[];
+  const rows = db().prepare("SELECT id, title, core, plus FROM jobs").all<JobReferenceDbRow>();
   const refs: { id: string; title: string; role: "core" | "plus" }[] = [];
   for (const row of rows) {
     const core = JSON.parse(row.core || "[]") as { s: string; w: number }[];
@@ -817,7 +975,7 @@ export function listJds(ownerId: string): JdRow[] {
   return (
     d
       .prepare("SELECT id, title, raw, skills, created_at FROM user_jds WHERE owner_id = ? ORDER BY created_at DESC")
-      .all(ownerId) as any[]
+      .all<JdDbRow>(ownerId)
   ).map((r) => ({
     id: r.id,
     title: r.title ?? "",
@@ -903,9 +1061,13 @@ export function insertRawJdObservation(input: RawJdObservationInput): boolean {
   return Number(result.changes) > 0;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 /** 校验岗位提交：id 合法、方向存在、core/plus 引用的技能存在、权重∈{1,2,3} */
-export function validateJobInput(body: any): { ok: true; job: JobInput } | { ok: false; error: string } {
-  if (!body || typeof body !== "object") return { ok: false, error: "请求体必须是对象" };
+export function validateJobInput(body: unknown): { ok: true; job: JobInput } | { ok: false; error: string } {
+  if (!isRecord(body)) return { ok: false, error: "请求体必须是对象" };
   const id = String(body.id ?? "").trim();
   const title = String(body.title ?? "").trim();
   const track = String(body.track ?? "").trim();
@@ -915,25 +1077,28 @@ export function validateJobInput(body: any): { ok: true; job: JobInput } | { ok:
   const trackIds = new Set(allTrackIds());
   if (!trackIds.has(track)) return { ok: false, error: `方向不存在: ${track}` };
   const skillIds = new Set(allSkillIds());
-  const core = Array.isArray(body.core) ? body.core : [];
-  for (const c of core) {
-    const s = String(c?.s ?? "").trim();
-    const w = Number(c?.w);
+  const core: NonNullable<JobInput["core"]> = [];
+  for (const value of Array.isArray(body.core) ? body.core : []) {
+    const item = isRecord(value) ? value : {};
+    const s = String(item.s ?? "").trim();
+    const w = Number(item.w);
     if (!s) return { ok: false, error: "核心技能存在空 id" };
     if (!skillIds.has(s)) return { ok: false, error: `核心技能不存在: ${s}` };
     if (![1, 2, 3].includes(w)) return { ok: false, error: `核心技能权重必须为 1/2/3，收到: ${w}` };
+    core.push({ s, w });
   }
   const plus = Array.isArray(body.plus) ? body.plus.map(String) : [];
   for (const p of plus) if (!skillIds.has(p)) return { ok: false, error: `加分技能不存在: ${p}` };
+  const salary = isRecord(body.salary) ? body.salary : {};
   const job: JobInput = {
     id,
     title,
     track,
     summary: String(body.summary ?? ""),
-    core: core.map((c: any) => ({ s: String(c.s).trim(), w: Number(c.w) })),
+    core,
     plus,
     threshold: String(body.threshold ?? ""),
-    salary: { intern: String(body.salary?.intern ?? ""), junior: String(body.salary?.junior ?? "") },
+    salary: { intern: String(salary.intern ?? ""), junior: String(salary.junior ?? "") },
     certs: Array.isArray(body.certs) ? body.certs.map(String) : [],
     growth: String(body.growth ?? ""),
   };
@@ -941,8 +1106,8 @@ export function validateJobInput(body: any): { ok: true; job: JobInput } | { ok:
 }
 
 /** 校验技能提交：id/name 非空、estHours 为非负数字、aliases/resources 为数组 */
-export function validateSkillInput(body: any): { ok: true; skill: SkillInput } | { ok: false; error: string } {
-  if (!body || typeof body !== "object") return { ok: false, error: "请求体必须是对象" };
+export function validateSkillInput(body: unknown): { ok: true; skill: SkillInput } | { ok: false; error: string } {
+  if (!isRecord(body)) return { ok: false, error: "请求体必须是对象" };
   const id = String(body.id ?? "").trim();
   const name = String(body.name ?? "").trim();
   if (!id) return { ok: false, error: "技能 id 不能为空" };
@@ -956,7 +1121,10 @@ export function validateSkillInput(body: any): { ok: true; skill: SkillInput } |
   if (!Number.isFinite(estHours) || estHours <= 0) return { ok: false, error: "estHours 必须为大于 0 的数字" };
   const aliases = Array.isArray(body.aliases) ? body.aliases.map(String) : [];
   const resources = Array.isArray(body.resources)
-    ? body.resources.map((r: any) => ({ title: String(r?.title ?? ""), platform: String(r?.platform ?? "") }))
+    ? body.resources.map((value) => {
+        const resource = isRecord(value) ? value : {};
+        return { title: String(resource.title ?? ""), platform: String(resource.platform ?? "") };
+      })
     : [];
   const skill: SkillInput = {
     id,

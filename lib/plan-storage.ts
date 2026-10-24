@@ -28,24 +28,22 @@ export function initializeGuestCache(cacheScope: string, mayMigrateLegacyCache: 
 
 export async function loadProfileFromServer(cacheScope: string): Promise<Persisted | null> {
   const storageKey = scopedStorageKey(STORAGE_KEY, cacheScope);
-  // Only this guest's browser fallback may take precedence over its server copy.
-  try {
-    const raw = localStorage.getItem(storageKey);
-    const cached = raw ? JSON.parse(raw) as Persisted : null;
-    if (cached?.profile) return cached;
-  } catch { /* The server is still available when browser storage is disabled. */ }
   try {
     const r = await fetch("/api/profile", { signal: AbortSignal.timeout(5000), cache: "no-store" });
     if (!r.ok) throw new Error("bad");
     const row = (await r.json()) as ProfileRowFront;
-    if (!row) return null;
-    return {
+    if (!row) throw new Error("no server profile");
+    const persisted: Persisted = {
       step: row.step,
       started: row.started,
       profile: row.profile,
       selectedJobId: row.selectedJobId,
       doneSkills: row.doneSkills,
+      workflow: row.workflow ?? null,
     };
+    // The server copy is authoritative; refresh the local fallback after reading it.
+    try { localStorage.setItem(storageKey, JSON.stringify(persisted)); } catch { /* The server copy remains usable. */ }
+    return persisted;
   } catch {
     try {
       const raw = localStorage.getItem(storageKey);

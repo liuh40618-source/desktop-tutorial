@@ -69,7 +69,7 @@ export function CareerChoices({ profile, matches, onSelect, onBrowse, onBack }: 
         <div className="detail-eyebrow">这条路，和你的联系</div><h2>{match.title}</h2><p className="job-summary">{match.summary}</p>
         <EvidenceStrip match={match} />
         <div className="decision-facts"><h3>已有的起点</h3><p>{match.covered.map((s) => s.name).join("、") || "暂无已确认能力"}</p><h3>先面对的缺口</h3><p>{match.missing.length ? match.missing.slice(0, 3).map((s) => s.name).join("、") : match.weakEvidence.length ? `${match.weakEvidence.slice(0, 3).map((s) => s.name).join("、")}的作品材料` : "模板要求已有自评项目支撑，下一步对照真实 JD。"}</p></div>
-        <details className="reason-disclosure"><summary>选择依据与边界</summary><p>{focused.reason}；沿用当前可解释匹配排序，不代表兴趣测评。</p><p>技能覆盖 {match.coverage}% · 项目证据覆盖 {match.evidenceCoverage}%（自评）。分数 {match.score} = 技能覆盖得分 {match.scoreBreakdown.coverage.toFixed(1)} + 加分项 {match.scoreBreakdown.bonus.toFixed(1)} + 方向 {match.scoreBreakdown.direction.toFixed(1)}，合计四舍五入。</p><p>每格代表一项必备技能，不代表权重或录用概率。来源：本地岗位模板。</p></details>
+        <details className="reason-disclosure"><summary>选择依据与边界</summary><p>{focused.reason}；按技能向量余弦相似度排序，不代表兴趣测评或录用概率。</p><p>余弦相似度 {(match.cosineSimilarity * 100).toFixed(1)}%；核心命中 {match.signalDetection.hits} 项，漏报 {match.signalDetection.misses} 项，非核心误报 {match.signalDetection.falseAlarms ?? "不适用"} 项；d′ {match.signalDetection.dPrime?.toFixed(2) ?? "不适用"}。</p><p>信号检测标签暂来自本地岗位模板核心/非核心技能，不是录用结果。O*NET 31.0 使用 CC BY 4.0；中文岗位交叉映射需逐项核验。</p></details>
         <button className="btn btn-primary choose-target" onClick={() => onSelect(match.jobId)}><Check size={17} />就从这个方向试起 <ArrowRight size={17} /></button>
       </article>
     </div>

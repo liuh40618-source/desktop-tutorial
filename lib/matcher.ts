@@ -33,11 +33,14 @@ export interface JobMatch {
   trackName: string;
   summary: string;
   /**
-   * ⚠️ 仅供兼容：旧的合成总分（覆盖率×75% + 加分项×15% + 方向契合×10%）。
-   * 设计说明 1.5 / 3.6 要求「不把一切压成一个假精确的总分」，UI **不得**把它当主指标展示；
-   * 请改用独立分项 `coverage` / `plusRate` / `trackFit`，覆盖率再经 `coverageLevel()` 转成等级。
+   * Legacy compatibility field. Kept for stored integrations; ranking uses `cosineSimilarity`.
+   * It is not shown as the primary metric in the UI.
    */
   score: number;
+  /** Cosine similarity between the user's binary skill vector and the occupation requirement vector (0–1). */
+  cosineSimilarity: number;
+  /** Signal detection summary over core vs non-core skills in this knowledge base; not a hiring probability. */
+  signalDetection: { hitRate: number | null; falseAlarmRate: number | null; dPrime: number | null; criterion: number | null; hits: number; misses: number; falseAlarms: number | null; correctRejections: number | null };
   /** 主指标：必备技能加权覆盖率（0–100）。展示时应经 `coverageLevel()` 转成「高/中高/中/低」，不要直接露百分比 */
   coverage: number;
   /** 独立分项：加分项命中率（0–1），与覆盖率分开展示，不并入覆盖率 */
@@ -51,7 +54,7 @@ export interface JobMatch {
   evidenceCoverage: number;
   supported: SkillRef[];
   weakEvidence: SkillRef[];
-  /** ⚠️ 仅供兼容：合成总分的拆项，UI 不得作为主指标展示（见 `score` 注释） */
+  /** Legacy score components retained for compatibility; not used for primary ranking. */
   scoreBreakdown: { coverage: number; bonus: number; direction: number };
   gapHours: number;
   etaWeeks: number;
@@ -124,6 +127,8 @@ export let TRACK_NAME: Record<string, string> = {};
 let ACTION_TEMPLATES: Record<string, { deliverableType?: string; deliverable?: string; acceptance?: string }> = {};
 /** 交付物类型 → 必含要素（data/deliverable-types.json.types），缺省为空 */
 let DELIVERABLE_TYPES: Record<string, { label?: string; requiredElements?: string[] }> = {};
+/** O*NET 31.0 element IDs linked to local skills by an explicit crosswalk. */
+let ONET_SKILL_MAPPINGS: Record<string, string[]> = {};
 
 /**
  * 数据源注入：前端从 /api/knowledge 取数后调用，把知识库装进算法层。
@@ -131,15 +136,16 @@ let DELIVERABLE_TYPES: Record<string, { label?: string; requiredElements?: strin
  * 新增字段全部可选、缺省安全 —— 最小 KB（tests/matcher.test.mjs）必须继续可用。
  */
 export function initKB(data: {
-  skills: any[];
-  jobs: any[];
+  skills: unknown[];
+  jobs: unknown[];
   tracks: { id: string; name: string }[];
   meta: { version: string; note: string; salaryNote: string };
-  exclusions?: { contentOptions: any[]; contextOptions: any[] };
-  starterSkills?: { items: any[] };
+  exclusions?: { contentOptions: unknown[]; contextOptions: unknown[] };
+  starterSkills?: { items: unknown[] };
   deliverableTypes?: { types: Record<string, { label: string; requiredElements: string[] }> };
   actionTemplates?: { byCategory: Record<string, { deliverableType: string; deliverable: string; acceptance: string }> };
   knowledgeMeta?: { version: string; publishedAt: string; notes?: string };
+  onet?: { skillMappings: Record<string, string[]> };
 }) {
   RAW_SKILLS = data.skills as RawSkill[];
   RAW_JOBS = data.jobs as RawJob[];
@@ -148,6 +154,7 @@ export function initKB(data: {
   TRACK_NAME = Object.fromEntries(RAW_TRACKS.map((t) => [t.id, t.name]));
   ACTION_TEMPLATES = data.actionTemplates?.byCategory ?? {};
   DELIVERABLE_TYPES = data.deliverableTypes?.types ?? {};
+  ONET_SKILL_MAPPINGS = data.onet?.skillMappings ?? {};
   DATA_META = data.meta;
 }
 
@@ -242,7 +249,7 @@ export function detectSkillsDetailed(text: string, categories?: string[]): Skill
   return hits;
 }
 
-/** 匹配单个岗位：覆盖率为主，加分项与方向契合为辅 */
+/** 匹配单个岗位：O*NET-aligned cosine similarity + template-label signal detection. */
 export function matchJob(profile: ProfileInput, jobId: string): JobMatch {
   const job = RAW_JOBS.find((j) => j.id === jobId);
   if (!job) throw new Error("UNKNOWN_JOB");
@@ -270,7 +277,48 @@ export function matchJob(profile: ProfileInput, jobId: string): JobMatch {
   const supported = covered.filter((s) => (profile.evidenceLevels?.[s.id] ?? 1) >= 3);
   const weakEvidence = covered.filter((s) => !supported.includes(s));
   const evidenceCoverage = totalW ? Math.round(supported.reduce((sum, s) => sum + s.weight, 0) / totalW * 100) : 0;
-  // ⚠️ scoreBreakdown / score 仅供兼容（现有测试与 compilePlan 依赖），UI 不得作为主指标展示。
+  // Cosine similarity over the full local skill vocabulary. Occupation core skills use
+  // their curated importance weights; the profile is binary because self-report is not
+  // a calibrated proficiency assessment.
+  const features = (skillId: string) => ONET_SKILL_MAPPINGS[skillId]?.length ? ONET_SKILL_MAPPINGS[skillId]! : [`local:${skillId}`];
+  const profileVector = new Map<string, number>();
+  for (const skill of RAW_SKILLS) if (known.has(skill.id)) for (const feature of features(skill.id)) profileVector.set(feature, (profileVector.get(feature) ?? 0) + 1);
+  const jobVector = new Map<string, number>();
+  for (const item of job.core) for (const feature of features(item.s)) jobVector.set(feature, (jobVector.get(feature) ?? 0) + Math.max(0, item.w));
+  const dot = [...jobVector].reduce((sum, [feature, value]) => sum + value * (profileVector.get(feature) ?? 0), 0);
+  const profileNorm = Math.sqrt([...profileVector.values()].reduce((sum, value) => sum + value * value, 0));
+  const jobNorm = Math.sqrt([...jobVector.values()].reduce((sum, value) => sum + value * value, 0));
+  const cosineSimilarity = profileNorm && jobNorm ? dot / (profileNorm * jobNorm) : 0;
+
+  // In this first pass, the core/non-core labels are the knowledge base's own job
+  // template labels, not observed hiring outcomes. Apply the log-linear correction so
+  // zero rates remain finite before converting hit/false-alarm rates to d'.
+  const coreIds = new Set(job.core.map((item) => item.s));
+  const hits = job.core.filter((item) => known.has(item.s)).length;
+  const misses = job.core.length - hits;
+  const negativeCount = RAW_SKILLS.filter((skill) => !coreIds.has(skill.id)).length;
+  const falseAlarms = RAW_SKILLS.filter((skill) => !coreIds.has(skill.id) && known.has(skill.id)).length;
+  const correctRejections = negativeCount - falseAlarms;
+  const hitRate = (hits + 0.5) / (hits + misses + 1);
+  const falseAlarmRate = (falseAlarms + 0.5) / (falseAlarms + correctRejections + 1);
+  const normalQuantile = (p: number) => {
+    // Peter J. Acklam's rational approximation to the inverse standard normal CDF.
+    const a = [-39.6968302866538, 220.946098424521, -275.928510446969, 138.357751867269, -30.6647980661472, 2.50662827745924];
+    const b = [-54.4760987982241, 161.585836858041, -155.698979859887, 66.8013118877197, -13.2806815528857];
+    const c = [-0.00778489400243029, -0.322396458041136, -2.40075827716184, -2.54973253934373, 4.37466414146497, 2.93816398269878];
+    const d = [0.00778469570904146, 0.32246712907004, 2.445134137143, 3.75440866190742];
+    const q = p - 0.5;
+    if (Math.abs(q) <= 0.425) { const r = 0.180625 - q * q; return q * (((((a[0]! * r + a[1]!) * r + a[2]!) * r + a[3]!) * r + a[4]!) * r + a[5]!) / (((((b[0]! * r + b[1]!) * r + b[2]!) * r + b[3]!) * r + b[4]!) * r + 1); }
+    const r = q < 0 ? p : 1 - p;
+    const t = Math.sqrt(-Math.log(r));
+    const value = (((((c[0]! * t + c[1]!) * t + c[2]!) * t + c[3]!) * t + c[4]!) * t + c[5]!) / ((((d[0]! * t + d[1]!) * t + d[2]!) * t + d[3]!) * t + 1);
+    return q < 0 ? -value : value;
+  };
+  const dPrime = normalQuantile(hitRate) - normalQuantile(falseAlarmRate);
+  const criterion = -0.5 * (normalQuantile(hitRate) + normalQuantile(falseAlarmRate));
+  const signalDetection = { hitRate, falseAlarmRate, dPrime, criterion, hits, misses, falseAlarms, correctRejections };
+  // Compatibility fields retain the old arithmetic for stored plans and legacy API
+  // consumers. Ranking and UI use cosineSimilarity as the primary metric below.
   const scoreBreakdown = { coverage: coverage * 0.75, bonus: plusRate * 15, direction: trackFit * 10 };
   const score = Math.round(scoreBreakdown.coverage + scoreBreakdown.bonus + scoreBreakdown.direction);
 
@@ -278,9 +326,8 @@ export function matchJob(profile: ProfileInput, jobId: string): JobMatch {
   const etaWeeks = Math.round((gapHours / hoursPerWeek) * 10) / 10;
 
   const reasons: string[] = [];
-  reasons.push(
-    `必备技能覆盖 ${covered.length}/${job.core.length} 项（按权重计 ${coverage}%）`
-  );
+  reasons.push(`余弦相似度 ${(cosineSimilarity * 100).toFixed(1)}%（画像技能与岗位要求向量）`);
+  reasons.push(`信号检测 d′ ${dPrime.toFixed(2)}（命中率 ${(hitRate * 100).toFixed(1)}%，误报率 ${(falseAlarmRate * 100).toFixed(1)}%；标签来自岗位模板核心/非核心技能）`);
   if (covered.length) {
     const hard = covered.filter((s) => s.weight === 3).map((s) => s.name);
     if (hard.length) reasons.push(`已具备硬门槛技能：${hard.join("、")}`);
@@ -295,7 +342,7 @@ export function matchJob(profile: ProfileInput, jobId: string): JobMatch {
   }
   if (plusCovered.length) reasons.push(`加分项已具备：${plusCovered.join("、")}`);
   reasons.push(`项目证据覆盖 ${evidenceCoverage}%（证据等级由用户自评，未经第三方验证）`);
-  if (tracks.size && !tracks.has(job.track)) reasons.push(`该岗位属于你未勾选的方向，匹配分已打折`);
+  if (tracks.size && !tracks.has(job.track)) reasons.push(`该岗位属于你未勾选的方向；方向偏好单独记录，不改变技能相似度`);
 
   return {
     jobId: job.id,
@@ -304,6 +351,8 @@ export function matchJob(profile: ProfileInput, jobId: string): JobMatch {
     trackName: TRACK_NAME[job.track] || job.track,
     summary: job.summary,
     score,
+    cosineSimilarity,
+    signalDetection,
     coverage,
     plusRate,
     trackFit,
@@ -332,7 +381,7 @@ export function selectExplorations(matches: JobMatch[], targetTracks: string[] =
     if (match) choices.push({ match, label, reason });
   };
   const best = eligible[0];
-  add(best, "沿用已有能力", "有技能交集的模板中，当前综合匹配排序最靠前");
+  add(best, "沿用已有能力", "有技能交集的模板中，技能向量余弦相似度最高");
   const preferred = eligible.find((m) => targetTracks.includes(m.track) && m.track !== best?.track);
   add(preferred, "回应你的意向", "在你勾选的其他方向中，当前匹配排序最靠前");
   const usedTracks = new Set(choices.map((c) => c.match.track));
@@ -342,12 +391,12 @@ export function selectExplorations(matches: JobMatch[], targetTracks: string[] =
 
 /** 全部岗位按匹配分排序 */
 export function rankJobs(profile: ProfileInput, limit = 8): JobMatch[] {
-  // 排序键显式化：技能覆盖降序 → 方向契合 → 加分项 → 缺口工时。
-  // 不再由不展示的合成总分（score）驱动排序，否则「每分可解释」落空。
+  // Primary order is weighted cosine similarity, followed by d' from the template labels.
   return RAW_JOBS.map((j) => matchJob(profile, j.id))
     .sort(
       (a, b) =>
-        b.coverage - a.coverage ||
+        b.cosineSimilarity - a.cosineSimilarity ||
+        (b.signalDetection.dPrime ?? -Infinity) - (a.signalDetection.dPrime ?? -Infinity) ||
         b.trackFit - a.trackFit ||
         b.plusRate - a.plusRate ||
         a.gapHours - b.gapHours
@@ -499,6 +548,17 @@ export function matchSavedJd(profile: ProfileInput, jd: { id: string; title: str
     trackName: "真实 JD",
     summary: `根据你确认保存的 JD，规则识别到 ${result.covered.length + result.missing.length} 项知识库技能。识别结果请对照原文复核。`,
     score: result.coverage,
+    cosineSimilarity: result.coverage / 100,
+    signalDetection: {
+      hitRate: null,
+      falseAlarmRate: null,
+      dPrime: null,
+      criterion: null,
+      hits: result.covered.length,
+      misses: result.missing.length,
+      falseAlarms: null,
+      correctRejections: null,
+    },
     coverage: result.coverage,
     // 真实 JD 无方向信息、无加分项：trackFit 记中性 1，plusRate 记 0（不虚构）。
     plusRate: 0,
